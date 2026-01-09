@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+  
+  <title>Spring AOP 注解使用案例与场景设计 | MamimiJa Nai</title>
+  <link rel="canonical" href="https://leahana.github.io/2026/01/08/2026-01-09-spring-aop%E6%B3%A8%E8%A7%A3%E4%BD%BF%E7%94%A8%E6%A1%88%E4%BE%8B%E4%B8%8E%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1/">
+  <meta name="author" content="Mamimi" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="AOP, Java, Spring, 后端开发" />
+  
+  <meta name="description" content="Spring AOP 注解使用案例与场景设计目录 五大核心注解对比 注解使用案例 实际场景设计 切点表达式汇总 最佳实践建议  一、五大核心注解对比   注解 执行时机 使用场景    @Before 方法执行前 参数校验、权限检查、日志记录   @AfterReturning 方法正常返回后 处理返回值、缓存更新   @AfterThrowing 方法抛出异常后 异常日志、告警通知   @Aft">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spring AOP 注解使用案例与场景设计">
+<meta property="og:url" content="https://leahana.github.io/2026/01/08/2026-01-09-spring-aop%E6%B3%A8%E8%A7%A3%E4%BD%BF%E7%94%A8%E6%A1%88%E4%BE%8B%E4%B8%8E%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1/index.html">
+<meta property="og:site_name" content="MamimiJa Nai">
+<meta property="og:description" content="Spring AOP 注解使用案例与场景设计目录 五大核心注解对比 注解使用案例 实际场景设计 切点表达式汇总 最佳实践建议  一、五大核心注解对比   注解 执行时机 使用场景    @Before 方法执行前 参数校验、权限检查、日志记录   @AfterReturning 方法正常返回后 处理返回值、缓存更新   @AfterThrowing 方法抛出异常后 异常日志、告警通知   @Aft">
+<meta property="og:locale">
+<meta property="article:published_time" content="2026-01-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-09T16:52:05.944Z">
+<meta property="article:author" content="Mamimi">
+<meta property="article:tag" content="AOP">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="Spring">
+<meta property="article:tag" content="后端开发">
+<meta name="twitter:card" content="summary">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"Spring AOP 注解使用案例与场景设计","description":"Spring AOP 注解使用案例与场景设计目录\n","image":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG","author":{"@type":"Person","name":"Mamimi"},"publisher":{"@type":"Organization","name":"MamimiJa Nai","logo":{"@type":"ImageObject","url":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG"}},"datePublished":"2026-01-08T16:00:00.000Z","dateModified":"2026-01-09T16:52:05.944Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://leahana.github.io/2026/01/08/2026-01-09-spring-aop%E6%B3%A8%E8%A7%A3%E4%BD%BF%E7%94%A8%E6%A1%88%E4%BE%8B%E4%B8%8E%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/yannyi.github.io/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/yannyi.github.io/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/yannyi.github.io/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/yannyi.github.io/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/yannyi.github.io/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/yannyi.github.io/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+    <style>body.custom-background{background-image:url('/yannyi.github.io/images/theme/background.jpg')!important;background-attachment:fixed!important;background-size:cover!important;background-position:center!important;}#kratos-widget-area .widget-kratos-about .photo-background{background-image:url('/yannyi.github.io/images/theme/avatar-bg.jpg')!important;background-size:cover!important;background-position:35% 35%!important;background-repeat:no-repeat!important;}</style><link rel="stylesheet" href="/yannyi.github.io/css/custom.css">
+  
+<!-- hexo injector head_end start --><script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@latest/dist/mermaid.esm.min.mjs">
+    mermaid.initialize(
+      startOnLoad: true,
+    );
+    </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/">
+                                        
+                                            
+                                                <i class="fa fa-fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/archives">
+                                        
+                                            
+                                                <i class="fa fa-fa-archive"></i>
+                                            
+                                            归档
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/categories">
+                                        
+                                            
+                                                <i class="fa fa-fa-folder-open"></i>
+                                            
+                                            分类
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/tags">
+                                        
+                                            
+                                                <i class="fa fa-fa-tags"></i>
+                                            
+                                            标签
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/search">
+                                        
+                                            
+                                                <i class="fa fa-fa-search"></i>
+                                            
+                                            搜索
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a>
+                                        
+                                            
+                                                <i class="fa fa-fa-th-list"></i>
+                                            
+                                            更多
+                                        </a>
+                                        
+                                            <ul class="sub-menu">
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/about">
+                                                            
+                                                                <i class="fa fa-fa-user"></i>
+                                                            
+                                                            关于我
+                                                        </a>
+                                                    </li>
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/links">
+                                                            
+                                                                <i class="fa fa-fa-link"></i>
+                                                            
+                                                            友情链接
+                                                        </a>
+                                                    </li>
+                                                
+                                            </ul>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/yannyi.github.io/">MamimiJa Nai</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/yannyi.github.io/">
+                        <h2>MamimiJa Nai</h2> <br />
+                        <span></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://leahana.github.io/2026/01/08/2026-01-09-spring-aop%E6%B3%A8%E8%A7%A3%E4%BD%BF%E7%94%A8%E6%A1%88%E4%BE%8B%E4%B8%8E%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">Spring AOP 注解使用案例与场景设计</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2026-01-08T16:00:00.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2026-01-09</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">Mamimi</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~12.73K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+            <hr />
+            <div itemprop="articleBody"><h2><span id="spring-aop-注解使用案例与场景设计">Spring AOP 注解使用案例与场景设计</span></h2><h2><span id="目录">目录</span></h2><ol>
+<li><a href="#%E4%B8%80%E4%BA%94%E5%A4%A7%E6%A0%B8%E5%BF%83%E6%B3%A8%E8%A7%A3%E5%AF%B9%E6%AF%94">五大核心注解对比</a></li>
+<li><a href="#%E4%BA%8C%E6%B3%A8%E8%A7%A3%E4%BD%BF%E7%94%A8%E6%A1%88%E4%BE%8B">注解使用案例</a></li>
+<li><a href="#%E4%B8%89%E5%AE%9E%E9%99%85%E5%9C%BA%E6%99%AF%E8%AE%BE%E8%AE%A1">实际场景设计</a></li>
+<li><a href="#%E5%9B%9B%E5%88%87%E7%82%B9%E8%A1%A8%E8%BE%BE%E5%BC%8F%E6%B1%87%E6%80%BB">切点表达式汇总</a></li>
+<li><a href="#%E4%BA%94%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E5%BB%BA%E8%AE%AE">最佳实践建议</a></li>
+</ol>
+<h2><span id="一-五大核心注解对比">一、五大核心注解对比</span></h2><table>
+<thead>
+<tr>
+<th>注解</th>
+<th>执行时机</th>
+<th>使用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>@Before</td>
+<td>方法执行前</td>
+<td>参数校验、权限检查、日志记录</td>
+</tr>
+<tr>
+<td>@AfterReturning</td>
+<td>方法正常返回后</td>
+<td>处理返回值、缓存更新</td>
+</tr>
+<tr>
+<td>@AfterThrowing</td>
+<td>方法抛出异常后</td>
+<td>异常日志、告警通知</td>
+</tr>
+<tr>
+<td>@After</td>
+<td>方法结束后（finally）</td>
+<td>资源释放、清理工作</td>
+</tr>
+<tr>
+<td>@Around</td>
+<td>环绕方法</td>
+<td>性能监控、事务控制、缓存</td>
+</tr>
+</tbody></table>
+<h2><span id="二-注解使用案例">二、注解使用案例</span></h2><h3><span id="21-before-参数校验">2.1 @Before - 参数校验</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ValidateAspect</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Before(&quot;@annotation(com.example.Validate)&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">validateParams</span><span class="params">(JoinPoint joinPoint)</span> &#123;</span><br><span class="line">        Object[] args = joinPoint.getArgs();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (Object arg : args) &#123;</span><br><span class="line">            <span class="keyword">if</span> (arg <span class="keyword">instanceof</span> UserDTO) &#123;</span><br><span class="line">                <span class="type">UserDTO</span> <span class="variable">user</span> <span class="operator">=</span> (UserDTO) arg;</span><br><span class="line">                <span class="keyword">if</span> (StringUtils.isBlank(user.getUsername())) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;用户名不能为空&quot;</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="meta">@Validate</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">createUser</span><span class="params">(UserDTO user)</span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>常用场景</strong>：接口入参校验、权限验证、限流检查</p>
+<hr>
+<h3><span id="22-afterreturning-缓存更新">2.2 @AfterReturning - 缓存更新</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CacheAspect</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RedisTemplate redisTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@AfterReturning(</span></span><br><span class="line"><span class="meta">        pointcut = &quot;@annotation(com.example.CacheUpdate)&quot;,</span></span><br><span class="line"><span class="meta">        returning = &quot;result&quot;</span></span><br><span class="line"><span class="meta">    )</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">updateCache</span><span class="params">(JoinPoint joinPoint, Object result)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> joinPoint.getSignature().getName();</span><br><span class="line">        redisTemplate.opsForValue().set(key, result, <span class="number">1</span>, TimeUnit.HOURS);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;缓存已更新: &quot;</span> + key);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="meta">@CacheUpdate</span></span><br><span class="line"><span class="keyword">public</span> UserInfo <span class="title function_">getUserById</span><span class="params">(Long id)</span> &#123; ... &#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>常用场景</strong>：数据库更新后刷新缓存、发送通知消息</p>
+<hr>
+<h3><span id="23-afterthrowing-异常告警">2.3 @AfterThrowing - 异常告警</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ExceptionAspect</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@AfterThrowing(</span></span><br><span class="line"><span class="meta">        pointcut = &quot;execution(* com.example.service.*.*(..))&quot;,</span></span><br><span class="line"><span class="meta">        throwing = &quot;ex&quot;</span></span><br><span class="line"><span class="meta">    )</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">handleException</span><span class="params">(JoinPoint joinPoint, Exception ex)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">methodName</span> <span class="operator">=</span> joinPoint.getSignature().getName();</span><br><span class="line">        Object[] args = joinPoint.getArgs();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 记录异常日志</span></span><br><span class="line">        log.error(<span class="string">&quot;方法 &#123;&#125; 执行异常，参数: &#123;&#125;&quot;</span>, methodName, args, ex);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 发送告警通知</span></span><br><span class="line">        alertService.sendAlert(methodName, ex.getMessage());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 保存异常信息到数据库</span></span><br><span class="line">        exceptionLogService.save(methodName, args, ex);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>常用场景</strong>：统一异常处理、告警通知、故障记录</p>
+<hr>
+<h3><span id="24-after-资源清理">2.4 @After - 资源清理</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ResourceAspect</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadLocal&lt;Connection&gt; CONNECTION_HOLDER = <span class="keyword">new</span> <span class="title class_">ThreadLocal</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Before(&quot;@annotation(com.example.RequiresConnection)&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setConnection</span><span class="params">(JoinPoint joinPoint)</span> &#123;</span><br><span class="line">        CONNECTION_HOLDER.set(dataSource.getConnection());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@After(&quot;@annotation(com.example.RequiresConnection)&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">closeConnection</span><span class="params">(JoinPoint joinPoint)</span> &#123;</span><br><span class="line">        <span class="type">Connection</span> <span class="variable">conn</span> <span class="operator">=</span> CONNECTION_HOLDER.get();</span><br><span class="line">        <span class="keyword">if</span> (conn != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                conn.close();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (SQLException e) &#123;</span><br><span class="line">                log.error(<span class="string">&quot;关闭连接失败&quot;</span>, e);</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                CONNECTION_HOLDER.remove();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>常用场景</strong>：资源释放、清理临时文件、重置上下文</p>
+<hr>
+<h3><span id="25-around-性能监控最常用">2.5 @Around - 性能监控（最常用）</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PerformanceAspect</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Around(&quot;execution(* com.example.service.*.*(..))&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">monitorPerformance</span><span class="params">(ProceedingJoinPoint joinPoint)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        <span class="type">long</span> <span class="variable">start</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line">        <span class="type">String</span> <span class="variable">methodName</span> <span class="operator">=</span> joinPoint.getSignature().toShortString();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 执行目标方法</span></span><br><span class="line">            <span class="type">Object</span> <span class="variable">result</span> <span class="operator">=</span> joinPoint.proceed();</span><br><span class="line"></span><br><span class="line">            <span class="type">long</span> <span class="variable">duration</span> <span class="operator">=</span> System.currentTimeMillis() - start;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 记录正常执行时间</span></span><br><span class="line">            <span class="keyword">if</span> (duration &gt; <span class="number">1000</span>) &#123;</span><br><span class="line">                log.warn(<span class="string">&quot;慢方法: &#123;&#125;, 耗时: &#123;&#125;ms&quot;</span>, methodName, duration);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                log.info(<span class="string">&quot;方法: &#123;&#125;, 耗时: &#123;&#125;ms&quot;</span>, methodName, duration);</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="type">long</span> <span class="variable">duration</span> <span class="operator">=</span> System.currentTimeMillis() - start;</span><br><span class="line">            log.error(<span class="string">&quot;方法执行异常: &#123;&#125;, 耗时: &#123;&#125;ms&quot;</span>, methodName, duration, e);</span><br><span class="line">            <span class="keyword">throw</span> e;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>常用场景</strong>：性能监控、事务控制、熔断降级</p>
+<h2><span id="三-实际场景设计">三、实际场景设计</span></h2><h3><span id="31-场景1操作日志记录企业级">3.1 场景1：操作日志记录（企业级）</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OperationLogAspect</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> OperationLogService operationLogService;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Around(&quot;@annotation(operationLog)&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">recordLog</span><span class="params">(ProceedingJoinPoint joinPoint, OperationLog operationLog)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        <span class="comment">// 获取当前用户</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">currentUser</span> <span class="operator">=</span> SecurityContextHolder.getCurrentUser();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取方法信息</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">module</span> <span class="operator">=</span> operationLog.<span class="keyword">module</span>();</span><br><span class="line">        <span class="type">String</span> <span class="variable">action</span> <span class="operator">=</span> operationLog.action();</span><br><span class="line">        <span class="type">String</span> <span class="variable">description</span> <span class="operator">=</span> operationLog.description();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 获取入参</span></span><br><span class="line">        Object[] args = joinPoint.getArgs();</span><br><span class="line"></span><br><span class="line">        <span class="type">long</span> <span class="variable">startTime</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">Object</span> <span class="variable">result</span> <span class="operator">=</span> joinPoint.proceed();</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 记录成功日志</span></span><br><span class="line">            operationLogService.saveLog(OperationLogEntity.builder()</span><br><span class="line">                .<span class="keyword">module</span>(<span class="keyword">module</span>)</span><br><span class="line">                .action(action)</span><br><span class="line">                .description(description)</span><br><span class="line">                .operator(currentUser)</span><br><span class="line">                .requestParams(JSON.toJSONString(args))</span><br><span class="line">                .response(JSON.toJSONString(result))</span><br><span class="line">                .status(<span class="string">&quot;SUCCESS&quot;</span>)</span><br><span class="line">                .costTime(System.currentTimeMillis() - startTime)</span><br><span class="line">                .build()</span><br><span class="line">            );</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> result;</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="comment">// 记录失败日志</span></span><br><span class="line">            operationLogService.saveLog(OperationLogEntity.builder()</span><br><span class="line">                .<span class="keyword">module</span>(<span class="keyword">module</span>)</span><br><span class="line">                .action(action)</span><br><span class="line">                .operator(currentUser)</span><br><span class="line">                .requestParams(JSON.toJSONString(args))</span><br><span class="line">                .errorMsg(e.getMessage())</span><br><span class="line">                .status(<span class="string">&quot;FAILED&quot;</span>)</span><br><span class="line">                .costTime(System.currentTimeMillis() - startTime)</span><br><span class="line">                .build()</span><br><span class="line">            );</span><br><span class="line"></span><br><span class="line">            <span class="keyword">throw</span> e;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="meta">@PostMapping(&quot;/user&quot;)</span></span><br><span class="line"><span class="meta">@OperationLog(module = &quot;用户管理&quot;, action = &quot;创建用户&quot;, description = &quot;管理员创建新用户&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">createUser</span><span class="params">(<span class="meta">@RequestBody</span> UserDTO user)</span> &#123;</span><br><span class="line">    userService.createUser(user);</span><br><span class="line">    <span class="keyword">return</span> Result.success();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3><span id="32-场景2接口幂等性控制">3.2 场景2：接口幂等性控制</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">IdempotentAspect</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RedisTemplate&lt;String, String&gt; redisTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Around(&quot;@annotation(idempotent)&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">checkIdempotent</span><span class="params">(ProceedingJoinPoint joinPoint, Idempotent idempotent)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> buildKey(joinPoint, idempotent);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 尝试设置锁</span></span><br><span class="line">        <span class="type">Boolean</span> <span class="variable">success</span> <span class="operator">=</span> redisTemplate.opsForValue()</span><br><span class="line">            .setIfAbsent(key, <span class="string">&quot;1&quot;</span>, idempotent.timeout(), TimeUnit.SECONDS);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (Boolean.FALSE.equals(success)) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IdempotentException</span>(<span class="string">&quot;请勿重复提交&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> joinPoint.proceed();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="comment">// 执行失败，删除锁允许重试</span></span><br><span class="line">            redisTemplate.delete(key);</span><br><span class="line">            <span class="keyword">throw</span> e;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String <span class="title function_">buildKey</span><span class="params">(JoinPoint joinPoint, Idempotent idempotent)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">prefix</span> <span class="operator">=</span> idempotent.prefix();</span><br><span class="line">        Object[] args = joinPoint.getArgs();</span><br><span class="line">        <span class="type">String</span> <span class="variable">argsStr</span> <span class="operator">=</span> DigestUtils.md5Hex(JSON.toJSONString(args));</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;idempotent:&quot;</span> + prefix + <span class="string">&quot;:&quot;</span> + argsStr;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="meta">@PostMapping(&quot;/order&quot;)</span></span><br><span class="line"><span class="meta">@Idempotent(prefix = &quot;createOrder&quot;, timeout = 10)</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">createOrder</span><span class="params">(<span class="meta">@RequestBody</span> OrderDTO order)</span> &#123;</span><br><span class="line">    orderService.createOrder(order);</span><br><span class="line">    <span class="keyword">return</span> Result.success();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3><span id="33-场景3接口限流">3.3 场景3：接口限流</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RateLimitAspect</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> RedisTemplate&lt;String, String&gt; redisTemplate;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Around(&quot;@annotation(rateLimit)&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">limitRate</span><span class="params">(ProceedingJoinPoint joinPoint, RateLimit rateLimit)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">key</span> <span class="operator">=</span> <span class="string">&quot;rate_limit:&quot;</span> + getClientIP();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 计数器加1</span></span><br><span class="line">        <span class="type">Long</span> <span class="variable">count</span> <span class="operator">=</span> redisTemplate.opsForValue().increment(key);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (count == <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="comment">// 设置过期时间</span></span><br><span class="line">            redisTemplate.expire(key, rateLimit.period(), TimeUnit.SECONDS);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (count &gt; rateLimit.count()) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RateLimitException</span>(<span class="string">&quot;访问过于频繁，请稍后再试&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> joinPoint.proceed();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="meta">@GetMapping(&quot;/api/data&quot;)</span></span><br><span class="line"><span class="meta">@RateLimit(count = 10, period = 60)</span>  <span class="comment">// 60秒内最多10次</span></span><br><span class="line"><span class="keyword">public</span> Result <span class="title function_">getData</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> Result.success(dataService.getData());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3><span id="34-场景4重试机制">3.4 场景4：重试机制</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Aspect</span></span><br><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RetryAspect</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Around(&quot;@annotation(retry)&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">retry</span><span class="params">(ProceedingJoinPoint joinPoint, Retry retry)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">maxAttempts</span> <span class="operator">=</span> retry.maxAttempts();</span><br><span class="line">        <span class="type">long</span> <span class="variable">delay</span> <span class="operator">=</span> retry.delay();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">attempt</span> <span class="operator">=</span> <span class="number">1</span>; attempt &lt;= maxAttempts; attempt++) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> joinPoint.proceed();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                <span class="keyword">if</span> (attempt == maxAttempts) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> e;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                log.warn(<span class="string">&quot;第&#123;&#125;次重试: &#123;&#125;&quot;</span>, attempt, e.getMessage());</span><br><span class="line">                Thread.sleep(delay);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;重试失败&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="meta">@Retry(maxAttempts = 3, delay = 1000)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">callExternalAPI</span><span class="params">()</span> &#123;</span><br><span class="line">    httpClient.call();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2><span id="四-切点表达式汇总">四、切点表达式汇总</span></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 精确匹配</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;execution(* com.example.UserService.getUserById(..))&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 匹配包下所有方法</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;execution(* com.example.service.*.*(..))&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 匹配注解</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;@annotation(com.example.Log)&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 匹配自定义注解参数</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;@annotation(cacheable) &amp;&amp; args(id)&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 5. 组合切点</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;execution(* com.example.service.*.*(..)) || @annotation(com.example.Log)&quot;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 6. 匹配特定返回类型</span></span><br><span class="line"><span class="meta">@Pointcut(&quot;execution(java.util.List com.example.*.*(..))&quot;)</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>切点表达式说明</strong></p>
+<table>
+<thead>
+<tr>
+<th>表达式</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>execution(* com.example.service.*.*(..))</code></td>
+<td>匹配 service 包下所有类的所有方法</td>
+</tr>
+<tr>
+<td><code>execution(public * com.example..*.*(..))</code></td>
+<td>匹配 public 方法</td>
+</tr>
+<tr>
+<td><code>@annotation(com.example.Log)</code></td>
+<td>匹配带 @Log 注解的方法</td>
+</tr>
+<tr>
+<td><code>@within(org.springframework.stereotype.Service)</code></td>
+<td>匹配 Service 类下的所有方法</td>
+</tr>
+<tr>
+<td><code>this(com.example.Service)</code></td>
+<td>匹配实现了 Service 接口的代理对象</td>
+</tr>
+<tr>
+<td><code>target(com.example.Service)</code></td>
+<td>匹配实现了 Service 接口的目标对象</td>
+</tr>
+</tbody></table>
+<h2><span id="五-最佳实践建议">五、最佳实践建议</span></h2><h3><span id="51-注解选择建议">5.1 注解选择建议</span></h3><table>
+<thead>
+<tr>
+<th>建议</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>优先使用 @Around</td>
+<td>功能最强大，可以控制入参、返回值、异常</td>
+</tr>
+<tr>
+<td>避免 @Around 包裹业务逻辑</td>
+<td>用于横切关注点，不要改变业务流程</td>
+</tr>
+<tr>
+<td>ThreadLocal 必须清理</td>
+<td>防止内存泄漏</td>
+</tr>
+<tr>
+<td>异常处理要谨慎</td>
+<td>不要吞掉异常，做好日志记录</td>
+</tr>
+<tr>
+<td>性能敏感代码慎用 AOP</td>
+<td>AOP 有性能开销，高频方法注意测试</td>
+</tr>
+<tr>
+<td>组合使用注解</td>
+<td>@Before + @AfterReturning 比 @Around 更清晰</td>
+</tr>
+</tbody></table>
+<h3><span id="52-性能优化">5.2 性能优化</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 优化前：每个方法都拦截</span></span><br><span class="line"><span class="meta">@Around(&quot;execution(* com.example..*.*(..))&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Object <span class="title function_">around</span><span class="params">(ProceedingJoinPoint joinPoint)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 优化后：只拦截必要的方法</span></span><br><span class="line"><span class="meta">@Around(&quot;@annotation(com.example.Monitor)&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Object <span class="title function_">around</span><span class="params">(ProceedingJoinPoint joinPoint)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3><span id="53-常见问题处理">5.3 常见问题处理</span></h3><p><strong>问题1：@Around 不执行</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 错误：private 方法不会被代理</span></span><br><span class="line"><span class="meta">@Around(&quot;execution(* com.example.service.*.*(..))&quot;)</span></span><br><span class="line"><span class="keyword">private</span> Object <span class="title function_">around</span><span class="params">(ProceedingJoinPoint joinPoint)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 正确：使用 public</span></span><br><span class="line"><span class="meta">@Around(&quot;execution(* com.example.service.*.*(..))&quot;)</span></span><br><span class="line"><span class="keyword">public</span> Object <span class="title function_">around</span><span class="params">(ProceedingJoinPoint joinPoint)</span> <span class="keyword">throws</span> Throwable &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>问题2：同类方法调用不生效</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 错误：内部调用不会触发 AOP</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">method1</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.method2();  <span class="comment">// 不会触发 AOP</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Log</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">method2</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 正确：注入自己或使用 AopContext</span></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> UserService self;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">method1</span><span class="params">()</span> &#123;</span><br><span class="line">        self.method2();  <span class="comment">// 会触发 AOP</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3><span id="54-实践检查清单">5.4 实践检查清单</span></h3><blockquote>
+<p><strong>使用 AOP 前检查</strong></p>
+<ul>
+<li><input disabled type="checkbox"> 是否需要修改方法参数？（是 → 使用 @Around）</li>
+<li><input disabled type="checkbox"> 是否需要修改返回值？（是 → 使用 @Around 或 @AfterReturning）</li>
+<li><input disabled type="checkbox"> 是否需要捕获异常？（是 → 使用 @Around 或 @AfterThrowing）</li>
+<li><input disabled type="checkbox"> 是否只是记录日志？（是 → 使用 @Before 或 @After）</li>
+<li><input disabled type="checkbox"> ThreadLocal 是否正确清理？</li>
+<li><input disabled type="checkbox"> 是否考虑了性能影响？</li>
+</ul>
+</blockquote>
+<h3><span id="55-推荐组合方案">5.5 推荐组合方案</span></h3><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐方案</th>
+<th>理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>参数校验</td>
+<td>@Before</td>
+<td>简单直接，不修改业务逻辑</td>
+</tr>
+<tr>
+<td>缓存更新</td>
+<td>@AfterReturning</td>
+<td>只在成功时更新缓存</td>
+</tr>
+<tr>
+<td>性能监控</td>
+<td>@Around</td>
+<td>可以统计完整耗时</td>
+</tr>
+<tr>
+<td>异常处理</td>
+<td>@AfterThrowing</td>
+<td>专注异常场景</td>
+</tr>
+<tr>
+<td>完整日志</td>
+<td>@Around</td>
+<td>可以记录入参和返回值</td>
+</tr>
+<tr>
+<td>幂等控制</td>
+<td>@Around</td>
+<td>需要控制是否执行</td>
+</tr>
+</tbody></table>
+<h2><span id="延伸阅读">延伸阅读</span></h2><ol>
+<li>^^<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#aop">Spring官方文档 - AOP概念</a>^^</li>
+<li>^^<a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/aop/package-summary.html">Spring AOP API文档</a>^^</li>
+<li>^^<a target="_blank" rel="noopener" href="https://www.eclipse.org/aspectj/doc/released/progguide/index.html">AspectJ编程指南</a>^^</li>
+<li>^^<a target="_blank" rel="noopener" href="https://spring.io/blog/2012/05/23/what-is-aspect-oriented-programming">Spring AOP与AspectJ区别</a>^^</li>
+</ol>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/yannyi.github.io/tags/AOP/" rel="tag">AOP</a>, <a class="tag-none-link" href="/yannyi.github.io/tags/Java/" rel="tag">Java</a>, <a class="tag-none-link" href="/yannyi.github.io/tags/Spring/" rel="tag">Spring</a>, <a class="tag-none-link" href="/yannyi.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/" rel="tag">后端开发</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2026-01-09T16:52:05.944Z" itemprop="dateModified">最后编辑：2026-01-10</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" MySQL 时间字段最佳实践" href="/yannyi.github.io/2026/01/05/2026-01-06-mysql时间字段最佳实践/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+            <div class="nav-next clearfix">
+                <a title=" 开始使用：游戏研究" href="/yannyi.github.io/2026/01/09/2024-06-01-game-research/">下一篇 <i class="fa fa-angle-right"></i></a>
+            </div>
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/yannyi.github.io/images/theme/Mamimi.JPG" alt="Mamimi" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center"></p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/yannyi.github.io/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                14
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/ai/">ai</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/games/">games</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/">java</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/">集合框架</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/">数据处理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/">mindset</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/">方法论</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/%E7%9F%A5%E8%AF%86%E7%AE%A1%E7%90%86/">知识管理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/tools/">tools</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Spring%E6%A1%86%E6%9E%B6/">Spring框架</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/SQL%E4%BC%98%E5%8C%96/">SQL优化</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a><span class="category-list-count">12</span></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/yannyi.github.io/tags/5W1H/" style="font-size: 0.6em;">5W1H</a> <a href="/yannyi.github.io/tags/AI%E6%8E%A2%E7%B4%A2/" style="font-size: 0.6em;">AI探索</a> <a href="/yannyi.github.io/tags/AI%E7%9F%A5%E8%AF%86%E5%BA%93/" style="font-size: 0.6em;">AI知识库</a> <a href="/yannyi.github.io/tags/AOP/" style="font-size: 0.6em;">AOP</a> <a href="/yannyi.github.io/tags/Java/" style="font-size: 0.67em;">Java</a> <a href="/yannyi.github.io/tags/MyBatis/" style="font-size: 0.6em;">MyBatis</a> <a href="/yannyi.github.io/tags/MySQL/" style="font-size: 0.67em;">MySQL</a> <a href="/yannyi.github.io/tags/SQL/" style="font-size: 0.6em;">SQL</a> <a href="/yannyi.github.io/tags/Spring/" style="font-size: 0.6em;">Spring</a> <a href="/yannyi.github.io/tags/%E5%85%A5%E9%97%A8/" style="font-size: 0.73em;">入门</a> <a href="/yannyi.github.io/tags/%E5%88%86%E6%89%B9%E5%A4%84%E7%90%86/" style="font-size: 0.6em;">分批处理</a> <a href="/yannyi.github.io/tags/%E5%88%86%E9%A1%B5/" style="font-size: 0.6em;">分页</a> <a href="/yannyi.github.io/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 0.8em;">创建型模式</a> <a href="/yannyi.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/" style="font-size: 0.6em;">后端开发</a> <a href="/yannyi.github.io/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 0.6em;">工具</a> <a href="/yannyi.github.io/tags/%E6%80%9D%E7%BB%B4%E6%A1%86%E6%9E%B6/" style="font-size: 0.6em;">思维框架</a> <a href="/yannyi.github.io/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" style="font-size: 0.67em;">性能优化</a> <a href="/yannyi.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 0.73em;">数据库</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/hello-world/"><i class="fa fa-book"></i> Hello World</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/categories/tech/design_patterns/"><i class="fa fa-book"></i> 设计模式</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-ai-mcp/"><i class="fa fa-book"></i> MCP 模型上下文协议</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-tools-Obsidian/"><i class="fa fa-book"></i> Markdown本地笔记 Obsidian</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2024-06-01-game-research/"><i class="fa fa-book"></i> 开始使用：游戏研究</a>
+            
+          
+        
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+                </div>
+    </div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 MamimiJa Nai 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li>自豪地使用 <a href="https://github.com/Candinya/Kratos-Rebirth" target="_blank">Kratos:Rebirth</a> 主题</li>
+                            <li>站点由 Mamimi 用 <i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                
+                    <div class="box search-box">
+                        <a href="/yannyi.github.io/search">
+                            <span class="fa fa-search"></span>
+                        </a>
+                    </div>
+                
+                <div class="box theme-box" id="theme-toggle">
+                    <span class="fa fa-adjust"></span>
+                </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">打赏</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">打赏提示信息</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/yannyi.github.io/js/kr-modal/donate.min.js"></script>
+
+
+
+
+
+<!-- 额外的追加注入项 -->
+
+
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/yannyi.github.io/";
+</script>
+
+
+  <script defer src="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/yannyi.github.io/js/kr-core.min.js"></script>
+
+
+  <script defer src="/yannyi.github.io/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>

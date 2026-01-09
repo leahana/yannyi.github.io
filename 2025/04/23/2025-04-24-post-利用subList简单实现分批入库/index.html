@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+  
+  <title>Java分批处理实战：基于subList实现数据分片入库 | MamimiJa Nai</title>
+  <link rel="canonical" href="https://leahana.github.io/2025/04/23/2025-04-24-post-%E5%88%A9%E7%94%A8subList%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0%E5%88%86%E6%89%B9%E5%85%A5%E5%BA%93/">
+  <meta name="author" content="Mamimi" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="Java, 分批处理, 集合操作" />
+  
+  <meta name="description" content="目录 应用场景   核心知识点   代码实现   3.1 基础分片   3.2 动态分片   注意事项   拓展应用   延伸阅读    需求描述：批量告警入库&#x2F;更新，假设我们有一个包含100000个元素的List，我们需要将其分成100个批次，每个批次包含1000个元素。  一、应用场景✅ 大数据量写入数据库时的内存控制✅ 批量接口的请求限制规避✅ 流式处理中的批次管理    二、核心">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java分批处理实战：基于subList实现数据分片入库">
+<meta property="og:url" content="https://leahana.github.io/2025/04/23/2025-04-24-post-%E5%88%A9%E7%94%A8subList%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0%E5%88%86%E6%89%B9%E5%85%A5%E5%BA%93/index.html">
+<meta property="og:site_name" content="MamimiJa Nai">
+<meta property="og:description" content="目录 应用场景   核心知识点   代码实现   3.1 基础分片   3.2 动态分片   注意事项   拓展应用   延伸阅读    需求描述：批量告警入库&#x2F;更新，假设我们有一个包含100000个元素的List，我们需要将其分成100个批次，每个批次包含1000个元素。  一、应用场景✅ 大数据量写入数据库时的内存控制✅ 批量接口的请求限制规避✅ 流式处理中的批次管理    二、核心">
+<meta property="og:locale">
+<meta property="article:published_time" content="2025-04-23T22:30:00.000Z">
+<meta property="article:modified_time" content="2026-01-09T16:52:05.944Z">
+<meta property="article:author" content="Mamimi">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="分批处理">
+<meta property="article:tag" content="集合操作">
+<meta name="twitter:card" content="summary">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"Java分批处理实战：基于subList实现数据分片入库","description":"目录\n应用场景  \n","image":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG","author":{"@type":"Person","name":"Mamimi"},"publisher":{"@type":"Organization","name":"MamimiJa Nai","logo":{"@type":"ImageObject","url":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG"}},"datePublished":"2025-04-23T22:30:00.000Z","dateModified":"2026-01-09T16:52:05.944Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://leahana.github.io/2025/04/23/2025-04-24-post-%E5%88%A9%E7%94%A8subList%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0%E5%88%86%E6%89%B9%E5%85%A5%E5%BA%93/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/yannyi.github.io/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/yannyi.github.io/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/yannyi.github.io/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/yannyi.github.io/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/yannyi.github.io/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/yannyi.github.io/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+    <style>body.custom-background{background-image:url('/yannyi.github.io/images/theme/background.jpg')!important;background-attachment:fixed!important;background-size:cover!important;background-position:center!important;}#kratos-widget-area .widget-kratos-about .photo-background{background-image:url('/yannyi.github.io/images/theme/avatar-bg.jpg')!important;background-size:cover!important;background-position:35% 35%!important;background-repeat:no-repeat!important;}</style><link rel="stylesheet" href="/yannyi.github.io/css/custom.css">
+  
+<!-- hexo injector head_end start --><script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@latest/dist/mermaid.esm.min.mjs">
+    mermaid.initialize(
+      startOnLoad: true,
+    );
+    </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/">
+                                        
+                                            
+                                                <i class="fa fa-fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/archives">
+                                        
+                                            
+                                                <i class="fa fa-fa-archive"></i>
+                                            
+                                            归档
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/categories">
+                                        
+                                            
+                                                <i class="fa fa-fa-folder-open"></i>
+                                            
+                                            分类
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/tags">
+                                        
+                                            
+                                                <i class="fa fa-fa-tags"></i>
+                                            
+                                            标签
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/search">
+                                        
+                                            
+                                                <i class="fa fa-fa-search"></i>
+                                            
+                                            搜索
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a>
+                                        
+                                            
+                                                <i class="fa fa-fa-th-list"></i>
+                                            
+                                            更多
+                                        </a>
+                                        
+                                            <ul class="sub-menu">
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/about">
+                                                            
+                                                                <i class="fa fa-fa-user"></i>
+                                                            
+                                                            关于我
+                                                        </a>
+                                                    </li>
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/links">
+                                                            
+                                                                <i class="fa fa-fa-link"></i>
+                                                            
+                                                            友情链接
+                                                        </a>
+                                                    </li>
+                                                
+                                            </ul>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/yannyi.github.io/">MamimiJa Nai</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/yannyi.github.io/">
+                        <h2>MamimiJa Nai</h2> <br />
+                        <span></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://leahana.github.io/2025/04/23/2025-04-24-post-%E5%88%A9%E7%94%A8subList%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0%E5%88%86%E6%89%B9%E5%85%A5%E5%BA%93/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">Java分批处理实战：基于subList实现数据分片入库</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2025-04-23T22:30:00.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2025-04-24</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">Mamimi</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~4.27K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+                <div class="kratos-post-inner-toc toc-div-class" >
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">一、应用场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">二、核心知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.1.</span> <span class="toc-text">2.1 关键技术原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.</span> <span class="toc-text">2.2 技术选型对比</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">三、代码实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">4.1.</span> <span class="toc-text">3.1 功能模块分解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">4.2.</span> <span class="toc-text">3.2 核心逻辑实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">四、注意事项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">6.</span> <span class="toc-text">五、拓展应用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">6.1.</span> <span class="toc-text">5.1分片策略优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">6.2.</span> <span class="toc-text">5.2 事务补偿机制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">7.</span> <span class="toc-text">六、延伸阅读</span></a></li></ol>
+                </div>
+            
+            <hr />
+            <div itemprop="articleBody"><h2><span id="目录">目录</span></h2><ol>
+<li><a href="#%E4%B8%80%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF">应用场景</a>  </li>
+<li><a href="#%E4%BA%8C%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9">核心知识点</a>  </li>
+<li><a href="#%E4%B8%89%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0">代码实现</a>  <ul>
+<li>3.1 <a href="#31-%E5%9F%BA%E7%A1%80%E5%88%86%E7%89%87">基础分片</a>  </li>
+<li>3.2 <a href="#32-%E5%8A%A8%E6%80%81%E5%88%86%E7%89%87">动态分片</a></li>
+</ul>
+</li>
+<li><a href="#%E5%9B%9B%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9">注意事项</a>  </li>
+<li><a href="#%E4%BA%94%E6%8B%93%E5%B1%95%E5%BA%94%E7%94%A8">拓展应用</a>  </li>
+<li><a href="#%E5%85%AD%E5%BB%B6%E4%BC%B8%E9%98%85%E8%AF%BB">延伸阅读</a></li>
+</ol>
+<hr>
+<blockquote>
+<p>需求描述：<br>批量告警入库&#x2F;更新，假设我们有一个包含100000个元素的List，我们需要将其分成100个批次，每个批次包含1000个元素。</p>
+</blockquote>
+<h2><span id="一-应用场景">一、应用场景</span></h2><p>✅ 大数据量写入数据库时的内存控制<br>✅ 批量接口的请求限制规避<br>✅ 流式处理中的批次管理  </p>
+<hr>
+<h2><span id="二-核心知识点">二、核心知识点</span></h2><h3><span id="21-关键技术原理">2.1 关键技术原理</span></h3><ul>
+<li><strong>集合分片原理</strong>（subList实现机制）<br><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/api/java/util/List.html#subList-int-int-">Oracle Java文档 - List.subList</a></li>
+<li><strong>Spring Boot事务控制机制</strong>：@Transactional注解实现声明式事务，支持多种事务传播行为（如REQUIRED、REQUIRES_NEW），遇到RuntimeException自动回滚，保证批次操作的原子性（如银行转账，所有步骤都成功才算转账完成，否则全部回滚）。建议每个分片批次独立事务，避免单批失败影响全局一致性。<br><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative.html">Spring官方文档-事务管理</a>^[阿里巴巴Java开发手册-事务控制]</li>
+<li><strong>分片算法的时间复杂度分析</strong>（O(1)视图生成，O(n)遍历）</li>
+<li><strong>并发与事务一致性风险</strong>（如ConcurrentModificationException，事务边界设计）</li>
+</ul>
+<h3><span id="22-技术选型对比">2.2 技术选型对比</span></h3><ul>
+<li><strong>推荐主流方案：subList</strong>（适用于绝大多数批量分片场景，原生API，性能优，代码简洁）</li>
+<li><strong>Stream分组</strong>（适合需要并行处理或分组逻辑更复杂的场景，JDK8+，如大数据量并发入库）</li>
+<li><strong>手动for分片</strong>（适合对分片边界有特殊控制需求的极端场景，代码更灵活但维护成本高）</li>
+</ul>
+<blockquote>
+<p>技术隐喻：subList就像快递分拣站的传送带，适合标准化批量处理；Stream分组则像多条流水线并行作业，效率更高但对设备有要求；手动for分片类似人工分拣，灵活但效率低。</p>
+</blockquote>
+<hr>
+<h2><span id="三-代码实现">三、代码实现</span></h2><h3><span id="31-功能模块分解">3.1 功能模块分解</span></h3><ul>
+<li>批量分片算法</li>
+<li>批量入库接口</li>
+<li>监控与补偿机制</li>
+</ul>
+<div class="mermaid">
+flowchart TD
+    subgraph 数据处理流程
+        A[数据输入]:::blue --> B[批量分片算法]:::yellow
+        B --> C[批量入库接口]:::green
+        C --> D[监控与补偿机制]:::red
+        D -.->|异常/失败| E(重试队列)
+    end
+</div>
+
+<blockquote>
+<p>技术隐喻：整个流程如同快递分拣中心，数据输入是包裹入库，分片算法像分拣传送带，批量入库接口是装车发货，监控与补偿机制则是异常包裹的人工复核区。</p>
+</blockquote>
+<h3><span id="32-核心逻辑实现">3.2 核心逻辑实现</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// JDK8+，异常处理与性能注释</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">batchInsert</span><span class="params">(List&lt;Data&gt; dataList, <span class="type">int</span> batchSize)</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (dataList == <span class="literal">null</span> || dataList.isEmpty() || batchSize &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;参数非法&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="type">int</span> <span class="variable">total</span> <span class="operator">=</span> dataList.size();</span><br><span class="line">    <span class="type">int</span> <span class="variable">batchCount</span> <span class="operator">=</span> (total + batchSize - <span class="number">1</span>) / batchSize; <span class="comment">// 分片数量</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; batchCount; i++) &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">fromIndex</span> <span class="operator">=</span> i * batchSize;</span><br><span class="line">        <span class="type">int</span> <span class="variable">toIndex</span> <span class="operator">=</span> Math.min(fromIndex + batchSize, total);</span><br><span class="line">        List&lt;Data&gt; batchList = dataList.subList(fromIndex, toIndex);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 数据库批量入库操作</span></span><br><span class="line">            saveBatch(batchList);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="comment">// 监控与补偿机制（如重试、告警）</span></span><br><span class="line">            log.error(<span class="string">&quot;批次&#123;&#125;入库失败，from:&#123;&#125; to:&#123;&#125;&quot;</span>, i, fromIndex, toIndex, e);</span><br><span class="line">            <span class="comment">// 可选：失败批次记录到补偿队列</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>🔗 与Stream API结合实现并行处理：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">split(data, <span class="number">500</span>).parallelStream()</span><br><span class="line">    .forEach(batch -&gt; repository.bulkInsert(batch));</span><br></pre></td></tr></table></figure>
+
+<p>🔗 在MyBatis批量插入中的应用：<br>我这边业务遇到的是保存告警,为了防止告警重复推送,我这边还使用了on duplicate,防止主键重复</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- MyBatis映射文件示例 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">insert</span> <span class="attr">id</span>=<span class="string">&quot;batchInsert&quot;</span>&gt;</span></span><br><span class="line">    INSERT INTO table VALUES</span><br><span class="line">    <span class="tag">&lt;<span class="name">foreach</span> <span class="attr">collection</span>=<span class="string">&quot;list&quot;</span> <span class="attr">item</span>=<span class="string">&quot;item&quot;</span> <span class="attr">separator</span>=<span class="string">&quot;,&quot;</span>&gt;</span></span><br><span class="line">        (#&#123;item.field&#125;)</span><br><span class="line">    <span class="tag">&lt;/<span class="name">foreach</span>&gt;</span></span><br><span class="line">  ON DUPLICATE KEY UPDATE</span><br><span class="line">  obj_id=values(obj_id)</span><br><span class="line"><span class="tag">&lt;/<span class="name">insert</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2><span id="四-注意事项">四、注意事项</span></h2><p>❗️​<strong>并发修改风险</strong></p>
+<blockquote>
+<p>分片操作与原始集合的修改需要同步处理，避免ConcurrentModificationException（类似快递分拣站，分拣时不能随意增删包裹）</p>
+</blockquote>
+<p>❗️<strong>事务一致性建议</strong></p>
+<blockquote>
+<p>建议每个批次独立事务，防止单批失败影响全局</p>
+</blockquote>
+<p>❗️<strong>内存优化建议</strong></p>
+<blockquote>
+<p>建议分片大小根据堆内存配置动态计算，避免OOM（如分片&#x3D;总数&#x2F;可用内存MB*安全系数）</p>
+</blockquote>
+<p>❗️<strong>监控与补偿机制</strong></p>
+<blockquote>
+<p>失败批次应有重试与告警机制，提升系统健壮性</p>
+</blockquote>
+<p>❗️<strong>性能陷阱</strong>：超大列表的分片视图内存占用  </p>
+<table>
+<thead>
+<tr>
+<th>常见问题</th>
+<th>排查建议</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OOM</td>
+<td>检查分片大小与JVM内存</td>
+</tr>
+<tr>
+<td>并发异常</td>
+<td>检查集合是否被多线程修改</td>
+</tr>
+<tr>
+<td>数据丢失</td>
+<td>检查补偿与重试逻辑</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p>​<strong>检查清单</strong>  </p>
+<ul>
+<li><input disabled type="checkbox"> 是否考虑并发修改异常  </li>
+<li><input disabled type="checkbox"> 分片大小计算公式是否验证  </li>
+<li><input disabled type="checkbox"> 监控与补偿机制是否完善</li>
+</ul>
+</blockquote>
+<hr>
+<h2><span id="五-拓展应用">五、拓展应用</span></h2><p>🔄 相似技术迁移（如字符串分割、分页查询）</p>
+<p>🔄 分布式批处理（如Spring Batch分片器、MapReduce分片）</p>
+<p>🔄 幂等性与失败重试机制设计</p>
+<h3><span id="51分片策略优化">5.1分片策略优化</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 动态调整分片大小</span></span><br><span class="line"><span class="comment">// 动态分片算法（根据系统负载调整）</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; List&lt;List&lt;T&gt;&gt; <span class="title function_">adaptiveSplit</span><span class="params">(List&lt;T&gt; list, <span class="type">int</span> baseSize)</span> &#123;</span><br><span class="line">    <span class="type">int</span> <span class="variable">currentLoad</span> <span class="operator">=</span> getSystemLoad(); <span class="comment">// 获取当前系统负载</span></span><br><span class="line">    <span class="type">int</span> <span class="variable">adjustedSize</span> <span class="operator">=</span> currentLoad &gt; <span class="number">70</span> ? baseSize / <span class="number">2</span> : baseSize;</span><br><span class="line">    <span class="keyword">return</span> split(list, adjustedSize);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3><span id="52-事务补偿机制">5.2 事务补偿机制</span></h3><p>对于批量分片入库的事务补偿，推荐做法如下：</p>
+<ul>
+<li>每个批次操作包裹在 @Transactional 方法中，确保原子性。</li>
+<li>失败时通过重试、补偿队列等机制保证数据最终一致性。</li>
+<li>如果需要分布式事务，可考虑使用 Seata、TCC 等框架。<br>技术隐喻 ：事务就像银行转账的保险箱，只有所有步骤都完成，钱才会真正转账，否则全部回滚。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 带事务补偿的分批处理</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">batchInsertWithRetry</span><span class="params">(List&lt;Data&gt; data)</span> &#123;</span><br><span class="line">    List&lt;List&lt;Data&gt;&gt; batches = split(data, <span class="number">1000</span>);</span><br><span class="line">    </span><br><span class="line">    batches.forEach(batch -&gt; &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">retryCount</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span> (retryCount &lt; <span class="number">3</span>) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                transactionalTemplate.execute(status -&gt; &#123;</span><br><span class="line">                    repository.batchInsert(batch);</span><br><span class="line">                    <span class="keyword">return</span> Boolean.TRUE;</span><br><span class="line">                &#125;);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (DataAccessException e) &#123;</span><br><span class="line">                retryCount++;</span><br><span class="line">                log.warn(<span class="string">&quot;批次插入失败，重试次数: &#123;&#125;&quot;</span>, retryCount);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2><span id="六-延伸阅读">六、延伸阅读</span></h2><ol>
+<li><a target="_blank" rel="noopener" href="https://book.douban.com/subject/27028517/">Effective Java - 集合处理最佳实践</a></li>
+<li><a target="_blank" rel="noopener" href="https://book.douban.com/subject/24722612/">Java性能权威指南 - 内存管理章节</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/alibaba/p3c">阿里巴巴Java开发手册 - 集合操作</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.spring.io/spring-batch/docs/current/reference/html/index-single.html#partitioning">Spring Batch官方文档 - 分片处理</a></li>
+</ol>
+<p><a href="#top">返回顶部</a></p>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/yannyi.github.io/tags/Java/" rel="tag">Java</a>, <a class="tag-none-link" href="/yannyi.github.io/tags/%E5%88%86%E6%89%B9%E5%A4%84%E7%90%86/" rel="tag">分批处理</a>, <a class="tag-none-link" href="/yannyi.github.io/tags/%E9%9B%86%E5%90%88%E6%93%8D%E4%BD%9C/" rel="tag">集合操作</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2026-01-09T16:52:05.944Z" itemprop="dateModified">最后编辑：2026-01-10</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" AI Prompt 设计方法论" href="/yannyi.github.io/2024/05/31/2025-04-24-ai-prompt01/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+            <div class="nav-next clearfix">
+                <a title=" 5W1H思维模式：系统化AI知识库构建方法论" href="/yannyi.github.io/2025/04/23/2025-04-24-5W1H思维模式：系统化AI知识库构建方法论/">下一篇 <i class="fa fa-angle-right"></i></a>
+            </div>
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/yannyi.github.io/images/theme/Mamimi.JPG" alt="Mamimi" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center"></p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/yannyi.github.io/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                14
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                    <aside id="krw-toc" class="widget widget-kratos-toc clearfix toc-div-class" >
+    <div class="photo-background"></div>
+    <h4 class="widget-title no-after">
+        <i class="fa fa-compass"></i>
+        文章目录
+        <span class="toc-progress-bar" role="progressbar" aria-label="阅读进度："></span>
+    </h4>
+    <div class="textwidget">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">目录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">一、应用场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">二、核心知识点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.1.</span> <span class="toc-text">2.1 关键技术原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">3.2.</span> <span class="toc-text">2.2 技术选型对比</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">三、代码实现</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">4.1.</span> <span class="toc-text">3.1 功能模块分解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">4.2.</span> <span class="toc-text">3.2 核心逻辑实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">5.</span> <span class="toc-text">四、注意事项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">6.</span> <span class="toc-text">五、拓展应用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">6.1.</span> <span class="toc-text">5.1分片策略优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">6.2.</span> <span class="toc-text">5.2 事务补偿机制</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">7.</span> <span class="toc-text">六、延伸阅读</span></a></li></ol>
+    </div>
+</aside>
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/ai/">ai</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/games/">games</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/">java</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/">集合框架</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/">数据处理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/">mindset</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/">方法论</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/%E7%9F%A5%E8%AF%86%E7%AE%A1%E7%90%86/">知识管理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/tools/">tools</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Spring%E6%A1%86%E6%9E%B6/">Spring框架</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/SQL%E4%BC%98%E5%8C%96/">SQL优化</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a><span class="category-list-count">12</span></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/yannyi.github.io/tags/5W1H/" style="font-size: 0.6em;">5W1H</a> <a href="/yannyi.github.io/tags/AI%E6%8E%A2%E7%B4%A2/" style="font-size: 0.6em;">AI探索</a> <a href="/yannyi.github.io/tags/AI%E7%9F%A5%E8%AF%86%E5%BA%93/" style="font-size: 0.6em;">AI知识库</a> <a href="/yannyi.github.io/tags/AOP/" style="font-size: 0.6em;">AOP</a> <a href="/yannyi.github.io/tags/Java/" style="font-size: 0.67em;">Java</a> <a href="/yannyi.github.io/tags/MyBatis/" style="font-size: 0.6em;">MyBatis</a> <a href="/yannyi.github.io/tags/MySQL/" style="font-size: 0.67em;">MySQL</a> <a href="/yannyi.github.io/tags/SQL/" style="font-size: 0.6em;">SQL</a> <a href="/yannyi.github.io/tags/Spring/" style="font-size: 0.6em;">Spring</a> <a href="/yannyi.github.io/tags/%E5%85%A5%E9%97%A8/" style="font-size: 0.73em;">入门</a> <a href="/yannyi.github.io/tags/%E5%88%86%E6%89%B9%E5%A4%84%E7%90%86/" style="font-size: 0.6em;">分批处理</a> <a href="/yannyi.github.io/tags/%E5%88%86%E9%A1%B5/" style="font-size: 0.6em;">分页</a> <a href="/yannyi.github.io/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 0.8em;">创建型模式</a> <a href="/yannyi.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/" style="font-size: 0.6em;">后端开发</a> <a href="/yannyi.github.io/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 0.6em;">工具</a> <a href="/yannyi.github.io/tags/%E6%80%9D%E7%BB%B4%E6%A1%86%E6%9E%B6/" style="font-size: 0.6em;">思维框架</a> <a href="/yannyi.github.io/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" style="font-size: 0.67em;">性能优化</a> <a href="/yannyi.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 0.73em;">数据库</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/hello-world/"><i class="fa fa-book"></i> Hello World</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/categories/tech/design_patterns/"><i class="fa fa-book"></i> 设计模式</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-ai-mcp/"><i class="fa fa-book"></i> MCP 模型上下文协议</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-tools-Obsidian/"><i class="fa fa-book"></i> Markdown本地笔记 Obsidian</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2024-06-01-game-research/"><i class="fa fa-book"></i> 开始使用：游戏研究</a>
+            
+          
+        
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+                </div>
+    </div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 MamimiJa Nai 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li>自豪地使用 <a href="https://github.com/Candinya/Kratos-Rebirth" target="_blank">Kratos:Rebirth</a> 主题</li>
+                            <li>站点由 Mamimi 用 <i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                
+                    <div class="box search-box">
+                        <a href="/yannyi.github.io/search">
+                            <span class="fa fa-search"></span>
+                        </a>
+                    </div>
+                
+                <div class="box theme-box" id="theme-toggle">
+                    <span class="fa fa-adjust"></span>
+                </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">打赏</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">打赏提示信息</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/yannyi.github.io/js/kr-modal/donate.min.js"></script>
+
+
+
+
+
+<!-- 额外的追加注入项 -->
+
+
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/yannyi.github.io/";
+</script>
+
+
+  <script defer src="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/yannyi.github.io/js/kr-core.min.js"></script>
+
+
+  <script defer src="/yannyi.github.io/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>

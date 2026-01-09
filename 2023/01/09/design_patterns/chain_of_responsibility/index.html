@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+  
+  <title>Chain of Responsibility 模式 | MamimiJa Nai</title>
+  <link rel="canonical" href="https://leahana.github.io/2023/01/09/design_patterns/chain_of_responsibility/">
+  <meta name="author" content="Mamimi" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="行为型模式, 设计模式" />
+  
+  <meta name="description" content="Chain of Responsibility模式为请求创建一个接收者对象链，使多个对象都有机会处理请求，从而避免请求的发送者和接收者之间的耦合关系。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chain of Responsibility 模式">
+<meta property="og:url" content="https://leahana.github.io/2023/01/09/design_patterns/chain_of_responsibility/index.html">
+<meta property="og:site_name" content="MamimiJa Nai">
+<meta property="og:description" content="Chain of Responsibility模式为请求创建一个接收者对象链，使多个对象都有机会处理请求，从而避免请求的发送者和接收者之间的耦合关系。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2023-01-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-08T16:00:00.000Z">
+<meta property="article:author" content="Mamimi">
+<meta property="article:tag" content="行为型模式">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"Chain of Responsibility 模式","description":"Chain of Responsibility模式为请求创建一个接收者对象链，使多个对象都有机会处理请求，从而避免请求的发送者和接收者之间的耦合关系。","image":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG","author":{"@type":"Person","name":"Mamimi"},"publisher":{"@type":"Organization","name":"MamimiJa Nai","logo":{"@type":"ImageObject","url":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG"}},"datePublished":"2023-01-09T16:00:00.000Z","dateModified":"2025-01-08T16:00:00.000Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://leahana.github.io/2023/01/09/design_patterns/chain_of_responsibility/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/yannyi.github.io/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/yannyi.github.io/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/yannyi.github.io/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/yannyi.github.io/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/yannyi.github.io/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/yannyi.github.io/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+    <style>body.custom-background{background-image:url('/yannyi.github.io/images/theme/background.jpg')!important;background-attachment:fixed!important;background-size:cover!important;background-position:center!important;}#kratos-widget-area .widget-kratos-about .photo-background{background-image:url('/yannyi.github.io/images/theme/avatar-bg.jpg')!important;background-size:cover!important;background-position:35% 35%!important;background-repeat:no-repeat!important;}</style><link rel="stylesheet" href="/yannyi.github.io/css/custom.css">
+  
+<!-- hexo injector head_end start --><script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@latest/dist/mermaid.esm.min.mjs">
+    mermaid.initialize(
+      startOnLoad: true,
+    );
+    </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/">
+                                        
+                                            
+                                                <i class="fa fa-fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/archives">
+                                        
+                                            
+                                                <i class="fa fa-fa-archive"></i>
+                                            
+                                            归档
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/categories">
+                                        
+                                            
+                                                <i class="fa fa-fa-folder-open"></i>
+                                            
+                                            分类
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/tags">
+                                        
+                                            
+                                                <i class="fa fa-fa-tags"></i>
+                                            
+                                            标签
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/search">
+                                        
+                                            
+                                                <i class="fa fa-fa-search"></i>
+                                            
+                                            搜索
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a>
+                                        
+                                            
+                                                <i class="fa fa-fa-th-list"></i>
+                                            
+                                            更多
+                                        </a>
+                                        
+                                            <ul class="sub-menu">
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/about">
+                                                            
+                                                                <i class="fa fa-fa-user"></i>
+                                                            
+                                                            关于我
+                                                        </a>
+                                                    </li>
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/links">
+                                                            
+                                                                <i class="fa fa-fa-link"></i>
+                                                            
+                                                            友情链接
+                                                        </a>
+                                                    </li>
+                                                
+                                            </ul>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/yannyi.github.io/">MamimiJa Nai</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/yannyi.github.io/">
+                        <h2>MamimiJa Nai</h2> <br />
+                        <span></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://leahana.github.io/2023/01/09/design_patterns/chain_of_responsibility/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">Chain of Responsibility 模式</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2023-01-09T16:00:00.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2023-01-10</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">Mamimi</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~17.80K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+                <div class="kratos-post-inner-toc toc-div-class" >
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Chain of Responsibility 模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.1.</span> <span class="toc-text">一、基础介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.2.</span> <span class="toc-text">二、生活比喻：客服工单处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.3.</span> <span class="toc-text">三、应用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.4.</span> <span class="toc-text">四、使用注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.1.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.2.</span> <span class="toc-text">缺点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.3.</span> <span class="toc-text">使用建议</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.5.</span> <span class="toc-text">五、Java 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.1.</span> <span class="toc-text">实现 1：请假审批流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.2.</span> <span class="toc-text">实现 2：日志记录系统</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.6.</span> <span class="toc-text">六、Python 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.1.</span> <span class="toc-text">实现 1：中间件处理链</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.2.</span> <span class="toc-text">实现 2：事件处理系统</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.7.</span> <span class="toc-text">七、参考资料与延伸阅读</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.1.</span> <span class="toc-text">经典书籍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.2.</span> <span class="toc-text">在线资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.3.</span> <span class="toc-text">相关设计模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.4.</span> <span class="toc-text">最佳实践建议</span></a></li></ol></li></ol></li></ol>
+                </div>
+            
+            <hr />
+            <div itemprop="articleBody"><h2><span id="chain-of-responsibility-模式">Chain of Responsibility 模式</span></h2><h3><span id="一-基础介绍">一、基础介绍</span></h3><p>Chain of Responsibility（责任链）模式是一种行为型设计模式，它允许你将请求沿着处理链传递，直到有一个处理者能够处理它为止。</p>
+<p>Chain of Responsibility 模式的核心思想是：<strong>为请求创建一个接收者对象链，使多个对象都有机会处理请求，从而避免请求的发送者和接收者之间的耦合关系</strong>。</p>
+<h3><span id="二-生活比喻客服工单处理">二、生活比喻：客服工单处理</span></h3><p>想象一个<strong>客服工单处理系统</strong>：</p>
+<blockquote>
+<p><strong>没有责任链</strong>：客服接到问题后，需要自己判断找哪个部门，技术问题、财务问题、物流问题都需要分别转接。流程复杂，容易出错。</p>
+<p><strong>责任链方式</strong>：设置处理链条 - 一线客服 → 二线技术 → 技术主管 → 产品经理。问题沿着链条传递，直到有人能解决。</p>
+</blockquote>
+<p>在这个比喻中：</p>
+<ul>
+<li><strong>Handler</strong> &#x3D; 处理者接口（判断能否处理）</li>
+<li><strong>ConcreteHandler</strong> &#x3D; 具体处理者（一线客服、技术、主管等）</li>
+<li><strong>Client</strong> &#x3D; 问题提交者（用户）</li>
+<li><strong>Request</strong> &#x3D; 工单&#x2F;问题</li>
+</ul>
+<h3><span id="三-应用场景">三、应用场景</span></h3><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>多对象处理</strong></td>
+<td>多个对象可以处理同一请求</td>
+<td>审批流程、日志级别</td>
+</tr>
+<tr>
+<td><strong>动态处理链</strong></td>
+<td>处理者和顺序可动态指定</td>
+<td>异常捕获、中间件</td>
+</tr>
+<tr>
+<td><strong>不确定处理者</strong></td>
+<td>不知道哪个对象能处理</td>
+<td>插件系统、事件处理</td>
+</tr>
+<tr>
+<td><strong>解耦请求处理</strong>：发送者无需知道具体处理者</td>
+<td>工作流引擎、规则引擎</td>
+<td></td>
+</tr>
+</tbody></table>
+<h3><span id="四-使用注意事项">四、使用注意事项</span></h3><h4><span id="优点">优点</span></h4><table>
+<thead>
+<tr>
+<th>优点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>降低耦合度</strong></td>
+<td>发送者无需知道具体处理者</td>
+</tr>
+<tr>
+<td><strong>灵活增强</strong></td>
+<td>可动态添加&#x2F;删除处理者</td>
+</tr>
+<tr>
+<td><strong>职责单一</strong></td>
+<td>每个处理者专注自己的职责</td>
+</tr>
+<tr>
+<td><strong>简化连接</strong></td>
+<td>对象只需知道后继者</td>
+</tr>
+</tbody></table>
+<h4><span id="缺点">缺点</span></h4><table>
+<thead>
+<tr>
+<th>缺点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>处理延迟</strong></td>
+<td>请求可能在链中传递很久</td>
+</tr>
+<tr>
+<td><strong>循环风险</strong></td>
+<td>链条配置错误可能导致循环</td>
+</tr>
+<tr>
+<td><strong>调试困难</strong>：处理路径不直观</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>性能损耗</strong></td>
+<td>每个请求都要遍历链条</td>
+</tr>
+</tbody></table>
+<h4><span id="使用建议">使用建议</span></h4><ul>
+<li>有多个对象可以处理请求时使用</li>
+<li>不知道具体哪个对象处理时使用</li>
+<li>处理顺序需要灵活配置时使用</li>
+</ul>
+<h3><span id="五-java-经典案例">五、Java 经典案例</span></h3><h4><span id="实现-1请假审批流程">实现 1：请假审批流程</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 抽象处理者</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">LeaveApprover</span> &#123;</span><br><span class="line">    <span class="keyword">protected</span> LeaveApprover nextApprover;</span><br><span class="line">    <span class="keyword">protected</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">LeaveApprover</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setNextApprover</span><span class="params">(LeaveApprover nextApprover)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.nextApprover = nextApprover;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="type">boolean</span> <span class="title function_">processRequest</span><span class="params">(LeaveRequest request)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 请假请求</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LeaveRequest</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String employeeName;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> leaveDays;</span><br><span class="line">    <span class="keyword">private</span> String reason;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">LeaveRequest</span><span class="params">(String employeeName, <span class="type">int</span> leaveDays, String reason)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.employeeName = employeeName;</span><br><span class="line">        <span class="built_in">this</span>.leaveDays = leaveDays;</span><br><span class="line">        <span class="built_in">this</span>.reason = reason;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getEmployeeName</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> employeeName;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getLeaveDays</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> leaveDays;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getReason</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> reason;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 具体处理者：组长</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TeamLeader</span> <span class="keyword">extends</span> <span class="title class_">LeaveApprover</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">TeamLeader</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">processRequest</span><span class="params">(LeaveRequest request)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (request.getLeaveDays() &lt;= <span class="number">1</span>) &#123;</span><br><span class="line">            System.out.println(</span><br><span class="line">                <span class="string">&quot;组长 &quot;</span> + name + <span class="string">&quot; 批准了 &quot;</span> + request.getEmployeeName() +</span><br><span class="line">                <span class="string">&quot; 的请假申请，天数: &quot;</span> + request.getLeaveDays()</span><br><span class="line">            );</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;组长无权批准，转交上级...&quot;</span>);</span><br><span class="line">            <span class="keyword">if</span> (nextApprover != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> nextApprover.processRequest(request);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 具体处理者：经理</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Manager</span> <span class="keyword">extends</span> <span class="title class_">LeaveApprover</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Manager</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">processRequest</span><span class="params">(LeaveRequest request)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (request.getLeaveDays() &lt;= <span class="number">3</span>) &#123;</span><br><span class="line">            System.out.println(</span><br><span class="line">                <span class="string">&quot;经理 &quot;</span> + name + <span class="string">&quot; 批准了 &quot;</span> + request.getEmployeeName() +</span><br><span class="line">                <span class="string">&quot; 的请假申请，天数: &quot;</span> + request.getLeaveDays()</span><br><span class="line">            );</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;经理无权批准，转交上级...&quot;</span>);</span><br><span class="line">            <span class="keyword">if</span> (nextApprover != <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> nextApprover.processRequest(request);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 具体处理者：总监</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Director</span> <span class="keyword">extends</span> <span class="title class_">LeaveApprover</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Director</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">processRequest</span><span class="params">(LeaveRequest request)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (request.getLeaveDays() &lt;= <span class="number">7</span>) &#123;</span><br><span class="line">            System.out.println(</span><br><span class="line">                <span class="string">&quot;总监 &quot;</span> + name + <span class="string">&quot; 批准了 &quot;</span> + request.getEmployeeName() +</span><br><span class="line">                <span class="string">&quot; 的请假申请，天数: &quot;</span> + request.getLeaveDays()</span><br><span class="line">            );</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;请假天数过多，拒绝申请&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ChainOfResponsibilityDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">// 构建责任链</span></span><br><span class="line">        <span class="type">LeaveApprover</span> <span class="variable">teamLeader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TeamLeader</span>(<span class="string">&quot;张组长&quot;</span>);</span><br><span class="line">        <span class="type">LeaveApprover</span> <span class="variable">manager</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Manager</span>(<span class="string">&quot;李经理&quot;</span>);</span><br><span class="line">        <span class="type">LeaveApprover</span> <span class="variable">director</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Director</span>(<span class="string">&quot;王总监&quot;</span>);</span><br><span class="line"></span><br><span class="line">        teamLeader.setNextApprover(manager);</span><br><span class="line">        manager.setNextApprover(director);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 测试不同天数的请假</span></span><br><span class="line">        System.out.println(<span class="string">&quot;=== 测试1天请假 ===&quot;</span>);</span><br><span class="line">        <span class="type">LeaveRequest</span> <span class="variable">request1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">LeaveRequest</span>(<span class="string">&quot;小赵&quot;</span>, <span class="number">1</span>, <span class="string">&quot;休息&quot;</span>);</span><br><span class="line">        teamLeader.processRequest(request1);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;\n=== 测试3天请假 ===&quot;</span>);</span><br><span class="line">        <span class="type">LeaveRequest</span> <span class="variable">request2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">LeaveRequest</span>(<span class="string">&quot;小钱&quot;</span>, <span class="number">3</span>, <span class="string">&quot;旅游&quot;</span>);</span><br><span class="line">        teamLeader.processRequest(request2);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;\n=== 测试7天请假 ===&quot;</span>);</span><br><span class="line">        <span class="type">LeaveRequest</span> <span class="variable">request3</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">LeaveRequest</span>(<span class="string">&quot;小孙&quot;</span>, <span class="number">7</span>, <span class="string">&quot;回家&quot;</span>);</span><br><span class="line">        teamLeader.processRequest(request3);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;\n=== 测试10天请假 ===&quot;</span>);</span><br><span class="line">        <span class="type">LeaveRequest</span> <span class="variable">request4</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">LeaveRequest</span>(<span class="string">&quot;小李&quot;</span>, <span class="number">10</span>, <span class="string">&quot;出国&quot;</span>);</span><br><span class="line">        teamLeader.processRequest(request4);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-2日志记录系统">实现 2：日志记录系统</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 日志级别枚举</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">enum</span> <span class="title class_">LogLevel</span> &#123;</span><br><span class="line">    DEBUG, INFO, WARNING, ERROR</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 抽象日志记录器</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">Logger</span> &#123;</span><br><span class="line">    <span class="keyword">protected</span> LogLevel level;</span><br><span class="line">    <span class="keyword">protected</span> Logger nextLogger;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Logger</span><span class="params">(LogLevel level)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.level = level;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setNextLogger</span><span class="params">(Logger nextLogger)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.nextLogger = nextLogger;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">log</span><span class="params">(LogLevel level, String message)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">this</span>.level.ordinal() &lt;= level.ordinal()) &#123;</span><br><span class="line">            write(message);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (nextLogger != <span class="literal">null</span>) &#123;</span><br><span class="line">            nextLogger.log(level, message);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title function_">write</span><span class="params">(String message)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 具体日志记录器：控制台</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ConsoleLogger</span> <span class="keyword">extends</span> <span class="title class_">Logger</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ConsoleLogger</span><span class="params">(LogLevel level)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(level);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">write</span><span class="params">(String message)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Console::Logger: &quot;</span> + message);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 具体日志记录器：文件</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">FileLogger</span> <span class="keyword">extends</span> <span class="title class_">Logger</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">FileLogger</span><span class="params">(LogLevel level)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(level);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">write</span><span class="params">(String message)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;File::Logger: &quot;</span> + message);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 具体日志记录器：远程服务器</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">RemoteLogger</span> <span class="keyword">extends</span> <span class="title class_">Logger</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">RemoteLogger</span><span class="params">(LogLevel level)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>(level);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">write</span><span class="params">(String message)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Remote::Logger: &quot;</span> + message);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LoggerChainDemo</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Logger <span class="title function_">getChainOfLoggers</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">Logger</span> <span class="variable">consoleLogger</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ConsoleLogger</span>(LogLevel.DEBUG);</span><br><span class="line">        <span class="type">Logger</span> <span class="variable">fileLogger</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileLogger</span>(LogLevel.INFO);</span><br><span class="line">        <span class="type">Logger</span> <span class="variable">remoteLogger</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RemoteLogger</span>(LogLevel.ERROR);</span><br><span class="line"></span><br><span class="line">        consoleLogger.setNextLogger(fileLogger);</span><br><span class="line">        fileLogger.setNextLogger(remoteLogger);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> consoleLogger;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">Logger</span> <span class="variable">loggerChain</span> <span class="operator">=</span> getChainOfLoggers();</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;=== DEBUG级别 ===&quot;</span>);</span><br><span class="line">        loggerChain.log(LogLevel.DEBUG, <span class="string">&quot;调试信息&quot;</span>);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;\n=== INFO级别 ===&quot;</span>);</span><br><span class="line">        loggerChain.log(LogLevel.INFO, <span class="string">&quot;普通信息&quot;</span>);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;\n=== WARNING级别 ===&quot;</span>);</span><br><span class="line">        loggerChain.log(LogLevel.WARNING, <span class="string">&quot;警告信息&quot;</span>);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;\n=== ERROR级别 ===&quot;</span>);</span><br><span class="line">        loggerChain.log(LogLevel.ERROR, <span class="string">&quot;错误信息&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3><span id="六-python-经典案例">六、Python 经典案例</span></h3><h4><span id="实现-1中间件处理链">实现 1：中间件处理链</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> abc <span class="keyword">import</span> ABC, abstractmethod</span><br><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">Callable</span>, <span class="type">Optional</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Handler</span>(<span class="title class_ inherited__">ABC</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;抽象处理者&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>._next_handler: <span class="type">Optional</span>[Handler] = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">set_next</span>(<span class="params">self, handler: <span class="string">&#x27;Handler&#x27;</span></span>) -&gt; <span class="string">&#x27;Handler&#x27;</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;设置下一个处理者&quot;&quot;&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>._next_handler = handler</span><br><span class="line">        <span class="keyword">return</span> handler</span><br><span class="line"></span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">handle</span>(<span class="params">self, request: <span class="built_in">dict</span></span>) -&gt; <span class="type">Optional</span>[<span class="built_in">dict</span>]:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;处理请求&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>._next_handler:</span><br><span class="line">            <span class="keyword">return</span> <span class="variable language_">self</span>._next_handler.handle(request)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AuthenticationHandler</span>(<span class="title class_ inherited__">Handler</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;身份验证处理者&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">handle</span>(<span class="params">self, request: <span class="built_in">dict</span></span>) -&gt; <span class="type">Optional</span>[<span class="built_in">dict</span>]:</span><br><span class="line">        token = request.get(<span class="string">&#x27;token&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> token:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;AuthenticationHandler: 缺少token，拒绝访问&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> token != <span class="string">&quot;valid_token_123&quot;</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;AuthenticationHandler: token无效，拒绝访问&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;AuthenticationHandler: 身份验证通过&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>().handle(request)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">RateLimitHandler</span>(<span class="title class_ inherited__">Handler</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;限流处理者&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        <span class="variable language_">self</span>.request_count = &#123;&#125;</span><br><span class="line">        <span class="variable language_">self</span>.max_requests = <span class="number">5</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">handle</span>(<span class="params">self, request: <span class="built_in">dict</span></span>) -&gt; <span class="type">Optional</span>[<span class="built_in">dict</span>]:</span><br><span class="line">        user_id = request.get(<span class="string">&#x27;user_id&#x27;</span>, <span class="string">&#x27;unknown&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> user_id <span class="keyword">not</span> <span class="keyword">in</span> <span class="variable language_">self</span>.request_count:</span><br><span class="line">            <span class="variable language_">self</span>.request_count[user_id] = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">        <span class="variable language_">self</span>.request_count[user_id] += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.request_count[user_id] &gt; <span class="variable language_">self</span>.max_requests:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;RateLimitHandler: 用户 <span class="subst">&#123;user_id&#125;</span> 请求超限，拒绝访问&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;RateLimitHandler: 限流检查通过（当前: <span class="subst">&#123;self.request_count[user_id]&#125;</span>/<span class="subst">&#123;self.max_requests&#125;</span>）&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>().handle(request)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ValidationHandler</span>(<span class="title class_ inherited__">Handler</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;参数验证处理者&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">handle</span>(<span class="params">self, request: <span class="built_in">dict</span></span>) -&gt; <span class="type">Optional</span>[<span class="built_in">dict</span>]:</span><br><span class="line">        action = request.get(<span class="string">&#x27;action&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> action:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;ValidationHandler: 缺少action参数&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> action <span class="keyword">not</span> <span class="keyword">in</span> [<span class="string">&#x27;create&#x27;</span>, <span class="string">&#x27;update&#x27;</span>, <span class="string">&#x27;delete&#x27;</span>]:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;ValidationHandler: 无效的action: <span class="subst">&#123;action&#125;</span>&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;ValidationHandler: 参数验证通过&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>().handle(request)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BusinessLogicHandler</span>(<span class="title class_ inherited__">Handler</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;业务逻辑处理者&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">handle</span>(<span class="params">self, request: <span class="built_in">dict</span></span>) -&gt; <span class="type">Optional</span>[<span class="built_in">dict</span>]:</span><br><span class="line">        action = request.get(<span class="string">&#x27;action&#x27;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;BusinessLogicHandler: 执行业务逻辑 - <span class="subst">&#123;action&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">        result = &#123;</span><br><span class="line">            <span class="string">&#x27;status&#x27;</span>: <span class="string">&#x27;success&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;action&#x27;</span>: action,</span><br><span class="line">            <span class="string">&#x27;message&#x27;</span>: <span class="string">f&#x27;<span class="subst">&#123;action&#125;</span> 操作成功&#x27;</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="comment"># 构建责任链</span></span><br><span class="line">    auth = AuthenticationHandler()</span><br><span class="line">    rate_limit = RateLimitHandler()</span><br><span class="line">    validation = ValidationHandler()</span><br><span class="line">    business = BusinessLogicHandler()</span><br><span class="line"></span><br><span class="line">    auth.set_next(rate_limit).set_next(validation).set_next(business)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 测试不同请求</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;=== 测试1: 有效请求 ===&quot;</span>)</span><br><span class="line">    request1 = &#123;</span><br><span class="line">        <span class="string">&#x27;token&#x27;</span>: <span class="string">&#x27;valid_token_123&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;user_id&#x27;</span>: <span class="string">&#x27;user_001&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;action&#x27;</span>: <span class="string">&#x27;create&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">    result1 = auth.handle(request1)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;结果: <span class="subst">&#123;result1&#125;</span>\n&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;=== 测试2: 无效token ===&quot;</span>)</span><br><span class="line">    request2 = &#123;</span><br><span class="line">        <span class="string">&#x27;token&#x27;</span>: <span class="string">&#x27;invalid_token&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;user_id&#x27;</span>: <span class="string">&#x27;user_001&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;action&#x27;</span>: <span class="string">&#x27;create&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line">    result2 = auth.handle(request2)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;结果: <span class="subst">&#123;result2&#125;</span>\n&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;=== 测试3: 限流 ===&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">7</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;\n第 <span class="subst">&#123;i+<span class="number">1</span>&#125;</span> 次请求:&quot;</span>)</span><br><span class="line">        request3 = &#123;</span><br><span class="line">            <span class="string">&#x27;token&#x27;</span>: <span class="string">&#x27;valid_token_123&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;user_id&#x27;</span>: <span class="string">&#x27;user_002&#x27;</span>,</span><br><span class="line">            <span class="string">&#x27;action&#x27;</span>: <span class="string">&#x27;update&#x27;</span></span><br><span class="line">        &#125;</span><br><span class="line">        result3 = auth.handle(request3)</span><br><span class="line">        <span class="keyword">if</span> i == <span class="number">6</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;最终结果: <span class="subst">&#123;result3&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-2事件处理系统">实现 2：事件处理系统</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> abc <span class="keyword">import</span> ABC, abstractmethod</span><br><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">Optional</span>, <span class="type">List</span></span><br><span class="line"><span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@dataclass</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Event</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;事件数据&quot;&quot;&quot;</span></span><br><span class="line">    <span class="built_in">type</span>: <span class="built_in">str</span></span><br><span class="line">    data: <span class="built_in">dict</span></span><br><span class="line">    handled: <span class="built_in">bool</span> = <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">EventHandler</span>(<span class="title class_ inherited__">ABC</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;事件处理者基类&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, name: <span class="built_in">str</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.name = name</span><br><span class="line">        <span class="variable language_">self</span>._next_handler: <span class="type">Optional</span>[EventHandler] = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">set_next</span>(<span class="params">self, handler: <span class="string">&#x27;EventHandler&#x27;</span></span>) -&gt; <span class="string">&#x27;EventHandler&#x27;</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;设置下一个处理者&quot;&quot;&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>._next_handler = handler</span><br><span class="line">        <span class="keyword">return</span> handler</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">handle</span>(<span class="params">self, event: Event</span>) -&gt; Event:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;处理事件&quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 尝试处理</span></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.can_handle(event):</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;self.name&#125;</span>: 正在处理事件 <span class="subst">&#123;event.<span class="built_in">type</span>&#125;</span>&quot;</span>)</span><br><span class="line">            event = <span class="variable language_">self</span>.process(event)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 如果事件未被完全处理，传递给下一个</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> event.handled <span class="keyword">and</span> <span class="variable language_">self</span>._next_handler:</span><br><span class="line">            <span class="keyword">return</span> <span class="variable language_">self</span>._next_handler.handle(event)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">can_handle</span>(<span class="params">self, event: Event</span>) -&gt; <span class="built_in">bool</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;判断是否能处理该事件&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">return</span> event.<span class="built_in">type</span> <span class="keyword">in</span> <span class="variable language_">self</span>.get_supported_types()</span><br><span class="line"></span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_supported_types</span>(<span class="params">self</span>) -&gt; <span class="type">List</span>[<span class="built_in">str</span>]:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;返回支持的事件类型&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process</span>(<span class="params">self, event: Event</span>) -&gt; Event:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;处理事件的具体逻辑&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MouseEventHandler</span>(<span class="title class_ inherited__">EventHandler</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;鼠标事件处理者&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_supported_types</span>(<span class="params">self</span>) -&gt; <span class="type">List</span>[<span class="built_in">str</span>]:</span><br><span class="line">        <span class="keyword">return</span> [<span class="string">&#x27;click&#x27;</span>, <span class="string">&#x27;double_click&#x27;</span>, <span class="string">&#x27;hover&#x27;</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process</span>(<span class="params">self, event: Event</span>) -&gt; Event:</span><br><span class="line">        x = event.data.get(<span class="string">&#x27;x&#x27;</span>, <span class="number">0</span>)</span><br><span class="line">        y = event.data.get(<span class="string">&#x27;y&#x27;</span>, <span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;  处理鼠标事件: 坐标(<span class="subst">&#123;x&#125;</span>, <span class="subst">&#123;y&#125;</span>)&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> event.<span class="built_in">type</span> == <span class="string">&#x27;click&#x27;</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;  触发点击处理逻辑&quot;</span>)</span><br><span class="line">            event.handled = <span class="literal">True</span></span><br><span class="line">        <span class="keyword">elif</span> event.<span class="built_in">type</span> == <span class="string">&#x27;double_click&#x27;</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;  触发双击处理逻辑&quot;</span>)</span><br><span class="line">            event.handled = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">KeyboardEventHandler</span>(<span class="title class_ inherited__">EventHandler</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;键盘事件处理者&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_supported_types</span>(<span class="params">self</span>) -&gt; <span class="type">List</span>[<span class="built_in">str</span>]:</span><br><span class="line">        <span class="keyword">return</span> [<span class="string">&#x27;key_press&#x27;</span>, <span class="string">&#x27;key_release&#x27;</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process</span>(<span class="params">self, event: Event</span>) -&gt; Event:</span><br><span class="line">        key = event.data.get(<span class="string">&#x27;key&#x27;</span>, <span class="string">&#x27;&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;  处理键盘事件: 按键 <span class="subst">&#123;key&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> key == <span class="string">&#x27;Escape&#x27;</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;  ESC键按下，关闭窗口&quot;</span>)</span><br><span class="line">            event.handled = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LogEventHandler</span>(<span class="title class_ inherited__">EventHandler</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;日志记录处理者&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_supported_types</span>(<span class="params">self</span>) -&gt; <span class="type">List</span>[<span class="built_in">str</span>]:</span><br><span class="line">        <span class="keyword">return</span> [<span class="string">&#x27;*&#x27;</span>]  <span class="comment"># 支持所有事件</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process</span>(<span class="params">self, event: Event</span>) -&gt; Event:</span><br><span class="line">        <span class="comment"># 记录所有事件日志</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;  [日志] 记录事件: <span class="subst">&#123;event.<span class="built_in">type</span>&#125;</span>, 数据: <span class="subst">&#123;event.data&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> event</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UIEventHandler</span>(<span class="title class_ inherited__">EventHandler</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;UI事件处理者&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_supported_types</span>(<span class="params">self</span>) -&gt; <span class="type">List</span>[<span class="built_in">str</span>]:</span><br><span class="line">        <span class="keyword">return</span> [<span class="string">&#x27;click&#x27;</span>, <span class="string">&#x27;resize&#x27;</span>, <span class="string">&#x27;close&#x27;</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process</span>(<span class="params">self, event: Event</span>) -&gt; Event:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;  UI响应: <span class="subst">&#123;event.<span class="built_in">type</span>&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> event.<span class="built_in">type</span> == <span class="string">&#x27;close&#x27;</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;  关闭窗口&quot;</span>)</span><br><span class="line">            event.handled = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> event</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="comment"># 构建责任链</span></span><br><span class="line">    mouse_handler = MouseEventHandler(<span class="string">&quot;MouseHandler&quot;</span>)</span><br><span class="line">    keyboard_handler = KeyboardEventHandler(<span class="string">&quot;KeyboardHandler&quot;</span>)</span><br><span class="line">    log_handler = LogEventHandler(<span class="string">&quot;LogHandler&quot;</span>)</span><br><span class="line">    ui_handler = UIEventHandler(<span class="string">&quot;UIHandler&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 链条: 鼠标 -&gt; 键盘 -&gt; UI -&gt; 日志</span></span><br><span class="line">    mouse_handler.set_next(keyboard_handler).set_next(ui_handler).set_next(log_handler)</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;=== 测试1: 点击事件 ===&quot;</span>)</span><br><span class="line">    event1 = Event(<span class="built_in">type</span>=<span class="string">&#x27;click&#x27;</span>, data=&#123;<span class="string">&#x27;x&#x27;</span>: <span class="number">100</span>, <span class="string">&#x27;y&#x27;</span>: <span class="number">200</span>&#125;)</span><br><span class="line">    mouse_handler.handle(event1)</span><br><span class="line">    <span class="built_in">print</span>()</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;=== 测试2: 键盘事件 ===&quot;</span>)</span><br><span class="line">    event2 = Event(<span class="built_in">type</span>=<span class="string">&#x27;key_press&#x27;</span>, data=&#123;<span class="string">&#x27;key&#x27;</span>: <span class="string">&#x27;Escape&#x27;</span>&#125;)</span><br><span class="line">    mouse_handler.handle(event2)</span><br><span class="line">    <span class="built_in">print</span>()</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;=== 测试3: 未知事件 ===&quot;</span>)</span><br><span class="line">    event3 = Event(<span class="built_in">type</span>=<span class="string">&#x27;custom&#x27;</span>, data=&#123;<span class="string">&#x27;value&#x27;</span>: <span class="number">123</span>&#125;)</span><br><span class="line">    mouse_handler.handle(event3)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<h3><span id="七-参考资料与延伸阅读">七、参考资料与延伸阅读</span></h3><h4><span id="经典书籍">经典书籍</span></h4><ul>
+<li>《设计模式：可复用面向对象软件的基础》- GoF</li>
+<li>《Head First 设计模式》- 责任链模式章节</li>
+</ul>
+<h4><span id="在线资源">在线资源</span></h4><ul>
+<li><a target="_blank" rel="noopener" href="https://refactoring.guru/design-patterns/chain-of-responsibility">Refactoring.Guru - Chain of Responsibility</a></li>
+<li><a target="_blank" rel="noopener" href="https://java-design-patterns.com/patterns/chain-of-responsibility/">Java设计模式：责任链模式</a></li>
+</ul>
+<h4><span id="相关设计模式">相关设计模式</span></h4><ul>
+<li><strong>Composite（组合）</strong>：常与组合模式配合使用</li>
+<li><strong>Decorator（装饰）</strong>：类似的对象链结构</li>
+<li><strong>Observer（观察者）</strong>：都是处理请求的方式</li>
+</ul>
+<h4><span id="最佳实践建议">最佳实践建议</span></h4><ol>
+<li>保持处理者简单专注</li>
+<li>避免链条过长影响性能</li>
+<li>提供默认处理行为</li>
+<li>考虑设置处理超时</li>
+</ol>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/yannyi.github.io/tags/%E8%A1%8C%E4%B8%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">行为型模式</a>, <a class="tag-none-link" href="/yannyi.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2025-01-08T16:00:00.000Z" itemprop="dateModified">最后编辑：2025-01-09</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" Decorator 模式" href="/yannyi.github.io/2023/01/08/design_patterns/decorator/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+            <div class="nav-next clearfix">
+                <a title=" Visitor 模式" href="/yannyi.github.io/2023/01/10/design_patterns/visitor/">下一篇 <i class="fa fa-angle-right"></i></a>
+            </div>
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/yannyi.github.io/images/theme/Mamimi.JPG" alt="Mamimi" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center"></p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/yannyi.github.io/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                14
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                    <aside id="krw-toc" class="widget widget-kratos-toc clearfix toc-div-class" >
+    <div class="photo-background"></div>
+    <h4 class="widget-title no-after">
+        <i class="fa fa-compass"></i>
+        文章目录
+        <span class="toc-progress-bar" role="progressbar" aria-label="阅读进度："></span>
+    </h4>
+    <div class="textwidget">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Chain of Responsibility 模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.1.</span> <span class="toc-text">一、基础介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.2.</span> <span class="toc-text">二、生活比喻：客服工单处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.3.</span> <span class="toc-text">三、应用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.4.</span> <span class="toc-text">四、使用注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.1.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.2.</span> <span class="toc-text">缺点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.3.</span> <span class="toc-text">使用建议</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.5.</span> <span class="toc-text">五、Java 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.1.</span> <span class="toc-text">实现 1：请假审批流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.2.</span> <span class="toc-text">实现 2：日志记录系统</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.6.</span> <span class="toc-text">六、Python 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.1.</span> <span class="toc-text">实现 1：中间件处理链</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.2.</span> <span class="toc-text">实现 2：事件处理系统</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.7.</span> <span class="toc-text">七、参考资料与延伸阅读</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.1.</span> <span class="toc-text">经典书籍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.2.</span> <span class="toc-text">在线资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.3.</span> <span class="toc-text">相关设计模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.4.</span> <span class="toc-text">最佳实践建议</span></a></li></ol></li></ol></li></ol>
+    </div>
+</aside>
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/ai/">ai</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/games/">games</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/">java</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/">集合框架</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/">数据处理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/">mindset</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/">方法论</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/%E7%9F%A5%E8%AF%86%E7%AE%A1%E7%90%86/">知识管理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/tools/">tools</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Spring%E6%A1%86%E6%9E%B6/">Spring框架</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/SQL%E4%BC%98%E5%8C%96/">SQL优化</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a><span class="category-list-count">12</span></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/yannyi.github.io/tags/5W1H/" style="font-size: 0.6em;">5W1H</a> <a href="/yannyi.github.io/tags/AI%E6%8E%A2%E7%B4%A2/" style="font-size: 0.6em;">AI探索</a> <a href="/yannyi.github.io/tags/AI%E7%9F%A5%E8%AF%86%E5%BA%93/" style="font-size: 0.6em;">AI知识库</a> <a href="/yannyi.github.io/tags/AOP/" style="font-size: 0.6em;">AOP</a> <a href="/yannyi.github.io/tags/Java/" style="font-size: 0.67em;">Java</a> <a href="/yannyi.github.io/tags/MyBatis/" style="font-size: 0.6em;">MyBatis</a> <a href="/yannyi.github.io/tags/MySQL/" style="font-size: 0.67em;">MySQL</a> <a href="/yannyi.github.io/tags/SQL/" style="font-size: 0.6em;">SQL</a> <a href="/yannyi.github.io/tags/Spring/" style="font-size: 0.6em;">Spring</a> <a href="/yannyi.github.io/tags/%E5%85%A5%E9%97%A8/" style="font-size: 0.73em;">入门</a> <a href="/yannyi.github.io/tags/%E5%88%86%E6%89%B9%E5%A4%84%E7%90%86/" style="font-size: 0.6em;">分批处理</a> <a href="/yannyi.github.io/tags/%E5%88%86%E9%A1%B5/" style="font-size: 0.6em;">分页</a> <a href="/yannyi.github.io/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 0.8em;">创建型模式</a> <a href="/yannyi.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/" style="font-size: 0.6em;">后端开发</a> <a href="/yannyi.github.io/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 0.6em;">工具</a> <a href="/yannyi.github.io/tags/%E6%80%9D%E7%BB%B4%E6%A1%86%E6%9E%B6/" style="font-size: 0.6em;">思维框架</a> <a href="/yannyi.github.io/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" style="font-size: 0.67em;">性能优化</a> <a href="/yannyi.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 0.73em;">数据库</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/hello-world/"><i class="fa fa-book"></i> Hello World</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/categories/tech/design_patterns/"><i class="fa fa-book"></i> 设计模式</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-ai-mcp/"><i class="fa fa-book"></i> MCP 模型上下文协议</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-tools-Obsidian/"><i class="fa fa-book"></i> Markdown本地笔记 Obsidian</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2024-06-01-game-research/"><i class="fa fa-book"></i> 开始使用：游戏研究</a>
+            
+          
+        
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+                </div>
+    </div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 MamimiJa Nai 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li>自豪地使用 <a href="https://github.com/Candinya/Kratos-Rebirth" target="_blank">Kratos:Rebirth</a> 主题</li>
+                            <li>站点由 Mamimi 用 <i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                
+                    <div class="box search-box">
+                        <a href="/yannyi.github.io/search">
+                            <span class="fa fa-search"></span>
+                        </a>
+                    </div>
+                
+                <div class="box theme-box" id="theme-toggle">
+                    <span class="fa fa-adjust"></span>
+                </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">打赏</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">打赏提示信息</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/yannyi.github.io/js/kr-modal/donate.min.js"></script>
+
+
+
+
+
+<!-- 额外的追加注入项 -->
+
+
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/yannyi.github.io/";
+</script>
+
+
+  <script defer src="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/yannyi.github.io/js/kr-core.min.js"></script>
+
+
+  <script defer src="/yannyi.github.io/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>

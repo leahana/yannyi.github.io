@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+  
+  <title>Prototype 模式 | MamimiJa Nai</title>
+  <link rel="canonical" href="https://leahana.github.io/2023/01/02/design_patterns/prototype/">
+  <meta name="author" content="Mamimi" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="创建型模式, 设计模式" />
+  
+  <meta name="description" content="Prototype模式通过复制现有实例来创建新对象，避免了创建对象时的复杂初始化过程，适用于对象创建成本较高的场景。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Prototype 模式">
+<meta property="og:url" content="https://leahana.github.io/2023/01/02/design_patterns/prototype/index.html">
+<meta property="og:site_name" content="MamimiJa Nai">
+<meta property="og:description" content="Prototype模式通过复制现有实例来创建新对象，避免了创建对象时的复杂初始化过程，适用于对象创建成本较高的场景。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2023-01-02T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-08T16:00:00.000Z">
+<meta property="article:author" content="Mamimi">
+<meta property="article:tag" content="创建型模式">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"Prototype 模式","description":"Prototype模式通过复制现有实例来创建新对象，避免了创建对象时的复杂初始化过程，适用于对象创建成本较高的场景。","image":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG","author":{"@type":"Person","name":"Mamimi"},"publisher":{"@type":"Organization","name":"MamimiJa Nai","logo":{"@type":"ImageObject","url":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG"}},"datePublished":"2023-01-02T16:00:00.000Z","dateModified":"2025-01-08T16:00:00.000Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://leahana.github.io/2023/01/02/design_patterns/prototype/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/yannyi.github.io/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/yannyi.github.io/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/yannyi.github.io/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/yannyi.github.io/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/yannyi.github.io/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/yannyi.github.io/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+    <style>body.custom-background{background-image:url('/yannyi.github.io/images/theme/background.jpg')!important;background-attachment:fixed!important;background-size:cover!important;background-position:center!important;}#kratos-widget-area .widget-kratos-about .photo-background{background-image:url('/yannyi.github.io/images/theme/avatar-bg.jpg')!important;background-size:cover!important;background-position:35% 35%!important;background-repeat:no-repeat!important;}</style><link rel="stylesheet" href="/yannyi.github.io/css/custom.css">
+  
+<!-- hexo injector head_end start --><script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@latest/dist/mermaid.esm.min.mjs">
+    mermaid.initialize(
+      startOnLoad: true,
+    );
+    </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/">
+                                        
+                                            
+                                                <i class="fa fa-fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/archives">
+                                        
+                                            
+                                                <i class="fa fa-fa-archive"></i>
+                                            
+                                            归档
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/categories">
+                                        
+                                            
+                                                <i class="fa fa-fa-folder-open"></i>
+                                            
+                                            分类
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/tags">
+                                        
+                                            
+                                                <i class="fa fa-fa-tags"></i>
+                                            
+                                            标签
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/search">
+                                        
+                                            
+                                                <i class="fa fa-fa-search"></i>
+                                            
+                                            搜索
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a>
+                                        
+                                            
+                                                <i class="fa fa-fa-th-list"></i>
+                                            
+                                            更多
+                                        </a>
+                                        
+                                            <ul class="sub-menu">
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/about">
+                                                            
+                                                                <i class="fa fa-fa-user"></i>
+                                                            
+                                                            关于我
+                                                        </a>
+                                                    </li>
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/links">
+                                                            
+                                                                <i class="fa fa-fa-link"></i>
+                                                            
+                                                            友情链接
+                                                        </a>
+                                                    </li>
+                                                
+                                            </ul>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/yannyi.github.io/">MamimiJa Nai</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/yannyi.github.io/">
+                        <h2>MamimiJa Nai</h2> <br />
+                        <span></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://leahana.github.io/2023/01/02/design_patterns/prototype/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">Prototype 模式</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2023-01-02T16:00:00.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2023-01-03</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">Mamimi</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~19.34K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+                <div class="kratos-post-inner-toc toc-div-class" >
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Prototype 模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.1.</span> <span class="toc-text">一、基础介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.2.</span> <span class="toc-text">二、生活比喻：复印机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.3.</span> <span class="toc-text">三、模式结构与角色</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.3.1.</span> <span class="toc-text">登场角色</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.4.</span> <span class="toc-text">四、应用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.1.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.2.</span> <span class="toc-text">真实案例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.5.</span> <span class="toc-text">五、使用注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.1.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.2.</span> <span class="toc-text">缺点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.3.</span> <span class="toc-text">浅拷贝 vs 深拷贝</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.6.</span> <span class="toc-text">六、Java 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.1.</span> <span class="toc-text">实现 1：基本原型模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.2.</span> <span class="toc-text">实现 2：使用 Cloneable 接口（浅拷贝）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.3.</span> <span class="toc-text">实现 3：深拷贝实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.4.</span> <span class="toc-text">实现 4：序列化实现深拷贝</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.7.</span> <span class="toc-text">七、Python 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.1.</span> <span class="toc-text">实现 1：基本原型模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.2.</span> <span class="toc-text">实现 2：使用 copy 模块（浅拷贝）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.3.</span> <span class="toc-text">实现 3：深拷贝实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.4.</span> <span class="toc-text">实现 4：复杂对象的深拷贝</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.5.</span> <span class="toc-text">实现 5：使用 copy 和 deepcopy 魔术方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.6.</span> <span class="toc-text">实现 6：原型注册表（工厂模式结合）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.8.</span> <span class="toc-text">八、参考资料与延伸阅读</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.1.</span> <span class="toc-text">经典书籍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.2.</span> <span class="toc-text">在线资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.3.</span> <span class="toc-text">相关设计模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.4.</span> <span class="toc-text">最佳实践建议</span></a></li></ol></li></ol></li></ol>
+                </div>
+            
+            <hr />
+            <div itemprop="articleBody"><h2><span id="prototype-模式">Prototype 模式</span></h2><h3><span id="一-基础介绍">一、基础介绍</span></h3><p>Prototype（原型）模式是一种创建型设计模式，它通过复制现有实例来创建新对象，而不是通过 <code>new</code> 关键字创建。这个模式的核心思想是：<strong>通过克隆（clone）原型对象来创建新的对象</strong>。</p>
+<p>原型模式允许你创建对象而无需知道其具体类型，也无需关心创建细节。当你需要创建与现有对象相似的对象时，原型模式非常高效。</p>
+<h3><span id="二-生活比喻复印机">二、生活比喻：复印机</span></h3><p>想象一台<strong>复印机</strong>：</p>
+<blockquote>
+<p><strong>传统方式（new）</strong>：每次需要一份文档时，你都要重新手写一份。如果文档很复杂，包含图表、公式等，重新编写既费时又容易出错。</p>
+<p><strong>原型方式（clone）</strong>：你有一份精心制作的原版文档，只需要放入复印机，按下按钮，就能快速得到完全相同的副本。如果需要修改，只需要在副本上修改即可。</p>
+</blockquote>
+<p>在这个比喻中：</p>
+<ul>
+<li><strong>Prototype</strong> &#x3D; 原版文档（可以复印的对象）</li>
+<li><strong>clone()</strong> &#x3D; 复印按钮（复制操作）</li>
+<li><strong>ConcretePrototype</strong> &#x3D; 具体的文档类型（报告、合同、图纸）</li>
+<li><strong>Client</strong> &#x3D; 使用复印机的人</li>
+</ul>
+<h3><span id="三-模式结构与角色">三、模式结构与角色</span></h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────────────────────┐</span><br><span class="line">│                       Prototype                              │</span><br><span class="line">│                    (原型接口/抽象类)                          │</span><br><span class="line">│  ┌─────────────────────────────────────────────────────────┐│</span><br><span class="line">│  │ + clone(): Prototype  // 克隆方法                        ││</span><br><span class="line">│  └─────────────────────────────────────────────────────────┘│</span><br><span class="line">└─────────────────────────────────────────────────────────────┘</span><br><span class="line">                            ▲</span><br><span class="line">                            │</span><br><span class="line">                            │ inherits</span><br><span class="line">                            │</span><br><span class="line">┌─────────────────────────────────────────────────────────────┐</span><br><span class="line">│                  ConcretePrototype                          │</span><br><span class="line">│                     (具体原型)                               │</span><br><span class="line">│  ┌─────────────────────────────────────────────────────────┐│</span><br><span class="line">│  │ + clone(): Prototype  // 返回自己的副本                  ││</span><br><span class="line">│  │ - 各种业务属性和方法                                      ││</span><br><span class="line">│  └─────────────────────────────────────────────────────────┘│</span><br><span class="line">└─────────────────────────────────────────────────────────────┘</span><br><span class="line"></span><br><span class="line">        使用 clone()                              创建新的</span><br><span class="line">        进行复制                            ConcretePrototype</span><br><span class="line">         ┌─────────┐                              ┌─────────┐</span><br><span class="line">         │  原型   │ ──克隆(clone)───▶             │  副本   │</span><br><span class="line">         └─────────┘                              └─────────┘</span><br></pre></td></tr></table></figure>
+
+<h4><span id="登场角色">登场角色</span></h4><table>
+<thead>
+<tr>
+<th>角色</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Prototype（原型）</strong></td>
+<td>声明克隆方法的接口，通常是 <code>clone()</code></td>
+</tr>
+<tr>
+<td><strong>ConcretePrototype（具体原型）</strong></td>
+<td>实现克隆方法，返回自己的副本</td>
+</tr>
+<tr>
+<td><strong>Client（客户端）</strong></td>
+<td>通过克隆原型来创建新对象</td>
+</tr>
+</tbody></table>
+<h3><span id="四-应用场景">四、应用场景</span></h3><h4><span id="适用场景">适用场景</span></h4><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>对象创建成本高</strong></td>
+<td>初始化需要大量资源或时间</td>
+<td>复杂图形、大型文档</td>
+</tr>
+<tr>
+<td><strong>对象种类繁多</strong></td>
+<td>无法预知需要创建哪些类</td>
+<td>游戏中的怪物配置</td>
+</tr>
+<tr>
+<td><strong>避免类爆炸</strong></td>
+<td>使用工厂方法会产生大量子类</td>
+<td>不同配置的报表</td>
+</tr>
+<tr>
+<td><strong>保持状态一致性</strong></td>
+<td>需要保存和恢复对象状态</td>
+<td>游戏存档、撤销操作</td>
+</tr>
+<tr>
+<td><strong>解耦框架与实例</strong></td>
+<td>框架不依赖具体类</td>
+<td>插件系统、模板系统</td>
+</tr>
+</tbody></table>
+<h4><span id="真实案例">真实案例</span></h4><ul>
+<li><strong>游戏开发</strong>：克隆怪物、武器、道具对象</li>
+<li><strong>文档编辑</strong>：复制粘贴功能、模板文档</li>
+<li><strong>科学计算</strong>：复制大型数据集进行实验</li>
+<li><strong>配置管理</strong>：基于模板创建新配置</li>
+</ul>
+<h3><span id="五-使用注意事项">五、使用注意事项</span></h3><h4><span id="优点">优点</span></h4><table>
+<thead>
+<tr>
+<th>优点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>性能提升</strong></td>
+<td>克隆比直接创建快，特别是复杂对象</td>
+</tr>
+<tr>
+<td><strong>简化创建</strong></td>
+<td>无需知道创建细节，只需克隆</td>
+</tr>
+<tr>
+<td><strong>动态扩展</strong></td>
+<td>运行时可以增删对象类型</td>
+</tr>
+<tr>
+<td><strong>保持状态</strong></td>
+<td>克隆会复制原对象的状态</td>
+</tr>
+</tbody></table>
+<h4><span id="缺点">缺点</span></h4><table>
+<thead>
+<tr>
+<th>缺点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>浅拷贝问题</strong></td>
+<td>默认克隆只复制引用，不复制对象</td>
+</tr>
+<tr>
+<td><strong>深拷贝复杂</strong></td>
+<td>实现深拷贝需要额外工作</td>
+</tr>
+<tr>
+<td><strong>违反开闭原则</strong></td>
+<td>修改原型类可能影响所有克隆</td>
+</tr>
+<tr>
+<td><strong>调试困难</strong></td>
+<td>克隆链难以追踪对象来源</td>
+</tr>
+</tbody></table>
+<h4><span id="浅拷贝-vs-深拷贝">浅拷贝 vs 深拷贝</span></h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">浅拷贝（Shallow Copy）:</span><br><span class="line">┌─────────────┐        ┌─────────────┐</span><br><span class="line">│  原对象     │        │  克隆对象   │</span><br><span class="line">│  - name     │        │  - name     │  ← 基本类型复制值</span><br><span class="line">│  - list ────┼────────┼─── list     │  ← 引用类型共享内存</span><br><span class="line">└─────────────┘        └─────────────┘</span><br><span class="line">                       ↑</span><br><span class="line">                       修改list会互相影响</span><br><span class="line"></span><br><span class="line">深拷贝（Deep Copy）:</span><br><span class="line">┌─────────────┐        ┌─────────────┐</span><br><span class="line">│  原对象     │        │  克隆对象   │</span><br><span class="line">│  - name     │        │  - name     │  ← 完全独立</span><br><span class="line">│  - list     │  复制  │  - list     │  ← 独立的内存</span><br><span class="line">└─────────────┘        └─────────────┘</span><br><span class="line">                       修改互不影响</span><br></pre></td></tr></table></figure>
+
+<h3><span id="六-java-经典案例">六、Java 经典案例</span></h3><h4><span id="实现-1基本原型模式">实现 1：基本原型模式</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 原型接口</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">Prototype</span> &#123;</span><br><span class="line">    Prototype <span class="title function_">clone</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 具体原型：文档</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Document</span> <span class="keyword">implements</span> <span class="title class_">Prototype</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String title;</span><br><span class="line">    <span class="keyword">private</span> String content;</span><br><span class="line">    <span class="keyword">private</span> String author;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Document</span><span class="params">(String title, String content, String author)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.title = title;</span><br><span class="line">        <span class="built_in">this</span>.content = content;</span><br><span class="line">        <span class="built_in">this</span>.author = author;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 实现克隆方法</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Document <span class="title function_">clone</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Document</span>(<span class="built_in">this</span>.title, <span class="built_in">this</span>.content, <span class="built_in">this</span>.author);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Getters and Setters</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getTitle</span><span class="params">()</span> &#123; <span class="keyword">return</span> title; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setTitle</span><span class="params">(String title)</span> &#123; <span class="built_in">this</span>.title = title; &#125;</span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getContent</span><span class="params">()</span> &#123; <span class="keyword">return</span> content; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setContent</span><span class="params">(String content)</span> &#123; <span class="built_in">this</span>.content = content; &#125;</span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getAuthor</span><span class="params">()</span> &#123; <span class="keyword">return</span> author; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAuthor</span><span class="params">(String author)</span> &#123; <span class="built_in">this</span>.author = author; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Document&#123;title=&#x27;&quot;</span> + title + <span class="string">&quot;&#x27;, content=&#x27;&quot;</span> + content + <span class="string">&quot;&#x27;, author=&#x27;&quot;</span> + author + <span class="string">&quot;&#x27;&#125;&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PrototypeDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">// 创建原型文档</span></span><br><span class="line">        <span class="type">Document</span> <span class="variable">prototype</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Document</span>(<span class="string">&quot;项目报告&quot;</span>, <span class="string">&quot;这是项目报告的内容&quot;</span>, <span class="string">&quot;张三&quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;原型: &quot;</span> + prototype);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 克隆文档</span></span><br><span class="line">        <span class="type">Document</span> <span class="variable">copy1</span> <span class="operator">=</span> prototype.clone();</span><br><span class="line">        copy1.setTitle(<span class="string">&quot;项目报告 - 副本1&quot;</span>);</span><br><span class="line">        copy1.setContent(<span class="string">&quot;这是副本1的修改内容&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">Document</span> <span class="variable">copy2</span> <span class="operator">=</span> prototype.clone();</span><br><span class="line">        copy2.setTitle(<span class="string">&quot;项目报告 - 副本2&quot;</span>);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;副本1: &quot;</span> + copy1);</span><br><span class="line">        System.out.println(<span class="string">&quot;副本2: &quot;</span> + copy2);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-2使用-cloneable-接口浅拷贝">实现 2：使用 Cloneable 接口（浅拷贝）</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 实现 Cloneable 接口的原型</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ShallowCopyExample</span> <span class="keyword">implements</span> <span class="title class_">Cloneable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span>[] data;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ShallowCopyExample</span><span class="params">(String name, <span class="type">int</span>[] data)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">        <span class="built_in">this</span>.data = data;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> ShallowCopyExample <span class="title function_">clone</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// Object 的 clone() 方法是浅拷贝</span></span><br><span class="line">            <span class="keyword">return</span> (ShallowCopyExample) <span class="built_in">super</span>.clone();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (CloneNotSupportedException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Getters and Setters</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123; <span class="keyword">return</span> name; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span>[] getData() &#123; <span class="keyword">return</span> data; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setData</span><span class="params">(<span class="type">int</span> index, <span class="type">int</span> value)</span> &#123; data[index] = value; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> name + <span class="string">&quot;: &quot;</span> + java.util.Arrays.toString(data);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 演示浅拷贝问题</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ShallowCopyDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">int</span>[] dataArray = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>&#125;;</span><br><span class="line">        <span class="type">ShallowCopyExample</span> <span class="variable">original</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ShallowCopyExample</span>(<span class="string">&quot;Original&quot;</span>, dataArray);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 克隆对象</span></span><br><span class="line">        <span class="type">ShallowCopyExample</span> <span class="variable">cloned</span> <span class="operator">=</span> original.clone();</span><br><span class="line">        cloned.setName(<span class="string">&quot;Cloned&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 修改克隆对象的数组</span></span><br><span class="line">        cloned.setData(<span class="number">0</span>, <span class="number">999</span>);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;Original: &quot;</span> + original);  <span class="comment">// Original: [999, 2, 3, 4, 5]</span></span><br><span class="line">        System.out.println(<span class="string">&quot;Cloned: &quot;</span> + cloned);      <span class="comment">// Cloned: [999, 2, 3, 4, 5]</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 问题：原对象的数组也被修改了！</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-3深拷贝实现">实现 3：深拷贝实现</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 深拷贝实现示例</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DeepCopyExample</span> <span class="keyword">implements</span> <span class="title class_">Cloneable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span>[] data;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">DeepCopyExample</span><span class="params">(String name, <span class="type">int</span>[] data)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">        <span class="comment">// 复制数组，确保独立</span></span><br><span class="line">        <span class="built_in">this</span>.data = data.clone();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> DeepCopyExample <span class="title function_">clone</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">DeepCopyExample</span> <span class="variable">cloned</span> <span class="operator">=</span> (DeepCopyExample) <span class="built_in">super</span>.clone();</span><br><span class="line">            <span class="comment">// 深拷贝：也要复制数组</span></span><br><span class="line">            cloned.data = <span class="built_in">this</span>.data.clone();</span><br><span class="line">            <span class="keyword">return</span> cloned;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (CloneNotSupportedException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Getters and Setters</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123; <span class="keyword">return</span> name; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span>[] getData() &#123; <span class="keyword">return</span> data; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setData</span><span class="params">(<span class="type">int</span> index, <span class="type">int</span> value)</span> &#123; data[index] = value; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> name + <span class="string">&quot;: &quot;</span> + java.util.Arrays.toString(data);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 演示深拷贝</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DeepCopyDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">int</span>[] dataArray = &#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>&#125;;</span><br><span class="line">        <span class="type">DeepCopyExample</span> <span class="variable">original</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DeepCopyExample</span>(<span class="string">&quot;Original&quot;</span>, dataArray);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 克隆对象</span></span><br><span class="line">        <span class="type">DeepCopyExample</span> <span class="variable">cloned</span> <span class="operator">=</span> original.clone();</span><br><span class="line">        cloned.setName(<span class="string">&quot;Cloned&quot;</span>);</span><br><span class="line">        cloned.setData(<span class="number">0</span>, <span class="number">999</span>);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;Original: &quot;</span> + original);  <span class="comment">// Original: [1, 2, 3, 4, 5]</span></span><br><span class="line">        System.out.println(<span class="string">&quot;Cloned: &quot;</span> + cloned);      <span class="comment">// Cloned: [999, 2, 3, 4, 5]</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 现在：原对象的数组没有被修改，完全独立！</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-4序列化实现深拷贝">实现 4：序列化实现深拷贝</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 使用序列化实现深拷贝</span></span><br><span class="line"><span class="comment"> * 适用于复杂对象的深拷贝</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SerializationUtil</span> &#123;</span><br><span class="line">    <span class="meta">@SuppressWarnings(&quot;unchecked&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T <span class="keyword">extends</span> <span class="title class_">Serializable</span>&gt; T <span class="title function_">deepCopy</span><span class="params">(T obj)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 序列化到字节数组</span></span><br><span class="line">            <span class="type">ByteArrayOutputStream</span> <span class="variable">bos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayOutputStream</span>();</span><br><span class="line">            <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(bos);</span><br><span class="line">            oos.writeObject(obj);</span><br><span class="line">            oos.flush();</span><br><span class="line"></span><br><span class="line">            <span class="comment">// 从字节数组反序列化</span></span><br><span class="line">            <span class="type">ByteArrayInputStream</span> <span class="variable">bis</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ByteArrayInputStream</span>(bos.toByteArray());</span><br><span class="line">            <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(bis);</span><br><span class="line">            <span class="keyword">return</span> (T) ois.readObject();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException | ClassNotFoundException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">RuntimeException</span>(<span class="string">&quot;Deep copy failed&quot;</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 可序列化的复杂对象</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ComplexObject</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">serialVersionUID</span> <span class="operator">=</span> <span class="number">1L</span>;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> nestedObject nested;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">ComplexObject</span><span class="params">(String name, String nestedValue)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">        <span class="built_in">this</span>.nested = <span class="keyword">new</span> <span class="title class_">nestedObject</span>(nestedValue);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">nestedObject</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">serialVersionUID</span> <span class="operator">=</span> <span class="number">1L</span>;</span><br><span class="line">        <span class="keyword">private</span> String value;</span><br><span class="line">        <span class="keyword">public</span> <span class="title function_">nestedObject</span><span class="params">(String value)</span> &#123; <span class="built_in">this</span>.value = value; &#125;</span><br><span class="line">        <span class="keyword">public</span> String <span class="title function_">getValue</span><span class="params">()</span> &#123; <span class="keyword">return</span> value; &#125;</span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setValue</span><span class="params">(String value)</span> &#123; <span class="built_in">this</span>.value = value; &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Getters</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123; <span class="keyword">return</span> name; &#125;</span><br><span class="line">    <span class="keyword">public</span> nestedObject <span class="title function_">getNested</span><span class="params">()</span> &#123; <span class="keyword">return</span> nested; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用序列化进行深拷贝</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SerializationCopyDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">ComplexObject</span> <span class="variable">original</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ComplexObject</span>(<span class="string">&quot;Original&quot;</span>, <span class="string">&quot;Nested Value&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使用序列化进行深拷贝</span></span><br><span class="line">        <span class="type">ComplexObject</span> <span class="variable">cloned</span> <span class="operator">=</span> SerializationUtil.deepCopy(original);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 修改克隆对象</span></span><br><span class="line">        cloned.getNested().setValue(<span class="string">&quot;Modified&quot;</span>);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;Original nested: &quot;</span> + original.getNested().getValue());</span><br><span class="line">        System.out.println(<span class="string">&quot;Cloned nested: &quot;</span> + cloned.getNested().getValue());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Original 和 Cloned 完全独立</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3><span id="七-python-经典案例">七、Python 经典案例</span></h3><h4><span id="实现-1基本原型模式">实现 1：基本原型模式</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> copy</span><br><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> Protocol</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Prototype</span>(<span class="title class_ inherited__">Protocol</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;原型接口&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">clone</span>(<span class="params">self</span>) -&gt; <span class="string">&#x27;Prototype&#x27;</span>:</span><br><span class="line">        ...</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Document</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;文档类 - 可克隆的对象&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, title: <span class="built_in">str</span>, content: <span class="built_in">str</span>, author: <span class="built_in">str</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.title = title</span><br><span class="line">        <span class="variable language_">self</span>.content = content</span><br><span class="line">        <span class="variable language_">self</span>.author = author</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">clone</span>(<span class="params">self</span>) -&gt; <span class="string">&#x27;Document&#x27;</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;克隆方法&quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 创建新对象，复制所有属性</span></span><br><span class="line">        <span class="keyword">return</span> Document(<span class="variable language_">self</span>.title, <span class="variable language_">self</span>.content, <span class="variable language_">self</span>.author)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__str__</span>(<span class="params">self</span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&quot;Document&#123;&#123;title=&#x27;<span class="subst">&#123;self.title&#125;</span>&#x27;, content=&#x27;<span class="subst">&#123;self.content&#125;</span>&#x27;, author=&#x27;<span class="subst">&#123;self.author&#125;</span>&#x27;&#125;&#125;&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="comment"># 创建原型文档</span></span><br><span class="line">    prototype = Document(<span class="string">&quot;项目报告&quot;</span>, <span class="string">&quot;这是项目报告的内容&quot;</span>, <span class="string">&quot;张三&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;原型: <span class="subst">&#123;prototype&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 克隆文档</span></span><br><span class="line">    copy1 = prototype.clone()</span><br><span class="line">    copy1.title = <span class="string">&quot;项目报告 - 副本1&quot;</span></span><br><span class="line">    copy1.content = <span class="string">&quot;这是副本1的修改内容&quot;</span></span><br><span class="line"></span><br><span class="line">    copy2 = prototype.clone()</span><br><span class="line">    copy2.title = <span class="string">&quot;项目报告 - 副本2&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;副本1: <span class="subst">&#123;copy1&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;副本2: <span class="subst">&#123;copy2&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-2使用-copy-模块浅拷贝">实现 2：使用 copy 模块（浅拷贝）</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> copy</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ShallowCopyExample</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;浅拷贝示例&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, name: <span class="built_in">str</span>, data: <span class="built_in">list</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.name = name</span><br><span class="line">        <span class="variable language_">self</span>.data = data</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__str__</span>(<span class="params">self</span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;self.name&#125;</span>: <span class="subst">&#123;self.data&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">shallow_copy_demo</span>():</span><br><span class="line">    <span class="string">&quot;&quot;&quot;演示浅拷贝的问题&quot;&quot;&quot;</span></span><br><span class="line">    data_list = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">    original = ShallowCopyExample(<span class="string">&quot;Original&quot;</span>, data_list)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 使用 copy.copy() 进行浅拷贝</span></span><br><span class="line">    cloned = copy.copy(original)</span><br><span class="line">    cloned.name = <span class="string">&quot;Cloned&quot;</span></span><br><span class="line">    cloned.data[<span class="number">0</span>] = <span class="number">999</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Original: <span class="subst">&#123;original&#125;</span>&quot;</span>)  <span class="comment"># Original: [999, 2, 3, 4, 5]</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Cloned: <span class="subst">&#123;cloned&#125;</span>&quot;</span>)      <span class="comment"># Cloned: [999, 2, 3, 4, 5]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 问题：原对象的列表也被修改了！</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    shallow_copy_demo()</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-3深拷贝实现">实现 3：深拷贝实现</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> copy</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DeepCopyExample</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;深拷贝示例&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, name: <span class="built_in">str</span>, data: <span class="built_in">list</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.name = name</span><br><span class="line">        <span class="variable language_">self</span>.data = <span class="built_in">list</span>(data)  <span class="comment"># 复制列表</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__str__</span>(<span class="params">self</span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;self.name&#125;</span>: <span class="subst">&#123;self.data&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">deep_copy_demo</span>():</span><br><span class="line">    <span class="string">&quot;&quot;&quot;演示深拷贝&quot;&quot;&quot;</span></span><br><span class="line">    data_list = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line">    original = DeepCopyExample(<span class="string">&quot;Original&quot;</span>, data_list)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 使用 copy.deepcopy() 进行深拷贝</span></span><br><span class="line">    cloned = copy.deepcopy(original)</span><br><span class="line">    cloned.name = <span class="string">&quot;Cloned&quot;</span></span><br><span class="line">    cloned.data[<span class="number">0</span>] = <span class="number">999</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Original: <span class="subst">&#123;original&#125;</span>&quot;</span>)  <span class="comment"># Original: [1, 2, 3, 4, 5]</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Cloned: <span class="subst">&#123;cloned&#125;</span>&quot;</span>)      <span class="comment"># Cloned: [999, 2, 3, 4, 5]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 现在：原对象的列表没有被修改，完全独立！</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    deep_copy_demo()</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-4复杂对象的深拷贝">实现 4：复杂对象的深拷贝</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> copy</span><br><span class="line"><span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass</span><br><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">List</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@dataclass</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Item</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;嵌套对象&quot;&quot;&quot;</span></span><br><span class="line">    name: <span class="built_in">str</span></span><br><span class="line">    value: <span class="built_in">int</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@dataclass</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ShoppingCart</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;购物车 - 复杂对象&quot;&quot;&quot;</span></span><br><span class="line">    items: <span class="type">List</span>[Item]</span><br><span class="line">    customer: <span class="built_in">str</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">clone</span>(<span class="params">self</span>) -&gt; <span class="string">&#x27;ShoppingCart&#x27;</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;克隆方法&quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 使用 deepcopy 确保完全独立</span></span><br><span class="line">        <span class="keyword">return</span> copy.deepcopy(<span class="variable language_">self</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__str__</span>(<span class="params">self</span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        items_str = <span class="string">&quot;, &quot;</span>.join(item.name <span class="keyword">for</span> item <span class="keyword">in</span> <span class="variable language_">self</span>.items)</span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;self.customer&#125;</span>&#x27;s cart: [<span class="subst">&#123;items_str&#125;</span>]&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">complex_deep_copy_demo</span>():</span><br><span class="line">    <span class="string">&quot;&quot;&quot;复杂对象的深拷贝演示&quot;&quot;&quot;</span></span><br><span class="line">    <span class="comment"># 创建原型购物车</span></span><br><span class="line">    prototype = ShoppingCart(</span><br><span class="line">        items=[Item(<span class="string">&quot;Laptop&quot;</span>, <span class="number">1000</span>), Item(<span class="string">&quot;Mouse&quot;</span>, <span class="number">50</span>)],</span><br><span class="line">        customer=<span class="string">&quot;Prototype Customer&quot;</span></span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 克隆购物车</span></span><br><span class="line">    cart1 = prototype.clone()</span><br><span class="line">    cart1.customer = <span class="string">&quot;Alice&quot;</span></span><br><span class="line">    cart1.items.append(Item(<span class="string">&quot;Keyboard&quot;</span>, <span class="number">100</span>))</span><br><span class="line"></span><br><span class="line">    cart2 = prototype.clone()</span><br><span class="line">    cart2.customer = <span class="string">&quot;Bob&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Prototype: <span class="subst">&#123;prototype&#125;</span>&quot;</span>)  <span class="comment"># 原型保持不变</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Cart1: <span class="subst">&#123;cart1&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Cart2: <span class="subst">&#123;cart2&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    complex_deep_copy_demo()</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-5使用-copy-和-deepcopy-魔术方法">实现 5：使用 <strong>copy</strong> 和 <strong>deepcopy</strong> 魔术方法</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> copy</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CustomClone</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;自定义克隆行为的类&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, name: <span class="built_in">str</span>, data: <span class="built_in">dict</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.name = name</span><br><span class="line">        <span class="variable language_">self</span>.data = data</span><br><span class="line">        <span class="variable language_">self</span>.cache = <span class="literal">None</span>  <span class="comment"># 不希望被克隆的缓存</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__copy__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;自定义浅拷贝行为&quot;&quot;&quot;</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Using custom __copy__ method&quot;</span>)</span><br><span class="line">        new_obj = CustomClone(<span class="variable language_">self</span>.name, <span class="variable language_">self</span>.data)</span><br><span class="line">        <span class="comment"># cache 不会被复制</span></span><br><span class="line">        <span class="keyword">return</span> new_obj</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__deepcopy__</span>(<span class="params">self, memo</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;自定义深拷贝行为&quot;&quot;&quot;</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Using custom __deepcopy__ method&quot;</span>)</span><br><span class="line">        <span class="comment"># memo 用于处理循环引用</span></span><br><span class="line">        new_obj = CustomClone(</span><br><span class="line">            <span class="variable language_">self</span>.name,</span><br><span class="line">            copy.deepcopy(<span class="variable language_">self</span>.data, memo)</span><br><span class="line">        )</span><br><span class="line">        <span class="comment"># cache 不会被复制</span></span><br><span class="line">        <span class="keyword">return</span> new_obj</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__str__</span>(<span class="params">self</span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;self.name&#125;</span>: data=<span class="subst">&#123;self.data&#125;</span>, cache=<span class="subst">&#123;self.cache&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">custom_clone_demo</span>():</span><br><span class="line">    <span class="string">&quot;&quot;&quot;自定义克隆演示&quot;&quot;&quot;</span></span><br><span class="line">    obj = CustomClone(<span class="string">&quot;Test&quot;</span>, &#123;<span class="string">&quot;key&quot;</span>: <span class="string">&quot;value&quot;</span>&#125;)</span><br><span class="line">    obj.cache = <span class="string">&quot;Cached Value&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 浅拷贝</span></span><br><span class="line">    shallow = copy.copy(obj)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Shallow copy: <span class="subst">&#123;shallow&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 深拷贝</span></span><br><span class="line">    deep = copy.deepcopy(obj)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Deep copy: <span class="subst">&#123;deep&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    custom_clone_demo()</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-6原型注册表工厂模式结合">实现 6：原型注册表（工厂模式结合）</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">Dict</span>, TypeVar, <span class="type">Type</span></span><br><span class="line"><span class="keyword">import</span> copy</span><br><span class="line"></span><br><span class="line">T = TypeVar(<span class="string">&#x27;T&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PrototypeRegistry</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;原型注册表 - 管理所有原型对象&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>._prototypes: <span class="type">Dict</span>[<span class="built_in">str</span>, <span class="built_in">object</span>] = &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">register</span>(<span class="params">self, key: <span class="built_in">str</span>, prototype: <span class="built_in">object</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;注册原型&quot;&quot;&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>._prototypes[key] = prototype</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Registered prototype: <span class="subst">&#123;key&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">unregister</span>(<span class="params">self, key: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;注销原型&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">if</span> key <span class="keyword">in</span> <span class="variable language_">self</span>._prototypes:</span><br><span class="line">            <span class="keyword">del</span> <span class="variable language_">self</span>._prototypes[key]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">clone</span>(<span class="params">self, key: <span class="built_in">str</span></span>) -&gt; <span class="built_in">object</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;克隆指定原型&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">if</span> key <span class="keyword">not</span> <span class="keyword">in</span> <span class="variable language_">self</span>._prototypes:</span><br><span class="line">            <span class="keyword">raise</span> ValueError(<span class="string">f&quot;Prototype &#x27;<span class="subst">&#123;key&#125;</span>&#x27; not found&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> copy.deepcopy(<span class="variable language_">self</span>._prototypes[key])</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Monster</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;游戏怪物类&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, name: <span class="built_in">str</span>, health: <span class="built_in">int</span>, damage: <span class="built_in">int</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.name = name</span><br><span class="line">        <span class="variable language_">self</span>.health = health</span><br><span class="line">        <span class="variable language_">self</span>.damage = damage</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__str__</span>(<span class="params">self</span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">f&quot;<span class="subst">&#123;self.name&#125;</span>(HP:<span class="subst">&#123;self.health&#125;</span>, DMG:<span class="subst">&#123;self.damage&#125;</span>)&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">prototype_registry_demo</span>():</span><br><span class="line">    <span class="string">&quot;&quot;&quot;原型注册表演示&quot;&quot;&quot;</span></span><br><span class="line">    registry = PrototypeRegistry()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 注册不同的怪物原型</span></span><br><span class="line">    registry.register(<span class="string">&quot;goblin&quot;</span>, Monster(<span class="string">&quot;哥布林&quot;</span>, <span class="number">50</span>, <span class="number">10</span>))</span><br><span class="line">    registry.register(<span class="string">&quot;dragon&quot;</span>, Monster(<span class="string">&quot;巨龙&quot;</span>, <span class="number">500</span>, <span class="number">100</span>))</span><br><span class="line">    registry.register(<span class="string">&quot;skeleton&quot;</span>, Monster(<span class="string">&quot;骷髅&quot;</span>, <span class="number">30</span>, <span class="number">5</span>))</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 使用原型创建怪物</span></span><br><span class="line">    goblin1 = registry.clone(<span class="string">&quot;goblin&quot;</span>)</span><br><span class="line">    goblin2 = registry.clone(<span class="string">&quot;goblin&quot;</span>)</span><br><span class="line">    goblin2.name = <span class="string">&quot;哥布林战士&quot;</span></span><br><span class="line">    goblin2.health = <span class="number">80</span></span><br><span class="line"></span><br><span class="line">    dragon = registry.clone(<span class="string">&quot;dragon&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;\nCreated monsters:&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;  <span class="subst">&#123;goblin1&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;  <span class="subst">&#123;goblin2&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;  <span class="subst">&#123;dragon&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    prototype_registry_demo()</span><br></pre></td></tr></table></figure>
+
+<h3><span id="八-参考资料与延伸阅读">八、参考资料与延伸阅读</span></h3><h4><span id="经典书籍">经典书籍</span></h4><ul>
+<li>《设计模式：可复用面向对象软件的基础》- GoF</li>
+<li>《Head First 设计模式》- 原型模式章节</li>
+<li>《Java设计模式》- 深拷贝与浅拷贝专题</li>
+</ul>
+<h4><span id="在线资源">在线资源</span></h4><ul>
+<li><a target="_blank" rel="noopener" href="https://refactoring.guru/design-patterns/prototype">Refactoring.Guru - Prototype</a></li>
+<li><a target="_blank" rel="noopener" href="https://java-design-patterns.com/patterns/prototype/">Java Cloneable 接口详解</a></li>
+<li><a target="_blank" rel="noopener" href="https://docs.python.org/3/library/copy.html">Python copy 模块文档</a></li>
+</ul>
+<h4><span id="相关设计模式">相关设计模式</span></h4><ul>
+<li><strong>Abstract Factory（抽象工厂）</strong>：可以用原型存储产品实例</li>
+<li><strong>Composite（组合）</strong>：原型可以克隆复杂的组合结构</li>
+<li><strong>Decorator（装饰）</strong>：装饰后的对象可以被克隆</li>
+<li><strong>Memento（备忘录）</strong>：备忘录可以使用原型实现</li>
+<li><strong>Command（命令）</strong>：命令可以被克隆以支持撤销操作</li>
+</ul>
+<h4><span id="最佳实践建议">最佳实践建议</span></h4><ol>
+<li><p><strong>Java</strong>：</p>
+<ul>
+<li>优先使用 <code>Cloneable</code> 接口</li>
+<li>注意深拷贝的实现</li>
+<li>复杂对象考虑使用序列化</li>
+</ul>
+</li>
+<li><p><strong>Python</strong>：</p>
+<ul>
+<li>优先使用 <code>copy</code> 模块</li>
+<li>浅拷贝用 <code>copy.copy()</code></li>
+<li>深拷贝用 <code>copy.deepcopy()</code></li>
+<li>自定义对象可实现 <code>__copy__</code> 和 <code>__deepcopy__</code></li>
+</ul>
+</li>
+<li><p><strong>通用建议</strong>：</p>
+<ul>
+<li>明确区分浅拷贝和深拷贝</li>
+<li>复杂对象使用原型注册表管理</li>
+<li>注意循环引用的克隆问题</li>
+</ul>
+</li>
+</ol>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/yannyi.github.io/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">创建型模式</a>, <a class="tag-none-link" href="/yannyi.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2025-01-08T16:00:00.000Z" itemprop="dateModified">最后编辑：2025-01-09</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" Singleton 模式" href="/yannyi.github.io/2023/01/01/design_patterns/singleton/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+            <div class="nav-next clearfix">
+                <a title=" Builder 模式" href="/yannyi.github.io/2023/01/03/design_patterns/builder/">下一篇 <i class="fa fa-angle-right"></i></a>
+            </div>
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/yannyi.github.io/images/theme/Mamimi.JPG" alt="Mamimi" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center"></p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/yannyi.github.io/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                14
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                    <aside id="krw-toc" class="widget widget-kratos-toc clearfix toc-div-class" >
+    <div class="photo-background"></div>
+    <h4 class="widget-title no-after">
+        <i class="fa fa-compass"></i>
+        文章目录
+        <span class="toc-progress-bar" role="progressbar" aria-label="阅读进度："></span>
+    </h4>
+    <div class="textwidget">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Prototype 模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.1.</span> <span class="toc-text">一、基础介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.2.</span> <span class="toc-text">二、生活比喻：复印机</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.3.</span> <span class="toc-text">三、模式结构与角色</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.3.1.</span> <span class="toc-text">登场角色</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.4.</span> <span class="toc-text">四、应用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.1.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.2.</span> <span class="toc-text">真实案例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.5.</span> <span class="toc-text">五、使用注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.1.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.2.</span> <span class="toc-text">缺点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.3.</span> <span class="toc-text">浅拷贝 vs 深拷贝</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.6.</span> <span class="toc-text">六、Java 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.1.</span> <span class="toc-text">实现 1：基本原型模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.2.</span> <span class="toc-text">实现 2：使用 Cloneable 接口（浅拷贝）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.3.</span> <span class="toc-text">实现 3：深拷贝实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.4.</span> <span class="toc-text">实现 4：序列化实现深拷贝</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.7.</span> <span class="toc-text">七、Python 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.1.</span> <span class="toc-text">实现 1：基本原型模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.2.</span> <span class="toc-text">实现 2：使用 copy 模块（浅拷贝）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.3.</span> <span class="toc-text">实现 3：深拷贝实现</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.4.</span> <span class="toc-text">实现 4：复杂对象的深拷贝</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.5.</span> <span class="toc-text">实现 5：使用 copy 和 deepcopy 魔术方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.6.</span> <span class="toc-text">实现 6：原型注册表（工厂模式结合）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.8.</span> <span class="toc-text">八、参考资料与延伸阅读</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.1.</span> <span class="toc-text">经典书籍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.2.</span> <span class="toc-text">在线资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.3.</span> <span class="toc-text">相关设计模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.4.</span> <span class="toc-text">最佳实践建议</span></a></li></ol></li></ol></li></ol>
+    </div>
+</aside>
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/ai/">ai</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/games/">games</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/">java</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/">集合框架</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/">数据处理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/">mindset</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/">方法论</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/%E7%9F%A5%E8%AF%86%E7%AE%A1%E7%90%86/">知识管理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/tools/">tools</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Spring%E6%A1%86%E6%9E%B6/">Spring框架</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/SQL%E4%BC%98%E5%8C%96/">SQL优化</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a><span class="category-list-count">12</span></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/yannyi.github.io/tags/5W1H/" style="font-size: 0.6em;">5W1H</a> <a href="/yannyi.github.io/tags/AI%E6%8E%A2%E7%B4%A2/" style="font-size: 0.6em;">AI探索</a> <a href="/yannyi.github.io/tags/AI%E7%9F%A5%E8%AF%86%E5%BA%93/" style="font-size: 0.6em;">AI知识库</a> <a href="/yannyi.github.io/tags/AOP/" style="font-size: 0.6em;">AOP</a> <a href="/yannyi.github.io/tags/Java/" style="font-size: 0.67em;">Java</a> <a href="/yannyi.github.io/tags/MyBatis/" style="font-size: 0.6em;">MyBatis</a> <a href="/yannyi.github.io/tags/MySQL/" style="font-size: 0.67em;">MySQL</a> <a href="/yannyi.github.io/tags/SQL/" style="font-size: 0.6em;">SQL</a> <a href="/yannyi.github.io/tags/Spring/" style="font-size: 0.6em;">Spring</a> <a href="/yannyi.github.io/tags/%E5%85%A5%E9%97%A8/" style="font-size: 0.73em;">入门</a> <a href="/yannyi.github.io/tags/%E5%88%86%E6%89%B9%E5%A4%84%E7%90%86/" style="font-size: 0.6em;">分批处理</a> <a href="/yannyi.github.io/tags/%E5%88%86%E9%A1%B5/" style="font-size: 0.6em;">分页</a> <a href="/yannyi.github.io/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 0.8em;">创建型模式</a> <a href="/yannyi.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/" style="font-size: 0.6em;">后端开发</a> <a href="/yannyi.github.io/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 0.6em;">工具</a> <a href="/yannyi.github.io/tags/%E6%80%9D%E7%BB%B4%E6%A1%86%E6%9E%B6/" style="font-size: 0.6em;">思维框架</a> <a href="/yannyi.github.io/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" style="font-size: 0.67em;">性能优化</a> <a href="/yannyi.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 0.73em;">数据库</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/hello-world/"><i class="fa fa-book"></i> Hello World</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/categories/tech/design_patterns/"><i class="fa fa-book"></i> 设计模式</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-ai-mcp/"><i class="fa fa-book"></i> MCP 模型上下文协议</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-tools-Obsidian/"><i class="fa fa-book"></i> Markdown本地笔记 Obsidian</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2024-06-01-game-research/"><i class="fa fa-book"></i> 开始使用：游戏研究</a>
+            
+          
+        
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+                </div>
+    </div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 MamimiJa Nai 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li>自豪地使用 <a href="https://github.com/Candinya/Kratos-Rebirth" target="_blank">Kratos:Rebirth</a> 主题</li>
+                            <li>站点由 Mamimi 用 <i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                
+                    <div class="box search-box">
+                        <a href="/yannyi.github.io/search">
+                            <span class="fa fa-search"></span>
+                        </a>
+                    </div>
+                
+                <div class="box theme-box" id="theme-toggle">
+                    <span class="fa fa-adjust"></span>
+                </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">打赏</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">打赏提示信息</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/yannyi.github.io/js/kr-modal/donate.min.js"></script>
+
+
+
+
+
+<!-- 额外的追加注入项 -->
+
+
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/yannyi.github.io/";
+</script>
+
+
+  <script defer src="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/yannyi.github.io/js/kr-core.min.js"></script>
+
+
+  <script defer src="/yannyi.github.io/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>

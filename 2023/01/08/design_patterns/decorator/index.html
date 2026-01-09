@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+  
+  <title>Decorator 模式 | MamimiJa Nai</title>
+  <link rel="canonical" href="https://leahana.github.io/2023/01/08/design_patterns/decorator/">
+  <meta name="author" content="Mamimi" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="结构型模式, 设计模式" />
+  
+  <meta name="description" content="Decorator模式动态地给一个对象添加一些额外的职责，就增加功能来说，Decorator模式相比生成子类更为灵活。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Decorator 模式">
+<meta property="og:url" content="https://leahana.github.io/2023/01/08/design_patterns/decorator/index.html">
+<meta property="og:site_name" content="MamimiJa Nai">
+<meta property="og:description" content="Decorator模式动态地给一个对象添加一些额外的职责，就增加功能来说，Decorator模式相比生成子类更为灵活。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2023-01-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-08T16:00:00.000Z">
+<meta property="article:author" content="Mamimi">
+<meta property="article:tag" content="结构型模式">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"Decorator 模式","description":"Decorator模式动态地给一个对象添加一些额外的职责，就增加功能来说，Decorator模式相比生成子类更为灵活。","image":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG","author":{"@type":"Person","name":"Mamimi"},"publisher":{"@type":"Organization","name":"MamimiJa Nai","logo":{"@type":"ImageObject","url":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG"}},"datePublished":"2023-01-08T16:00:00.000Z","dateModified":"2025-01-08T16:00:00.000Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://leahana.github.io/2023/01/08/design_patterns/decorator/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/yannyi.github.io/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/yannyi.github.io/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/yannyi.github.io/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/yannyi.github.io/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/yannyi.github.io/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/yannyi.github.io/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+    <style>body.custom-background{background-image:url('/yannyi.github.io/images/theme/background.jpg')!important;background-attachment:fixed!important;background-size:cover!important;background-position:center!important;}#kratos-widget-area .widget-kratos-about .photo-background{background-image:url('/yannyi.github.io/images/theme/avatar-bg.jpg')!important;background-size:cover!important;background-position:35% 35%!important;background-repeat:no-repeat!important;}</style><link rel="stylesheet" href="/yannyi.github.io/css/custom.css">
+  
+<!-- hexo injector head_end start --><script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@latest/dist/mermaid.esm.min.mjs">
+    mermaid.initialize(
+      startOnLoad: true,
+    );
+    </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/">
+                                        
+                                            
+                                                <i class="fa fa-fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/archives">
+                                        
+                                            
+                                                <i class="fa fa-fa-archive"></i>
+                                            
+                                            归档
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/categories">
+                                        
+                                            
+                                                <i class="fa fa-fa-folder-open"></i>
+                                            
+                                            分类
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/tags">
+                                        
+                                            
+                                                <i class="fa fa-fa-tags"></i>
+                                            
+                                            标签
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/search">
+                                        
+                                            
+                                                <i class="fa fa-fa-search"></i>
+                                            
+                                            搜索
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a>
+                                        
+                                            
+                                                <i class="fa fa-fa-th-list"></i>
+                                            
+                                            更多
+                                        </a>
+                                        
+                                            <ul class="sub-menu">
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/about">
+                                                            
+                                                                <i class="fa fa-fa-user"></i>
+                                                            
+                                                            关于我
+                                                        </a>
+                                                    </li>
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/links">
+                                                            
+                                                                <i class="fa fa-fa-link"></i>
+                                                            
+                                                            友情链接
+                                                        </a>
+                                                    </li>
+                                                
+                                            </ul>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/yannyi.github.io/">MamimiJa Nai</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/yannyi.github.io/">
+                        <h2>MamimiJa Nai</h2> <br />
+                        <span></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://leahana.github.io/2023/01/08/design_patterns/decorator/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">Decorator 模式</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2023-01-08T16:00:00.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2023-01-09</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">Mamimi</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~9.14K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+                <div class="kratos-post-inner-toc toc-div-class" >
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Decorator 模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.1.</span> <span class="toc-text">一、基础介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.2.</span> <span class="toc-text">二、生活比喻：给礼物包装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.3.</span> <span class="toc-text">三、应用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.4.</span> <span class="toc-text">四、使用注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.1.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.2.</span> <span class="toc-text">缺点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.3.</span> <span class="toc-text">使用建议</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.5.</span> <span class="toc-text">五、Java 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.1.</span> <span class="toc-text">实现 1：咖啡订单系统</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.2.</span> <span class="toc-text">实现 2：Java IO 流</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.6.</span> <span class="toc-text">六、Python 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.1.</span> <span class="toc-text">实现 1：文本处理装饰器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.2.</span> <span class="toc-text">实现 2：使用 Python 装饰器语法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.3.</span> <span class="toc-text">实现 3：权限验证装饰器</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.7.</span> <span class="toc-text">七、参考资料与延伸阅读</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.1.</span> <span class="toc-text">经典书籍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.2.</span> <span class="toc-text">在线资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.3.</span> <span class="toc-text">相关设计模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.4.</span> <span class="toc-text">最佳实践建议</span></a></li></ol></li></ol></li></ol>
+                </div>
+            
+            <hr />
+            <div itemprop="articleBody"><h2><span id="decorator-模式">Decorator 模式</span></h2><h3><span id="一-基础介绍">一、基础介绍</span></h3><p>Decorator（装饰）模式是一种结构型设计模式，它允许在不改变对象结构的情况下，动态地为对象添加新的行为。</p>
+<p>Decorator 模式的核心思想是：<strong>通过包装对象来扩展其功能，而不是通过继承</strong>。这样可以在运行时灵活地添加或移除功能。</p>
+<h3><span id="二-生活比喻给礼物包装">二、生活比喻：给礼物包装</span></h3><p>想象一个<strong>礼品包装过程</strong>：</p>
+<blockquote>
+<p><strong>传统方式（继承）</strong>：如果要买”包装好的礼盒”，需要预定义各种组合：红盒包装的礼物、彩带装饰的红盒礼物、带贺卡的彩带红盒礼物…组合无限，类爆炸。</p>
+<p><strong>装饰方式</strong>：你有一个裸礼物，可以依次包装：红盒→加彩带→加贺卡。每一步都是动态的，可以随时调整。</p>
+</blockquote>
+<p>在这个比喻中：</p>
+<ul>
+<li><strong>Component</strong> &#x3D; 裸礼物</li>
+<li><strong>ConcreteComponent</strong> &#x3D; 具体礼物（如书、手表）</li>
+<li><strong>Decorator</strong> &#x3D; 包装纸接口</li>
+<li><strong>ConcreteDecorator</strong> &#x3D; 具体包装（红盒、彩带、贺卡）</li>
+</ul>
+<h3><span id="三-应用场景">三、应用场景</span></h3><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>动态扩展</strong></td>
+<td>运行时动态添加&#x2F;撤销功能</td>
+<td>IO流处理、UI组件</td>
+</tr>
+<tr>
+<td><strong>避免类爆炸</strong></td>
+<td>继承会导致子类激增时</td>
+<td>咖啡配料、披萨 toppings</td>
+</tr>
+<tr>
+<td><strong>组合功能</strong></td>
+<td>多个功能可以任意组合</td>
+<td>压缩+加密、日志+缓存</td>
+</tr>
+<tr>
+<td><strong>透明装饰</strong></td>
+<td>不改变原有接口</td>
+<td>Java IO、Python contextlib</td>
+</tr>
+</tbody></table>
+<h3><span id="四-使用注意事项">四、使用注意事项</span></h3><h4><span id="优点">优点</span></h4><table>
+<thead>
+<tr>
+<th>优点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>动态扩展</strong></td>
+<td>运行时灵活添加功能</td>
+</tr>
+<tr>
+<td><strong>避免类爆炸</strong></td>
+<td>不需要大量子类</td>
+</tr>
+<tr>
+<td><strong>单一职责</strong></td>
+<td>每个装饰器只负责一个功能</td>
+</tr>
+<tr>
+<td><strong>保持接口</strong></td>
+<td>装饰后仍可使用原接口</td>
+</tr>
+</tbody></table>
+<h4><span id="缺点">缺点</span></h4><table>
+<thead>
+<tr>
+<th>缺点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>多层嵌套</strong></td>
+<td>装饰器过多会增加复杂性</td>
+</tr>
+<tr>
+<td><strong>调试困难</strong>：多层包装增加调试难度</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>小类过多</strong>：每个功能一个装饰器类</td>
+<td></td>
+</tr>
+</tbody></table>
+<h4><span id="使用建议">使用建议</span></h4><ul>
+<li>需要动态添加功能时使用</li>
+<li>不能用继承或继承代价过大时使用</li>
+<li>功能可任意组合时使用</li>
+</ul>
+<h3><span id="五-java-经典案例">五、Java 经典案例</span></h3><h4><span id="实现-1咖啡订单系统">实现 1：咖啡订单系统</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 抽象组件：饮料</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">Beverage</span> &#123;</span><br><span class="line">    <span class="keyword">protected</span> <span class="type">String</span> <span class="variable">description</span> <span class="operator">=</span> <span class="string">&quot;Unknown Beverage&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getDescription</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> description;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">abstract</span> <span class="type">double</span> <span class="title function_">cost</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 具体组件：具体饮料</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Espresso</span> <span class="keyword">extends</span> <span class="title class_">Beverage</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Espresso</span><span class="params">()</span> &#123;</span><br><span class="line">        description = <span class="string">&quot;Espresso&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">double</span> <span class="title function_">cost</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1.99</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HouseBlend</span> <span class="keyword">extends</span> <span class="title class_">Beverage</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">HouseBlend</span><span class="params">()</span> &#123;</span><br><span class="line">        description = <span class="string">&quot;House Blend Coffee&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">double</span> <span class="title function_">cost</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0.89</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 抽象装饰器：配料</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title class_">CondimentDecorator</span> <span class="keyword">extends</span> <span class="title class_">Beverage</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">abstract</span> String <span class="title function_">getDescription</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 具体装饰器：各种配料</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Mocha</span> <span class="keyword">extends</span> <span class="title class_">CondimentDecorator</span> &#123;</span><br><span class="line">    Beverage beverage;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Mocha</span><span class="params">(Beverage beverage)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.beverage = beverage;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getDescription</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> beverage.getDescription() + <span class="string">&quot;, Mocha&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">double</span> <span class="title function_">cost</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0.20</span> + beverage.cost();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Whip</span> <span class="keyword">extends</span> <span class="title class_">CondimentDecorator</span> &#123;</span><br><span class="line">    Beverage beverage;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Whip</span><span class="params">(Beverage beverage)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.beverage = beverage;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getDescription</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> beverage.getDescription() + <span class="string">&quot;, Whip&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">double</span> <span class="title function_">cost</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0.10</span> + beverage.cost();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DecoratorDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">// 一杯 Espresso</span></span><br><span class="line">        <span class="type">Beverage</span> <span class="variable">beverage</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Espresso</span>();</span><br><span class="line">        System.out.println(beverage.getDescription() + <span class="string">&quot; $&quot;</span> + beverage.cost());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Espresso 加 Mocha</span></span><br><span class="line">        beverage = <span class="keyword">new</span> <span class="title class_">Mocha</span>(beverage);</span><br><span class="line">        System.out.println(beverage.getDescription() + <span class="string">&quot; $&quot;</span> + beverage.cost());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 再加 Whip</span></span><br><span class="line">        beverage = <span class="keyword">new</span> <span class="title class_">Whip</span>(beverage);</span><br><span class="line">        System.out.println(beverage.getDescription() + <span class="string">&quot; $&quot;</span> + beverage.cost());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-2java-io-流">实现 2：Java IO 流</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Java IO 是典型的 Decorator 模式应用</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JavaIODemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="comment">// 基础流</span></span><br><span class="line">        <span class="type">FileInputStream</span> <span class="variable">fis</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileInputStream</span>(<span class="string">&quot;test.txt&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 装饰缓冲</span></span><br><span class="line">        <span class="type">BufferedInputStream</span> <span class="variable">bis</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedInputStream</span>(fis);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 装饰数据类型处理</span></span><br><span class="line">        <span class="type">DataInputStream</span> <span class="variable">dis</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DataInputStream</span>(bis);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 可以继续装饰其他功能</span></span><br><span class="line">        <span class="comment">// PushbackInputStream, GZIPInputStream 等</span></span><br><span class="line"></span><br><span class="line">        <span class="type">int</span> <span class="variable">data</span> <span class="operator">=</span> dis.read();</span><br><span class="line">        System.out.println(<span class="string">&quot;Data: &quot;</span> + data);</span><br><span class="line"></span><br><span class="line">        dis.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3><span id="六-python-经典案例">六、Python 经典案例</span></h3><h4><span id="实现-1文本处理装饰器">实现 1：文本处理装饰器</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> abc <span class="keyword">import</span> ABC, abstractmethod</span><br><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> Protocol</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TextProcessor</span>(<span class="title class_ inherited__">Protocol</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;文本处理器接口&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process</span>(<span class="params">self, text: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        ...</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SimpleTextProcessor</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;简单文本处理器&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process</span>(<span class="params">self, text: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        <span class="keyword">return</span> text</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TextDecorator</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;装饰器基类&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, processor: TextProcessor</span>):</span><br><span class="line">        <span class="variable language_">self</span>.processor = processor</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process</span>(<span class="params">self, text: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.processor.process(text)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UpperCaseDecorator</span>(<span class="title class_ inherited__">TextDecorator</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;转大写装饰器&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process</span>(<span class="params">self, text: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>().process(text).upper()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">LowerCaseDecorator</span>(<span class="title class_ inherited__">TextDecorator</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;转小写装饰器&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process</span>(<span class="params">self, text: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>().process(text).lower()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TrimDecorator</span>(<span class="title class_ inherited__">TextDecorator</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;去除空白装饰器&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process</span>(<span class="params">self, text: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>().process(text).strip()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ReverseDecorator</span>(<span class="title class_ inherited__">TextDecorator</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;反转装饰器&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process</span>(<span class="params">self, text: <span class="built_in">str</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">super</span>().process(text)[::-<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="comment"># 基础处理器</span></span><br><span class="line">    processor: TextProcessor = SimpleTextProcessor()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 装饰：转大写</span></span><br><span class="line">    processor = UpperCaseDecorator(processor)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 装饰：去除空白</span></span><br><span class="line">    processor = TrimDecorator(processor)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 装饰：反转</span></span><br><span class="line">    processor = ReverseDecorator(processor)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 处理文本</span></span><br><span class="line">    result = processor.process(<span class="string">&quot;  Hello World  &quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;结果: <span class="subst">&#123;result&#125;</span>&quot;</span>)  <span class="comment"># &quot;DLROW OLLEH&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-2使用-python-装饰器语法">实现 2：使用 Python 装饰器语法</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">timing_decorator</span>(<span class="params">func</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;计时装饰器&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @wraps(<span class="params">func</span>)</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrapper</span>(<span class="params">*args, **kwargs</span>):</span><br><span class="line">        start = time.time()</span><br><span class="line">        result = func(*args, **kwargs)</span><br><span class="line">        end = time.time()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;func.__name__&#125;</span> 执行时间: <span class="subst">&#123;end - start:<span class="number">.4</span>f&#125;</span> 秒&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">logging_decorator</span>(<span class="params">func</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;日志装饰器&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @wraps(<span class="params">func</span>)</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrapper</span>(<span class="params">*args, **kwargs</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;调用 <span class="subst">&#123;func.__name__&#125;</span>，参数: <span class="subst">&#123;args&#125;</span>, <span class="subst">&#123;kwargs&#125;</span>&quot;</span>)</span><br><span class="line">        result = func(*args, **kwargs)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;<span class="subst">&#123;func.__name__&#125;</span> 返回: <span class="subst">&#123;result&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cache_decorator</span>(<span class="params">func</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;缓存装饰器&quot;&quot;&quot;</span></span><br><span class="line">    cache = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">    @wraps(<span class="params">func</span>)</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">wrapper</span>(<span class="params">*args, **kwargs</span>):</span><br><span class="line">        key = <span class="built_in">str</span>(args) + <span class="built_in">str</span>(kwargs)</span><br><span class="line">        <span class="keyword">if</span> key <span class="keyword">not</span> <span class="keyword">in</span> cache:</span><br><span class="line">            cache[key] = func(*args, **kwargs)</span><br><span class="line">        <span class="keyword">return</span> cache[key]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 组合使用装饰器</span></span><br><span class="line"><span class="meta">@timing_decorator</span></span><br><span class="line"><span class="meta">@logging_decorator</span></span><br><span class="line"><span class="meta">@cache_decorator</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">fibonacci</span>(<span class="params">n: <span class="built_in">int</span></span>) -&gt; <span class="built_in">int</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;计算斐波那契数列&quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> n &lt;= <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">return</span> n</span><br><span class="line">    <span class="keyword">return</span> fibonacci(n - <span class="number">1</span>) + fibonacci(n - <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    result = fibonacci(<span class="number">10</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;斐波那契数列第10项: <span class="subst">&#123;result&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-3权限验证装饰器">实现 3：权限验证装饰器</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">Callable</span>, TypeVar, <span class="type">Any</span></span><br><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"></span><br><span class="line">T = TypeVar(<span class="string">&#x27;T&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PermissionChecker</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;权限检查器&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, required_permission: <span class="built_in">str</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.required_permission = required_permission</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">check</span>(<span class="params">self, user_permission: <span class="built_in">str</span></span>) -&gt; <span class="built_in">bool</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.required_permission == user_permission</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PermissionDecorator</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;权限装饰器&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, permission: <span class="built_in">str</span></span>):</span><br><span class="line">        <span class="variable language_">self</span>.permission = permission</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__call__</span>(<span class="params">self, func: <span class="type">Callable</span>[..., T]</span>) -&gt; <span class="type">Callable</span>[..., T]:</span><br><span class="line"><span class="meta">        @wraps(<span class="params">func</span>)</span></span><br><span class="line">        <span class="keyword">def</span> <span class="title function_">wrapper</span>(<span class="params">*args, **kwargs</span>):</span><br><span class="line">            <span class="comment"># 假设从 kwargs 中获取用户权限</span></span><br><span class="line">            user_permission = kwargs.get(<span class="string">&#x27;permission&#x27;</span>, <span class="string">&#x27;guest&#x27;</span>)</span><br><span class="line">            checker = PermissionChecker(<span class="variable language_">self</span>.permission)</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> checker.check(user_permission):</span><br><span class="line">                <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                <span class="keyword">raise</span> PermissionError(<span class="string">f&quot;需要 <span class="subst">&#123;self.permission&#125;</span> 权限&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用装饰器</span></span><br><span class="line"><span class="meta">@PermissionDecorator(<span class="params"><span class="string">&quot;admin&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">delete_user</span>(<span class="params">user_id: <span class="built_in">int</span>, **kwargs</span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;用户 <span class="subst">&#123;user_id&#125;</span> 已删除&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@PermissionDecorator(<span class="params"><span class="string">&quot;user&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">view_profile</span>(<span class="params">user_id: <span class="built_in">int</span>, **kwargs</span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&quot;查看用户 <span class="subst">&#123;user_id&#125;</span> 的资料&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="comment"># 有权限</span></span><br><span class="line">        result = view_profile(<span class="number">123</span>, permission=<span class="string">&quot;user&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(result)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 无权限</span></span><br><span class="line">        delete_user(<span class="number">456</span>, permission=<span class="string">&quot;guest&quot;</span>)</span><br><span class="line">    <span class="keyword">except</span> PermissionError <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;错误: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<h3><span id="七-参考资料与延伸阅读">七、参考资料与延伸阅读</span></h3><h4><span id="经典书籍">经典书籍</span></h4><ul>
+<li>《设计模式：可复用面向对象软件的基础》- GoF</li>
+<li>《Head First 设计模式》- 装饰模式章节</li>
+</ul>
+<h4><span id="在线资源">在线资源</span></h4><ul>
+<li><a target="_blank" rel="noopener" href="https://refactoring.guru/design-patterns/decorator">Refactoring.Guru - Decorator</a></li>
+<li><a target="_blank" rel="noopener" href="https://java-design-patterns.com/patterns/decorator/">Java设计模式：装饰模式</a></li>
+</ul>
+<h4><span id="相关设计模式">相关设计模式</span></h4><ul>
+<li><strong>Adapter（适配器）</strong>：Adapter 改变接口，Decorator 增强功能</li>
+<li><strong>Proxy（代理）</strong>：Proxy 控制访问，Decorator 添加功能</li>
+<li><strong>Composite（组合）</strong>：Decorator 可以嵌套组合</li>
+<li><strong>Strategy（策略）</strong>：装饰时可以改变内部策略</li>
+</ul>
+<h4><span id="最佳实践建议">最佳实践建议</span></h4><ol>
+<li>保持装饰器接口与原组件一致</li>
+<li>单一职责：每个装饰器只做一件事</li>
+<li>注意装饰顺序对结果的影响</li>
+<li>Python 中优先使用 <code>@wraps</code> 保留元信息</li>
+</ol>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/yannyi.github.io/tags/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">结构型模式</a>, <a class="tag-none-link" href="/yannyi.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2025-01-08T16:00:00.000Z" itemprop="dateModified">最后编辑：2025-01-09</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" Composite 模式" href="/yannyi.github.io/2023/01/07/design_patterns/composite/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+            <div class="nav-next clearfix">
+                <a title=" Chain of Responsibility 模式" href="/yannyi.github.io/2023/01/09/design_patterns/chain_of_responsibility/">下一篇 <i class="fa fa-angle-right"></i></a>
+            </div>
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/yannyi.github.io/images/theme/Mamimi.JPG" alt="Mamimi" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center"></p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/yannyi.github.io/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                14
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                    <aside id="krw-toc" class="widget widget-kratos-toc clearfix toc-div-class" >
+    <div class="photo-background"></div>
+    <h4 class="widget-title no-after">
+        <i class="fa fa-compass"></i>
+        文章目录
+        <span class="toc-progress-bar" role="progressbar" aria-label="阅读进度："></span>
+    </h4>
+    <div class="textwidget">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Decorator 模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.1.</span> <span class="toc-text">一、基础介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.2.</span> <span class="toc-text">二、生活比喻：给礼物包装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.3.</span> <span class="toc-text">三、应用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.4.</span> <span class="toc-text">四、使用注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.1.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.2.</span> <span class="toc-text">缺点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.3.</span> <span class="toc-text">使用建议</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.5.</span> <span class="toc-text">五、Java 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.1.</span> <span class="toc-text">实现 1：咖啡订单系统</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.2.</span> <span class="toc-text">实现 2：Java IO 流</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.6.</span> <span class="toc-text">六、Python 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.1.</span> <span class="toc-text">实现 1：文本处理装饰器</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.2.</span> <span class="toc-text">实现 2：使用 Python 装饰器语法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.3.</span> <span class="toc-text">实现 3：权限验证装饰器</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.7.</span> <span class="toc-text">七、参考资料与延伸阅读</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.1.</span> <span class="toc-text">经典书籍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.2.</span> <span class="toc-text">在线资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.3.</span> <span class="toc-text">相关设计模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.4.</span> <span class="toc-text">最佳实践建议</span></a></li></ol></li></ol></li></ol>
+    </div>
+</aside>
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/ai/">ai</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/games/">games</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/">java</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/">集合框架</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/">数据处理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/">mindset</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/">方法论</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/%E7%9F%A5%E8%AF%86%E7%AE%A1%E7%90%86/">知识管理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/tools/">tools</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Spring%E6%A1%86%E6%9E%B6/">Spring框架</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/SQL%E4%BC%98%E5%8C%96/">SQL优化</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a><span class="category-list-count">12</span></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/yannyi.github.io/tags/5W1H/" style="font-size: 0.6em;">5W1H</a> <a href="/yannyi.github.io/tags/AI%E6%8E%A2%E7%B4%A2/" style="font-size: 0.6em;">AI探索</a> <a href="/yannyi.github.io/tags/AI%E7%9F%A5%E8%AF%86%E5%BA%93/" style="font-size: 0.6em;">AI知识库</a> <a href="/yannyi.github.io/tags/AOP/" style="font-size: 0.6em;">AOP</a> <a href="/yannyi.github.io/tags/Java/" style="font-size: 0.67em;">Java</a> <a href="/yannyi.github.io/tags/MyBatis/" style="font-size: 0.6em;">MyBatis</a> <a href="/yannyi.github.io/tags/MySQL/" style="font-size: 0.67em;">MySQL</a> <a href="/yannyi.github.io/tags/SQL/" style="font-size: 0.6em;">SQL</a> <a href="/yannyi.github.io/tags/Spring/" style="font-size: 0.6em;">Spring</a> <a href="/yannyi.github.io/tags/%E5%85%A5%E9%97%A8/" style="font-size: 0.73em;">入门</a> <a href="/yannyi.github.io/tags/%E5%88%86%E6%89%B9%E5%A4%84%E7%90%86/" style="font-size: 0.6em;">分批处理</a> <a href="/yannyi.github.io/tags/%E5%88%86%E9%A1%B5/" style="font-size: 0.6em;">分页</a> <a href="/yannyi.github.io/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 0.8em;">创建型模式</a> <a href="/yannyi.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/" style="font-size: 0.6em;">后端开发</a> <a href="/yannyi.github.io/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 0.6em;">工具</a> <a href="/yannyi.github.io/tags/%E6%80%9D%E7%BB%B4%E6%A1%86%E6%9E%B6/" style="font-size: 0.6em;">思维框架</a> <a href="/yannyi.github.io/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" style="font-size: 0.67em;">性能优化</a> <a href="/yannyi.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 0.73em;">数据库</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/hello-world/"><i class="fa fa-book"></i> Hello World</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/categories/tech/design_patterns/"><i class="fa fa-book"></i> 设计模式</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-ai-mcp/"><i class="fa fa-book"></i> MCP 模型上下文协议</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-tools-Obsidian/"><i class="fa fa-book"></i> Markdown本地笔记 Obsidian</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2024-06-01-game-research/"><i class="fa fa-book"></i> 开始使用：游戏研究</a>
+            
+          
+        
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+                </div>
+    </div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 MamimiJa Nai 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li>自豪地使用 <a href="https://github.com/Candinya/Kratos-Rebirth" target="_blank">Kratos:Rebirth</a> 主题</li>
+                            <li>站点由 Mamimi 用 <i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                
+                    <div class="box search-box">
+                        <a href="/yannyi.github.io/search">
+                            <span class="fa fa-search"></span>
+                        </a>
+                    </div>
+                
+                <div class="box theme-box" id="theme-toggle">
+                    <span class="fa fa-adjust"></span>
+                </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">打赏</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">打赏提示信息</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/yannyi.github.io/js/kr-modal/donate.min.js"></script>
+
+
+
+
+
+<!-- 额外的追加注入项 -->
+
+
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/yannyi.github.io/";
+</script>
+
+
+  <script defer src="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/yannyi.github.io/js/kr-core.min.js"></script>
+
+
+  <script defer src="/yannyi.github.io/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>

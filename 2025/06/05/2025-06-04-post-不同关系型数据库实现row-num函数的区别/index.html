@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+  
+  <title>不同关系型数据库实现ROW_NUM函数的区别 | MamimiJa Nai</title>
+  <link rel="canonical" href="https://leahana.github.io/2025/06/05/2025-06-04-post-%E4%B8%8D%E5%90%8C%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AE%9E%E7%8E%B0row-num%E5%87%BD%E6%95%B0%E7%9A%84%E5%8C%BA%E5%88%AB/">
+  <meta name="author" content="Mamimi" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="SQL, 分页, 性能优化, 数据库" />
+  
+  <meta name="description" content="不同关系型数据库实现ROW_NUM函数的区别[返回技术博客] 目录 应用场景 核心知识点 代码实现 注意事项 拓展应用 延伸阅读  一、应用场景1.1 分页查询场景算法给的一张表存放了以告警信息为每行数据,以字段defect_id缺陷id区分所属缺陷,展示的时候需要以缺陷为纬度进行展示,从oracle数据库到mysql再到高斯数据库进行了几次版本更替. 1.2 数据排序场景在需要对数据进行排序并获">
+<meta property="og:type" content="article">
+<meta property="og:title" content="不同关系型数据库实现ROW_NUM函数的区别">
+<meta property="og:url" content="https://leahana.github.io/2025/06/05/2025-06-04-post-%E4%B8%8D%E5%90%8C%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AE%9E%E7%8E%B0row-num%E5%87%BD%E6%95%B0%E7%9A%84%E5%8C%BA%E5%88%AB/index.html">
+<meta property="og:site_name" content="MamimiJa Nai">
+<meta property="og:description" content="不同关系型数据库实现ROW_NUM函数的区别[返回技术博客] 目录 应用场景 核心知识点 代码实现 注意事项 拓展应用 延伸阅读  一、应用场景1.1 分页查询场景算法给的一张表存放了以告警信息为每行数据,以字段defect_id缺陷id区分所属缺陷,展示的时候需要以缺陷为纬度进行展示,从oracle数据库到mysql再到高斯数据库进行了几次版本更替. 1.2 数据排序场景在需要对数据进行排序并获">
+<meta property="og:locale">
+<meta property="article:published_time" content="2025-06-05T02:12:57.000Z">
+<meta property="article:modified_time" content="2026-01-09T16:52:05.944Z">
+<meta property="article:author" content="Mamimi">
+<meta property="article:tag" content="SQL">
+<meta property="article:tag" content="分页">
+<meta property="article:tag" content="性能优化">
+<meta property="article:tag" content="数据库">
+<meta name="twitter:card" content="summary">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"不同关系型数据库实现ROW_NUM函数的区别","description":"不同关系型数据库实现ROW_NUM函数的区别[返回技术博客]\n目录\n","image":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG","author":{"@type":"Person","name":"Mamimi"},"publisher":{"@type":"Organization","name":"MamimiJa Nai","logo":{"@type":"ImageObject","url":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG"}},"datePublished":"2025-06-05T02:12:57.000Z","dateModified":"2026-01-09T16:52:05.944Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://leahana.github.io/2025/06/05/2025-06-04-post-%E4%B8%8D%E5%90%8C%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AE%9E%E7%8E%B0row-num%E5%87%BD%E6%95%B0%E7%9A%84%E5%8C%BA%E5%88%AB/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/yannyi.github.io/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/yannyi.github.io/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/yannyi.github.io/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/yannyi.github.io/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/yannyi.github.io/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/yannyi.github.io/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+    <style>body.custom-background{background-image:url('/yannyi.github.io/images/theme/background.jpg')!important;background-attachment:fixed!important;background-size:cover!important;background-position:center!important;}#kratos-widget-area .widget-kratos-about .photo-background{background-image:url('/yannyi.github.io/images/theme/avatar-bg.jpg')!important;background-size:cover!important;background-position:35% 35%!important;background-repeat:no-repeat!important;}</style><link rel="stylesheet" href="/yannyi.github.io/css/custom.css">
+  
+<!-- hexo injector head_end start --><script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@latest/dist/mermaid.esm.min.mjs">
+    mermaid.initialize(
+      startOnLoad: true,
+    );
+    </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/">
+                                        
+                                            
+                                                <i class="fa fa-fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/archives">
+                                        
+                                            
+                                                <i class="fa fa-fa-archive"></i>
+                                            
+                                            归档
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/categories">
+                                        
+                                            
+                                                <i class="fa fa-fa-folder-open"></i>
+                                            
+                                            分类
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/tags">
+                                        
+                                            
+                                                <i class="fa fa-fa-tags"></i>
+                                            
+                                            标签
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/search">
+                                        
+                                            
+                                                <i class="fa fa-fa-search"></i>
+                                            
+                                            搜索
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a>
+                                        
+                                            
+                                                <i class="fa fa-fa-th-list"></i>
+                                            
+                                            更多
+                                        </a>
+                                        
+                                            <ul class="sub-menu">
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/about">
+                                                            
+                                                                <i class="fa fa-fa-user"></i>
+                                                            
+                                                            关于我
+                                                        </a>
+                                                    </li>
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/links">
+                                                            
+                                                                <i class="fa fa-fa-link"></i>
+                                                            
+                                                            友情链接
+                                                        </a>
+                                                    </li>
+                                                
+                                            </ul>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/yannyi.github.io/">MamimiJa Nai</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/yannyi.github.io/">
+                        <h2>MamimiJa Nai</h2> <br />
+                        <span></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://leahana.github.io/2025/06/05/2025-06-04-post-%E4%B8%8D%E5%90%8C%E5%85%B3%E7%B3%BB%E5%9E%8B%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AE%9E%E7%8E%B0row-num%E5%87%BD%E6%95%B0%E7%9A%84%E5%8C%BA%E5%88%AB/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">不同关系型数据库实现ROW_NUM函数的区别</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2025-06-05T02:12:57.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2025-06-05</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">Mamimi</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~3.37K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+            <hr />
+            <div itemprop="articleBody"><h2><span id="不同关系型数据库实现row_num函数的区别">不同关系型数据库实现ROW_NUM函数的区别</span></h2><p><a href="/">[返回技术博客]</a></p>
+<h2><span id="目录">目录</span></h2><ol>
+<li><a href="#%E4%B8%80%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF">应用场景</a></li>
+<li><a href="#%E4%BA%8C%E6%A0%B8%E5%BF%83%E7%9F%A5%E8%AF%86%E7%82%B9">核心知识点</a></li>
+<li><a href="#%E4%B8%89%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0">代码实现</a></li>
+<li><a href="#%E5%9B%9B%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9">注意事项</a></li>
+<li><a href="#%E4%BA%94%E6%8B%93%E5%B1%95%E5%BA%94%E7%94%A8">拓展应用</a></li>
+<li><a href="#%E5%85%AD%E5%BB%B6%E4%BC%B8%E9%98%85%E8%AF%BB">延伸阅读</a></li>
+</ol>
+<h2><span id="一-应用场景">一、应用场景</span></h2><h3><span id="11-分页查询场景">1.1 分页查询场景</span></h3><p>算法给的一张表存放了以告警信息为每行数据,以字段defect_id缺陷id区分所属缺陷,展示的时候需要以缺陷为纬度进行展示,从oracle数据库到mysql再到高斯数据库进行了几次版本更替.</p>
+<h3><span id="12-数据排序场景">1.2 数据排序场景</span></h3><p>在需要对数据进行排序并获取特定排名范围的场景中，ROW_NUM函数同样发挥着重要作用。比如：</p>
+<ul>
+<li>获取销售额前10名的商品</li>
+<li>查询某个班级成绩排名第5-10名的学生</li>
+</ul>
+<h3><span id="13-数据去重场景">1.3 数据去重场景</span></h3><p>在处理重复数据时，我们经常需要保留每组数据中的第一条或最后一条记录，ROW_NUM函数可以帮助我们实现这个需求。</p>
+<h2><span id="二-核心知识点">二、核心知识点</span></h2><h3><span id="21-row_num函数原理">2.1 ROW_NUM函数原理</span></h3><p>ROW_NUM函数本质上是一个窗口函数，它按照指定的排序规则为结果集中的每一行分配一个唯一的序号。这个序号从1开始递增。</p>
+<h3><span id="22-主流数据库实现对比">2.2 主流数据库实现对比</span></h3><table>
+<thead>
+<tr>
+<th>数据库</th>
+<th>语法</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Oracle</td>
+<td>ROW_NUMBER() OVER()</td>
+<td>原生支持，性能最优</td>
+</tr>
+<tr>
+<td>MySQL</td>
+<td>ROW_NUMBER() OVER()</td>
+<td>8.0+版本支持</td>
+</tr>
+<tr>
+<td>SQL Server</td>
+<td>ROW_NUMBER() OVER()</td>
+<td>原生支持，语法统一</td>
+</tr>
+<tr>
+<td>PostgreSQL</td>
+<td>ROW_NUMBER() OVER()</td>
+<td>原生支持，功能丰富</td>
+</tr>
+</tbody></table>
+<h2><span id="三-代码实现">三、代码实现</span></h2><h3><span id="31-oracle">3.1 Oracle</span></h3><h4><span id="311-使用示例">3.1.1 使用示例</span></h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 基础分页查询</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> a.<span class="operator">*</span>, ROWNUM rnum</span><br><span class="line">    <span class="keyword">FROM</span> (</span><br><span class="line">        <span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line">        <span class="keyword">FROM</span> employees</span><br><span class="line">        <span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span></span><br><span class="line">    ) a</span><br><span class="line">    <span class="keyword">WHERE</span> ROWNUM <span class="operator">&lt;=</span> <span class="number">20</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">WHERE</span> rnum <span class="operator">&gt;</span> <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 使用ROW_NUMBER()函数</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> e.<span class="operator">*</span>, <span class="built_in">ROW_NUMBER</span>() <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span>) <span class="keyword">as</span> rn</span><br><span class="line">    <span class="keyword">FROM</span> employees e</span><br><span class="line">)</span><br><span class="line"><span class="keyword">WHERE</span> rn <span class="keyword">BETWEEN</span> <span class="number">11</span> <span class="keyword">AND</span> <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="312-优化方案实现需求">3.1.2 优化方案实现需求</span></h4><blockquote>
+<p>实现需求: 告警表defect_id 分组的每组第一条数据</p>
+</blockquote>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 方案1：使用ROW_NUMBER()（推荐）</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> a.<span class="operator">*</span>,</span><br><span class="line">           <span class="built_in">ROW_NUMBER</span>() <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> defect_id <span class="keyword">ORDER</span> <span class="keyword">BY</span> create_time <span class="keyword">DESC</span>) <span class="keyword">as</span> rn</span><br><span class="line">    <span class="keyword">FROM</span> alarm_info a</span><br><span class="line">) t</span><br><span class="line"><span class="keyword">WHERE</span> rn <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 方案2：使用ROWNUM（适用于老版本）</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> a.<span class="operator">*</span></span><br><span class="line">    <span class="keyword">FROM</span> alarm_info a</span><br><span class="line">    <span class="keyword">WHERE</span> (defect_id, create_time) <span class="keyword">IN</span> (</span><br><span class="line">        <span class="keyword">SELECT</span> defect_id, <span class="built_in">MAX</span>(create_time)</span><br><span class="line">        <span class="keyword">FROM</span> alarm_info</span><br><span class="line">        <span class="keyword">GROUP</span> <span class="keyword">BY</span> defect_id</span><br><span class="line">    )</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<h3><span id="32-mysql">3.2 MySQL</span></h3><h4><span id="321-使用示例">3.2.1 使用示例</span></h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- MySQL 8.0+ 实现</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> e.<span class="operator">*</span>, <span class="built_in">ROW_NUMBER</span>() <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span>) <span class="keyword">as</span> rn</span><br><span class="line">    <span class="keyword">FROM</span> employees e</span><br><span class="line">) t</span><br><span class="line"><span class="keyword">WHERE</span> rn <span class="keyword">BETWEEN</span> <span class="number">11</span> <span class="keyword">AND</span> <span class="number">20</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- MySQL 5.7及以下版本实现</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> employees e</span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span></span><br><span class="line">LIMIT <span class="number">10</span>, <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="322-优化方案实现需求">3.2.2 优化方案实现需求</span></h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- MySQL 8.0+ 实现（推荐）</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> a.<span class="operator">*</span>,</span><br><span class="line">           <span class="built_in">ROW_NUMBER</span>() <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> defect_id <span class="keyword">ORDER</span> <span class="keyword">BY</span> create_time <span class="keyword">DESC</span>) <span class="keyword">as</span> rn</span><br><span class="line">    <span class="keyword">FROM</span> alarm_info a</span><br><span class="line">) t</span><br><span class="line"><span class="keyword">WHERE</span> rn <span class="operator">=</span> <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- MySQL 5.7及以下版本实现</span></span><br><span class="line"><span class="keyword">SELECT</span> a.<span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> alarm_info a</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> defect_id, <span class="built_in">MAX</span>(create_time) <span class="keyword">as</span> max_time</span><br><span class="line">    <span class="keyword">FROM</span> alarm_info</span><br><span class="line">    <span class="keyword">GROUP</span> <span class="keyword">BY</span> defect_id</span><br><span class="line">) b <span class="keyword">ON</span> a.defect_id <span class="operator">=</span> b.defect_id <span class="keyword">AND</span> a.create_time <span class="operator">=</span> b.max_time;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>3.2.3 其他方式</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 使用用户变量实现（MySQL特有方案）</span></span><br><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> a.<span class="operator">*</span>,</span><br><span class="line">           <span class="variable">@rn</span> :<span class="operator">=</span> IF(<span class="variable">@defect_id</span> <span class="operator">=</span> defect_id, <span class="variable">@rn</span> <span class="operator">+</span> <span class="number">1</span>, <span class="number">1</span>) <span class="keyword">as</span> rn,</span><br><span class="line">           <span class="variable">@defect_id</span> :<span class="operator">=</span> defect_id</span><br><span class="line">    <span class="keyword">FROM</span> alarm_info a,</span><br><span class="line">         (<span class="keyword">SELECT</span> <span class="variable">@rn</span> :<span class="operator">=</span> <span class="number">0</span>, <span class="variable">@defect_id</span> :<span class="operator">=</span> <span class="keyword">NULL</span>) vars</span><br><span class="line">    <span class="keyword">ORDER</span> <span class="keyword">BY</span> defect_id, create_time <span class="keyword">DESC</span></span><br><span class="line">) t</span><br><span class="line"><span class="keyword">WHERE</span> rn <span class="operator">=</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>技术说明</strong>：</p>
+<ol>
+<li><p><strong>实现原理</strong></p>
+<ul>
+<li>使用MySQL的用户变量（@rn, @defect_id）来维护分组状态</li>
+<li>通过IF语句判断当前行是否属于同一分组</li>
+<li>利用变量赋值和比较实现分组计数</li>
+</ul>
+</li>
+<li><p><strong>优点</strong></p>
+<ul>
+<li>性能较好，避免了子查询</li>
+<li>兼容MySQL 5.7及以下版本</li>
+<li>实现简单直观</li>
+</ul>
+</li>
+<li><p><strong>注意事项</strong></p>
+<ul>
+<li>依赖执行顺序，ORDER BY子句必须正确</li>
+<li>变量初始化的位置很重要</li>
+<li>在多表关联时需要注意变量作用域</li>
+</ul>
+</li>
+<li><p><strong>使用建议</strong></p>
+<ul>
+<li>适合单表查询场景</li>
+<li>建议添加适当的索引（defect_id, create_time）</li>
+<li>注意并发查询时的变量隔离</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p><strong>补充说明</strong>：<br>这种实现方式在MySQL中是一个很巧妙的解决方案，特别是在需要兼容老版本MySQL的场景下。不过在使用时需要注意执行顺序和变量作用域的问题。这种方式虽然不如窗口函数直观，但在某些场景下可能会有更好的性能表现。</p>
+</blockquote>
+<h3><span id="33-sql-server实现">3.3 SQL Server实现</span></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span> (</span><br><span class="line">    <span class="keyword">SELECT</span> e.<span class="operator">*</span>, <span class="built_in">ROW_NUMBER</span>() <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary <span class="keyword">DESC</span>) <span class="keyword">as</span> rn</span><br><span class="line">    <span class="keyword">FROM</span> employees e</span><br><span class="line">) t</span><br><span class="line"><span class="keyword">WHERE</span> rn <span class="keyword">BETWEEN</span> <span class="number">11</span> <span class="keyword">AND</span> <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
+
+<h2><span id="四-注意事项">四、注意事项</span></h2><h3><span id="41-性能优化建议">4.1 性能优化建议</span></h3><p>❗️<strong>索引使用</strong></p>
+<blockquote>
+<p>确保ORDER BY子句中的字段已建立适当的索引</p>
+</blockquote>
+<p>❗️<strong>分页大小控制</strong></p>
+<blockquote>
+<p>建议单页数据量控制在1000条以内</p>
+</blockquote>
+<h3><span id="42-常见陷阱">4.2 常见陷阱</span></h3><ol>
+<li>在子查询中使用ROW_NUMBER()时，注意性能影响</li>
+<li>大数据量分页时，避免使用OFFSET方式</li>
+<li>注意不同数据库版本的语法差异</li>
+</ol>
+<h2><span id="五-拓展应用">五、拓展应用</span></h2><h3><span id="51-高级分页方案">5.1 高级分页方案</span></h3><ul>
+<li>使用”键集分页”（Keyset Pagination）</li>
+<li>实现无限滚动加载</li>
+<li>缓存分页结果</li>
+</ul>
+<h3><span id="52-性能优化技巧">5.2 性能优化技巧</span></h3><ul>
+<li>使用覆盖索引</li>
+<li>实现分页缓存</li>
+<li>采用异步加载策略</li>
+</ul>
+<h2><span id="六-延伸阅读">六、延伸阅读</span></h2><ol>
+<li>^^<a target="_blank" rel="noopener" href="https://docs.oracle.com/en/database/oracle/oracle-database/19/sqlrf/ROW_NUMBER.html">Oracle官方文档 - ROW_NUMBER函数</a>^^</li>
+<li>^^<a target="_blank" rel="noopener" href="https://dev.mysql.com/doc/refman/8.0/en/window-functions.html">MySQL 8.0参考手册 - 窗口函数</a>^^</li>
+<li>^^<a target="_blank" rel="noopener" href="https://docs.microsoft.com/en-us/sql/t-sql/functions/row-number-transact-sql">SQL Server文档 - ROW_NUMBER函数</a>^^</li>
+</ol>
+<blockquote>
+<p><strong>技术检查点</strong></p>
+<ul>
+<li><input disabled type="checkbox"> 是否考虑了数据库版本兼容性</li>
+<li><input disabled type="checkbox"> 分页查询是否使用了合适的索引</li>
+<li><input disabled type="checkbox"> 是否实现了性能优化措施</li>
+<li><input disabled type="checkbox"> 是否处理了边界情况</li>
+</ul>
+</blockquote>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/yannyi.github.io/tags/SQL/" rel="tag">SQL</a>, <a class="tag-none-link" href="/yannyi.github.io/tags/%E5%88%86%E9%A1%B5/" rel="tag">分页</a>, <a class="tag-none-link" href="/yannyi.github.io/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" rel="tag">性能优化</a>, <a class="tag-none-link" href="/yannyi.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2026-01-09T16:52:05.944Z" itemprop="dateModified">最后编辑：2026-01-10</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" 避免MySQL重复插入的几种方式" href="/yannyi.github.io/2025/06/05/2025-06-04-post-避免mysql重复插入的几种方式/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+            <div class="nav-next clearfix">
+                <a title=" MySQL 时间字段最佳实践" href="/yannyi.github.io/2026/01/05/2026-01-06-mysql时间字段最佳实践/">下一篇 <i class="fa fa-angle-right"></i></a>
+            </div>
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/yannyi.github.io/images/theme/Mamimi.JPG" alt="Mamimi" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center"></p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/yannyi.github.io/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                14
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/ai/">ai</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/games/">games</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/">java</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/">集合框架</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/">数据处理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/">mindset</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/">方法论</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/%E7%9F%A5%E8%AF%86%E7%AE%A1%E7%90%86/">知识管理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/tools/">tools</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Spring%E6%A1%86%E6%9E%B6/">Spring框架</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/SQL%E4%BC%98%E5%8C%96/">SQL优化</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a><span class="category-list-count">12</span></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/yannyi.github.io/tags/5W1H/" style="font-size: 0.6em;">5W1H</a> <a href="/yannyi.github.io/tags/AI%E6%8E%A2%E7%B4%A2/" style="font-size: 0.6em;">AI探索</a> <a href="/yannyi.github.io/tags/AI%E7%9F%A5%E8%AF%86%E5%BA%93/" style="font-size: 0.6em;">AI知识库</a> <a href="/yannyi.github.io/tags/AOP/" style="font-size: 0.6em;">AOP</a> <a href="/yannyi.github.io/tags/Java/" style="font-size: 0.67em;">Java</a> <a href="/yannyi.github.io/tags/MyBatis/" style="font-size: 0.6em;">MyBatis</a> <a href="/yannyi.github.io/tags/MySQL/" style="font-size: 0.67em;">MySQL</a> <a href="/yannyi.github.io/tags/SQL/" style="font-size: 0.6em;">SQL</a> <a href="/yannyi.github.io/tags/Spring/" style="font-size: 0.6em;">Spring</a> <a href="/yannyi.github.io/tags/%E5%85%A5%E9%97%A8/" style="font-size: 0.73em;">入门</a> <a href="/yannyi.github.io/tags/%E5%88%86%E6%89%B9%E5%A4%84%E7%90%86/" style="font-size: 0.6em;">分批处理</a> <a href="/yannyi.github.io/tags/%E5%88%86%E9%A1%B5/" style="font-size: 0.6em;">分页</a> <a href="/yannyi.github.io/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 0.8em;">创建型模式</a> <a href="/yannyi.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/" style="font-size: 0.6em;">后端开发</a> <a href="/yannyi.github.io/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 0.6em;">工具</a> <a href="/yannyi.github.io/tags/%E6%80%9D%E7%BB%B4%E6%A1%86%E6%9E%B6/" style="font-size: 0.6em;">思维框架</a> <a href="/yannyi.github.io/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" style="font-size: 0.67em;">性能优化</a> <a href="/yannyi.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 0.73em;">数据库</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/hello-world/"><i class="fa fa-book"></i> Hello World</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/categories/tech/design_patterns/"><i class="fa fa-book"></i> 设计模式</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-ai-mcp/"><i class="fa fa-book"></i> MCP 模型上下文协议</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-tools-Obsidian/"><i class="fa fa-book"></i> Markdown本地笔记 Obsidian</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2024-06-01-game-research/"><i class="fa fa-book"></i> 开始使用：游戏研究</a>
+            
+          
+        
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+                </div>
+    </div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 MamimiJa Nai 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li>自豪地使用 <a href="https://github.com/Candinya/Kratos-Rebirth" target="_blank">Kratos:Rebirth</a> 主题</li>
+                            <li>站点由 Mamimi 用 <i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                
+                    <div class="box search-box">
+                        <a href="/yannyi.github.io/search">
+                            <span class="fa fa-search"></span>
+                        </a>
+                    </div>
+                
+                <div class="box theme-box" id="theme-toggle">
+                    <span class="fa fa-adjust"></span>
+                </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">打赏</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">打赏提示信息</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/yannyi.github.io/js/kr-modal/donate.min.js"></script>
+
+
+
+
+
+<!-- 额外的追加注入项 -->
+
+
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/yannyi.github.io/";
+</script>
+
+
+  <script defer src="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/yannyi.github.io/js/kr-core.min.js"></script>
+
+
+  <script defer src="/yannyi.github.io/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>

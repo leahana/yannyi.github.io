@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+  
+  <title>Singleton 模式 | MamimiJa Nai</title>
+  <link rel="canonical" href="https://leahana.github.io/2023/01/01/design_patterns/singleton/">
+  <meta name="author" content="Mamimi" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="创建型模式, 设计模式" />
+  
+  <meta name="description" content="Singleton模式确保一个类只有一个实例，并提供一个全局访问点来访问该实例，常用于需要严格控制资源共享的场景。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Singleton 模式">
+<meta property="og:url" content="https://leahana.github.io/2023/01/01/design_patterns/singleton/index.html">
+<meta property="og:site_name" content="MamimiJa Nai">
+<meta property="og:description" content="Singleton模式确保一个类只有一个实例，并提供一个全局访问点来访问该实例，常用于需要严格控制资源共享的场景。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2023-01-01T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-08T16:00:00.000Z">
+<meta property="article:author" content="Mamimi">
+<meta property="article:tag" content="创建型模式">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"Singleton 模式","description":"Singleton模式确保一个类只有一个实例，并提供一个全局访问点来访问该实例，常用于需要严格控制资源共享的场景。","image":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG","author":{"@type":"Person","name":"Mamimi"},"publisher":{"@type":"Organization","name":"MamimiJa Nai","logo":{"@type":"ImageObject","url":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG"}},"datePublished":"2023-01-01T16:00:00.000Z","dateModified":"2025-01-08T16:00:00.000Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://leahana.github.io/2023/01/01/design_patterns/singleton/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/yannyi.github.io/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/yannyi.github.io/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/yannyi.github.io/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/yannyi.github.io/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/yannyi.github.io/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/yannyi.github.io/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+    <style>body.custom-background{background-image:url('/yannyi.github.io/images/theme/background.jpg')!important;background-attachment:fixed!important;background-size:cover!important;background-position:center!important;}#kratos-widget-area .widget-kratos-about .photo-background{background-image:url('/yannyi.github.io/images/theme/avatar-bg.jpg')!important;background-size:cover!important;background-position:35% 35%!important;background-repeat:no-repeat!important;}</style><link rel="stylesheet" href="/yannyi.github.io/css/custom.css">
+  
+<!-- hexo injector head_end start --><script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@latest/dist/mermaid.esm.min.mjs">
+    mermaid.initialize(
+      startOnLoad: true,
+    );
+    </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/">
+                                        
+                                            
+                                                <i class="fa fa-fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/archives">
+                                        
+                                            
+                                                <i class="fa fa-fa-archive"></i>
+                                            
+                                            归档
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/categories">
+                                        
+                                            
+                                                <i class="fa fa-fa-folder-open"></i>
+                                            
+                                            分类
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/tags">
+                                        
+                                            
+                                                <i class="fa fa-fa-tags"></i>
+                                            
+                                            标签
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/search">
+                                        
+                                            
+                                                <i class="fa fa-fa-search"></i>
+                                            
+                                            搜索
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a>
+                                        
+                                            
+                                                <i class="fa fa-fa-th-list"></i>
+                                            
+                                            更多
+                                        </a>
+                                        
+                                            <ul class="sub-menu">
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/about">
+                                                            
+                                                                <i class="fa fa-fa-user"></i>
+                                                            
+                                                            关于我
+                                                        </a>
+                                                    </li>
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/links">
+                                                            
+                                                                <i class="fa fa-fa-link"></i>
+                                                            
+                                                            友情链接
+                                                        </a>
+                                                    </li>
+                                                
+                                            </ul>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/yannyi.github.io/">MamimiJa Nai</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/yannyi.github.io/">
+                        <h2>MamimiJa Nai</h2> <br />
+                        <span></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://leahana.github.io/2023/01/01/design_patterns/singleton/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">Singleton 模式</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2023-01-01T16:00:00.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2023-01-02</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">Mamimi</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~11.75K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+                <div class="kratos-post-inner-toc toc-div-class" >
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Singleton 模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.1.</span> <span class="toc-text">一、基础介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.2.</span> <span class="toc-text">二、生活比喻：王国里的国王</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.3.</span> <span class="toc-text">三、应用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.3.1.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.3.2.</span> <span class="toc-text">真实案例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.4.</span> <span class="toc-text">四、使用注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.1.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.2.</span> <span class="toc-text">缺点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.3.</span> <span class="toc-text">使用建议</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.5.</span> <span class="toc-text">五、Java 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.1.</span> <span class="toc-text">实现 1：饿汉式（推荐简单场景）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.2.</span> <span class="toc-text">实现 2：懒汉式（线程不安全）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.3.</span> <span class="toc-text">实现 3：懒汉式（同步方法）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.4.</span> <span class="toc-text">实现 4：双重检查锁（推荐）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.5.</span> <span class="toc-text">实现 5：静态内部类（推荐）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.6.</span> <span class="toc-text">实现 6：枚举单例（最佳实践）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.7.</span> <span class="toc-text">JDK 中的单例示例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.6.</span> <span class="toc-text">六、Python 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.1.</span> <span class="toc-text">实现 1：模块级单例（Pythonic 方式）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.2.</span> <span class="toc-text">实现 2：装饰器实现单例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.3.</span> <span class="toc-text">实现 3：类方法实现单例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.4.</span> <span class="toc-text">实现 4：new 方法实现单例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.5.</span> <span class="toc-text">实现 5：元类实现单例（高级）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.6.</span> <span class="toc-text">实现 6：线程安全的单例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.7.</span> <span class="toc-text">Python 标准库中的单例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.7.</span> <span class="toc-text">七、常见问题与解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.1.</span> <span class="toc-text">问题 1：反射攻击（Java）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.2.</span> <span class="toc-text">问题 2：序列化破坏（Java）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.3.</span> <span class="toc-text">问题 3：单例测试困难</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.8.</span> <span class="toc-text">八、参考资料与延伸阅读</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.1.</span> <span class="toc-text">经典书籍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.2.</span> <span class="toc-text">在线资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.3.</span> <span class="toc-text">相关设计模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.4.</span> <span class="toc-text">最佳实践建议</span></a></li></ol></li></ol></li></ol>
+                </div>
+            
+            <hr />
+            <div itemprop="articleBody"><h2><span id="singleton-模式">Singleton 模式</span></h2><h3><span id="一-基础介绍">一、基础介绍</span></h3><p>Singleton（单例）模式是一种创建型设计模式，它确保一个类只有一个实例，并提供一个全局访问点来访问该实例。这种模式在需要一个全局唯一对象来协调操作时非常有用。</p>
+<p>单例模式的核心要点：</p>
+<ol>
+<li><strong>私有构造函数</strong>：防止外部通过 <code>new</code> 创建实例</li>
+<li><strong>私有静态实例变量</strong>：存储唯一的实例</li>
+<li><strong>公共静态访问方法</strong>：提供全局访问点（通常命名为 <code>getInstance()</code>）</li>
+</ol>
+<h3><span id="二-生活比喻王国里的国王">二、生活比喻：王国里的国王</span></h3><p>想象一个<strong>王国</strong>：</p>
+<blockquote>
+<p>在一个王国里，只能有一个国王在位。无论王国的哪个部门（军队、财政、外交）需要见国王，他们都会去同一个地方——王座，见的都是同一个人。</p>
+<p>如果有多个”国王”同时发布命令，国家就会陷入混乱。因此，<strong>确保国王的唯一性</strong>是王国正常运转的前提。</p>
+</blockquote>
+<p>在这个比喻中：</p>
+<ul>
+<li><strong>Singleton</strong> &#x3D; 王国的国王制度</li>
+<li><strong>getInstance()</strong> &#x3D; 获取国王接见的官方渠道</li>
+<li><strong>唯一实例</strong> &#x3D; 在位的国王本人</li>
+</ul>
+<h3><span id="三-应用场景">三、应用场景</span></h3><h4><span id="适用场景">适用场景</span></h4><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>资源共享</strong></td>
+<td>多个组件需要访问同一资源</td>
+<td>数据库连接池、线程池</td>
+</tr>
+<tr>
+<td><strong>配置管理</strong></td>
+<td>应用全局配置的唯一访问点</td>
+<td>配置中心、系统设置</td>
+</tr>
+<tr>
+<td><strong>日志记录</strong></td>
+<td>统一的日志输出管理</td>
+<td>日志框架、审计系统</td>
+</tr>
+<tr>
+<td><strong>缓存管理</strong></td>
+<td>统一的缓存访问接口</td>
+<td>缓存管理器</td>
+</tr>
+<tr>
+<td><strong>设备驱动</strong></td>
+<td>硬件设备的唯一访问接口</td>
+<td>打印机队列、显示驱动</td>
+</tr>
+</tbody></table>
+<h4><span id="真实案例">真实案例</span></h4><ul>
+<li><strong>Java Runtime</strong>：<code>Runtime.getRuntime()</code> 返回 JVM 的唯一运行时实例</li>
+<li><strong>日志管理器</strong>：Log4j、SLF4J 的 Logger 管理</li>
+<li><strong>配置中心</strong>：Spring 的 <code>ApplicationContext</code></li>
+<li><strong>缓存系统</strong>：Redis 连接池、Memcached 客户端</li>
+</ul>
+<h3><span id="四-使用注意事项">四、使用注意事项</span></h3><h4><span id="优点">优点</span></h4><table>
+<thead>
+<tr>
+<th>优点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>唯一实例</strong></td>
+<td>确保资源不被重复创建，节约内存</td>
+</tr>
+<tr>
+<td><strong>全局访问</strong></td>
+<td>提供统一的访问点，方便使用</td>
+</tr>
+<tr>
+<td><strong>延迟初始化</strong></td>
+<td>可以等到第一次使用时才创建实例</td>
+</tr>
+<tr>
+<td><strong>减少资源消耗</strong></td>
+<td>避免频繁创建和销毁对象</td>
+</tr>
+</tbody></table>
+<h4><span id="缺点">缺点</span></h4><table>
+<thead>
+<tr>
+<th>缺点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>违反单一职责</strong></td>
+<td>单例类既管理业务逻辑，又管理创建逻辑</td>
+</tr>
+<tr>
+<td><strong>全局状态</strong></td>
+<td>引入隐式依赖，使代码难以测试</td>
+</tr>
+<tr>
+<td><strong>并发问题</strong></td>
+<td>多线程环境下需要特殊处理</td>
+</tr>
+<tr>
+<td><strong>难以继承</strong></td>
+<td>私有构造函数导致难以扩展</td>
+</tr>
+<tr>
+<td><strong>内存泄漏</strong></td>
+<td>生命周期贯穿整个应用，易积累无用数据</td>
+</tr>
+</tbody></table>
+<h4><span id="使用建议">使用建议</span></h4><ul>
+<li>谨慎使用：能用依赖注入解决的场景，优先不用单例</li>
+<li>线程安全：多线程环境必须考虑并发访问</li>
+<li>可测试性：提供方式重置单例，便于单元测试</li>
+</ul>
+<h3><span id="五-java-经典案例">五、Java 经典案例</span></h3><h4><span id="实现-1饿汉式推荐简单场景">实现 1：饿汉式（推荐简单场景）</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 饿汉式：类加载时就创建实例</span></span><br><span class="line"><span class="comment"> * 优点：简单、线程安全</span></span><br><span class="line"><span class="comment"> * 缺点：不支持延迟加载，可能浪费资源</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EagerSingleton</span> &#123;</span><br><span class="line">    <span class="comment">// 类加载时就创建实例</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">EagerSingleton</span> <span class="variable">instance</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">EagerSingleton</span>();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 私有构造函数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">EagerSingleton</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 初始化代码</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回唯一实例</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> EagerSingleton <span class="title function_">getInstance</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-2懒汉式线程不安全">实现 2：懒汉式（线程不安全）</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 懒汉式：第一次使用时创建实例</span></span><br><span class="line"><span class="comment"> * 警告：线程不安全，多线程环境下可能创建多个实例！</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UnsafeLazySingleton</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">UnsafeLazySingleton</span> <span class="variable">instance</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">UnsafeLazySingleton</span><span class="params">()</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> UnsafeLazySingleton <span class="title function_">getInstance</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (instance == <span class="literal">null</span>) &#123;</span><br><span class="line">            instance = <span class="keyword">new</span> <span class="title class_">UnsafeLazySingleton</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-3懒汉式同步方法">实现 3：懒汉式（同步方法）</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 同步方法懒汉式</span></span><br><span class="line"><span class="comment"> * 优点：线程安全</span></span><br><span class="line"><span class="comment"> * 缺点：每次获取实例都需要同步，性能较差</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SyncedLazySingleton</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="type">SyncedLazySingleton</span> <span class="variable">instance</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">SyncedLazySingleton</span><span class="params">()</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> SyncedLazySingleton <span class="title function_">getInstance</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (instance == <span class="literal">null</span>) &#123;</span><br><span class="line">            instance = <span class="keyword">new</span> <span class="title class_">SyncedLazySingleton</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-4双重检查锁推荐">实现 4：双重检查锁（推荐）</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 双重检查锁（Double-Checked Locking）</span></span><br><span class="line"><span class="comment"> * 优点：延迟加载、线程安全、性能良好</span></span><br><span class="line"><span class="comment"> * 注意：必须使用 volatile 关键字</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DCLSingleton</span> &#123;</span><br><span class="line">    <span class="comment">// volatile 防止指令重排序</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> <span class="type">DCLSingleton</span> <span class="variable">instance</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">DCLSingleton</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 初始化代码</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> DCLSingleton <span class="title function_">getInstance</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 第一次检查：避免不必要的同步</span></span><br><span class="line">        <span class="keyword">if</span> (instance == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (DCLSingleton.class) &#123;</span><br><span class="line">                <span class="comment">// 第二次检查：确保只有一个实例被创建</span></span><br><span class="line">                <span class="keyword">if</span> (instance == <span class="literal">null</span>) &#123;</span><br><span class="line">                    instance = <span class="keyword">new</span> <span class="title class_">DCLSingleton</span>();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-5静态内部类推荐">实现 5：静态内部类（推荐）</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 静态内部类方式（Holder 模式）</span></span><br><span class="line"><span class="comment"> * 优点：延迟加载、线程安全、代码简洁</span></span><br><span class="line"><span class="comment"> * 原理：利用类加载机制保证线程安全</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">HolderSingleton</span> &#123;</span><br><span class="line">    <span class="comment">// 私有构造函数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">HolderSingleton</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 初始化代码</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 静态内部类，延迟加载</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Holder</span> &#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">HolderSingleton</span> <span class="variable">INSTANCE</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HolderSingleton</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 返回实例</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> HolderSingleton <span class="title function_">getInstance</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> Holder.INSTANCE;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-6枚举单例最佳实践">实现 6：枚举单例（最佳实践）</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 枚举单例（Effective Java 推荐）</span></span><br><span class="line"><span class="comment"> * 优点：</span></span><br><span class="line"><span class="comment"> *   1. 线程安全</span></span><br><span class="line"><span class="comment"> *   2. 防止反射攻击</span></span><br><span class="line"><span class="comment"> *   3. 防止序列化破坏</span></span><br><span class="line"><span class="comment"> *   4. 代码简洁</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> <span class="title class_">EnumSingleton</span> &#123;</span><br><span class="line">    INSTANCE;  <span class="comment">// 唯一实例</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 添加业务方法</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doSomething</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Singleton is working&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 可以添加属性</span></span><br><span class="line">    <span class="keyword">private</span> String data;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getData</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> data;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setData</span><span class="params">(String data)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.data = data;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">EnumSingleton</span> <span class="variable">singleton</span> <span class="operator">=</span> EnumSingleton.INSTANCE;</span><br><span class="line">        singleton.doSomething();</span><br><span class="line">        singleton.setData(<span class="string">&quot;Hello&quot;</span>);</span><br><span class="line">        System.out.println(singleton.getData());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="jdk-中的单例示例">JDK 中的单例示例</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Runtime 类是典型的单例模式</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">RuntimeDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">// 获取 Runtime 实例</span></span><br><span class="line">        <span class="type">Runtime</span> <span class="variable">runtime</span> <span class="operator">=</span> Runtime.getRuntime();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使用单例实例</span></span><br><span class="line">        System.out.println(<span class="string">&quot;处理器数量: &quot;</span> + runtime.availableProcessors());</span><br><span class="line">        System.out.println(<span class="string">&quot;最大内存: &quot;</span> + runtime.maxMemory() / <span class="number">1024</span> / <span class="number">1024</span> + <span class="string">&quot; MB&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3><span id="六-python-经典案例">六、Python 经典案例</span></h3><h4><span id="实现-1模块级单例pythonic-方式">实现 1：模块级单例（Pythonic 方式）</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># singleton.py</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Singleton</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;单例类&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.value = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">do_something</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Singleton is working&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模块级别的唯一实例</span></span><br><span class="line">instance = Singleton()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用</span></span><br><span class="line"><span class="comment"># from singleton import instance</span></span><br><span class="line"><span class="comment"># instance.do_something()</span></span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-2装饰器实现单例">实现 2：装饰器实现单例</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">singleton</span>(<span class="params">cls</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    单例装饰器</span></span><br><span class="line"><span class="string">    使用：@singleton</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    instances = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">    @wraps(<span class="params">cls</span>)</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_instance</span>(<span class="params">*args, **kwargs</span>):</span><br><span class="line">        <span class="keyword">if</span> cls <span class="keyword">not</span> <span class="keyword">in</span> instances:</span><br><span class="line">            instances[cls] = cls(*args, **kwargs)</span><br><span class="line">        <span class="keyword">return</span> instances[cls]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> get_instance</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用装饰器</span></span><br><span class="line"><span class="meta">@singleton</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DatabaseConnection</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Creating database connection&quot;</span>)</span><br><span class="line">        <span class="variable language_">self</span>.connection = <span class="string">&quot;Connected to database&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">query</span>(<span class="params">self, sql</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Executing: <span class="subst">&#123;sql&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试</span></span><br><span class="line">db1 = DatabaseConnection()</span><br><span class="line">db2 = DatabaseConnection()</span><br><span class="line"><span class="built_in">print</span>(db1 <span class="keyword">is</span> db2)  <span class="comment"># True</span></span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-3类方法实现单例">实现 3：类方法实现单例</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Singleton</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    使用类方法实现单例模式</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    _instance = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> Singleton._instance <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">raise</span> Exception(<span class="string">&quot;Use getInstance() method to get the instance&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Creating singleton instance&quot;</span>)</span><br><span class="line">        <span class="variable language_">self</span>.value = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">getInstance</span>(<span class="params">cls</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;获取唯一实例&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">if</span> cls._instance <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            cls._instance = cls()</span><br><span class="line">        <span class="keyword">return</span> cls._instance</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">do_something</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Doing something with value: <span class="subst">&#123;self.value&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用</span></span><br><span class="line">singleton1 = Singleton.getInstance()</span><br><span class="line">singleton1.value = <span class="string">&quot;Test&quot;</span></span><br><span class="line">singleton1.do_something()</span><br><span class="line"></span><br><span class="line">singleton2 = Singleton.getInstance()</span><br><span class="line"><span class="built_in">print</span>(singleton1 <span class="keyword">is</span> singleton2)  <span class="comment"># True</span></span><br><span class="line">singleton2.do_something()  <span class="comment"># Value: Test</span></span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-4new-方法实现单例">实现 4：<strong>new</strong> 方法实现单例</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Singleton</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    使用 __new__ 方法实现单例</span></span><br><span class="line"><span class="string">    这是 Python 中最常用的实现方式</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    _instance = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__new__</span>(<span class="params">cls</span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;重写 __new__ 方法控制实例创建&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">if</span> cls._instance <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;Creating new instance&quot;</span>)</span><br><span class="line">            cls._instance = <span class="built_in">super</span>().__new__(cls)</span><br><span class="line">            <span class="comment"># 初始化实例属性</span></span><br><span class="line">            cls._instance.value = <span class="literal">None</span></span><br><span class="line">        <span class="keyword">return</span> cls._instance</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">do_something</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Singleton value: <span class="subst">&#123;self.value&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试</span></span><br><span class="line">s1 = Singleton()</span><br><span class="line">s1.value = <span class="string">&quot;First&quot;</span></span><br><span class="line">s1.do_something()</span><br><span class="line"></span><br><span class="line">s2 = Singleton()</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;s1 is s2: <span class="subst">&#123;s1 <span class="keyword">is</span> s2&#125;</span>&quot;</span>)  <span class="comment"># True</span></span><br><span class="line">s2.do_something()  <span class="comment"># Singleton value: First</span></span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-5元类实现单例高级">实现 5：元类实现单例（高级）</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">SingletonMeta</span>(<span class="title class_ inherited__">type</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    单例元类</span></span><br><span class="line"><span class="string">    通过元类控制类的创建行为</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    _instances = &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__call__</span>(<span class="params">cls, *args, **kwargs</span>):</span><br><span class="line">        <span class="keyword">if</span> cls <span class="keyword">not</span> <span class="keyword">in</span> cls._instances:</span><br><span class="line">            cls._instances[cls] = <span class="built_in">super</span>().__call__(*args, **kwargs)</span><br><span class="line">        <span class="keyword">return</span> cls._instances[cls]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Database</span>(metaclass=SingletonMeta):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;使用元类实现单例&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Initializing database connection&quot;</span>)</span><br><span class="line">        <span class="variable language_">self</span>.connected = <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">connect</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.connected = <span class="literal">True</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Database connected&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">disconnect</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.connected = <span class="literal">False</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Database disconnected&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">execute</span>(<span class="params">self, query</span>):</span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>.connected:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;Executing query: <span class="subst">&#123;query&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;Error: Database not connected&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试</span></span><br><span class="line">db1 = Database()</span><br><span class="line">db1.connect()</span><br><span class="line">db1.execute(<span class="string">&quot;SELECT * FROM users&quot;</span>)</span><br><span class="line"></span><br><span class="line">db2 = Database()</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;db1 is db2: <span class="subst">&#123;db1 <span class="keyword">is</span> db2&#125;</span>&quot;</span>)  <span class="comment"># True</span></span><br><span class="line">db2.execute(<span class="string">&quot;SELECT * FROM products&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-6线程安全的单例">实现 6：线程安全的单例</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> threading</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ThreadSafeSingleton</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    线程安全的单例实现</span></span><br><span class="line"><span class="string">    使用锁确保多线程环境下只创建一个实例</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    _instance = <span class="literal">None</span></span><br><span class="line">    _lock = threading.Lock()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__new__</span>(<span class="params">cls</span>):</span><br><span class="line">        <span class="keyword">if</span> cls._instance <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">with</span> cls._lock:</span><br><span class="line">                <span class="comment"># 双重检查，避免锁竞争</span></span><br><span class="line">                <span class="keyword">if</span> cls._instance <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">                    <span class="built_in">print</span>(<span class="string">&quot;Creating thread-safe singleton instance&quot;</span>)</span><br><span class="line">                    cls._instance = <span class="built_in">super</span>().__new__(cls)</span><br><span class="line">                    cls._instance.value = <span class="literal">None</span></span><br><span class="line">        <span class="keyword">return</span> cls._instance</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">worker</span>():</span><br><span class="line">    <span class="string">&quot;&quot;&quot;工作线程函数&quot;&quot;&quot;</span></span><br><span class="line">    singleton = ThreadSafeSingleton()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Thread <span class="subst">&#123;threading.current_thread().name&#125;</span> got singleton: <span class="subst">&#123;<span class="built_in">id</span>(singleton)&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 测试多线程</span></span><br><span class="line">threads = []</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">5</span>):</span><br><span class="line">    t = threading.Thread(target=worker)</span><br><span class="line">    threads.append(t)</span><br><span class="line">    t.start()</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> t <span class="keyword">in</span> threads:</span><br><span class="line">    t.join()</span><br></pre></td></tr></table></figure>
+
+<h4><span id="python-标准库中的单例">Python 标准库中的单例</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># logging 模块使用单例模式</span></span><br><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"></span><br><span class="line"><span class="comment"># getLogger 返回相同的 logger 实例</span></span><br><span class="line">logger1 = logging.getLogger(__name__)</span><br><span class="line">logger2 = logging.getLogger(__name__)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;Same logger: <span class="subst">&#123;logger1 <span class="keyword">is</span> logger2&#125;</span>&quot;</span>)  <span class="comment"># True</span></span><br><span class="line"></span><br><span class="line">logger1.setLevel(logging.INFO)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;Logger level: <span class="subst">&#123;logger2.level&#125;</span>&quot;</span>)  <span class="comment"># 20 (INFO)</span></span><br></pre></td></tr></table></figure>
+
+<h3><span id="七-常见问题与解决方案">七、常见问题与解决方案</span></h3><h4><span id="问题-1反射攻击java">问题 1：反射攻击（Java）</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 通过反射可以创建新的实例，破坏单例</span></span><br><span class="line">Constructor&lt;Singleton&gt; constructor = Singleton.class.getDeclaredConstructor();</span><br><span class="line">constructor.setAccessible(<span class="literal">true</span>);</span><br><span class="line"><span class="type">Singleton</span> <span class="variable">newSingleton</span> <span class="operator">=</span> constructor.newInstance();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 解决方案：使用枚举单例</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">enum</span> <span class="title class_">EnumSingleton</span> &#123;</span><br><span class="line">    INSTANCE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="问题-2序列化破坏java">问题 2：序列化破坏（Java）</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 序列化和反序列化会创建新实例</span></span><br><span class="line"><span class="comment">// 解决方案：添加 readResolve() 方法</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Singleton</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">long</span> <span class="variable">serialVersionUID</span> <span class="operator">=</span> <span class="number">1L</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> Singleton instance;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">Singleton</span><span class="params">()</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title function_">getInstance</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (instance == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (Singleton.class) &#123;</span><br><span class="line">                <span class="keyword">if</span> (instance == <span class="literal">null</span>) &#123;</span><br><span class="line">                    instance = <span class="keyword">new</span> <span class="title class_">Singleton</span>();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 防止反序列化创建新实例</span></span><br><span class="line">    <span class="keyword">protected</span> Object <span class="title function_">readResolve</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> getInstance();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="问题-3单例测试困难">问题 3：单例测试困难</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 解决方案：提供重置方法，仅用于测试</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Singleton</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Singleton instance;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">Singleton</span><span class="params">()</span> &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title function_">getInstance</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (instance == <span class="literal">null</span>) &#123;</span><br><span class="line">            instance = <span class="keyword">new</span> <span class="title class_">Singleton</span>();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 仅用于测试</span></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">resetInstance</span><span class="params">()</span> &#123;</span><br><span class="line">        instance = <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3><span id="八-参考资料与延伸阅读">八、参考资料与延伸阅读</span></h3><h4><span id="经典书籍">经典书籍</span></h4><ul>
+<li>《Effective Java（第三版）》- Joshua Bloch</li>
+<li>《设计模式：可复用面向对象软件的基础》- GoF</li>
+<li>《Head First 设计模式》- 单例模式章节</li>
+</ul>
+<h4><span id="在线资源">在线资源</span></h4><ul>
+<li><a target="_blank" rel="noopener" href="https://refactoring.guru/design-patterns/singleton">Refactoring.Guru - Singleton</a></li>
+<li><a target="_blank" rel="noopener" href="https://java-design-patterns.com/patterns/singleton/">Java设计模式：单例模式</a></li>
+<li><a target="_blank" rel="noopener" href="https://refactoring.guru/design-patterns/singleton/python/example">Python单例模式的5种实现方式</a></li>
+</ul>
+<h4><span id="相关设计模式">相关设计模式</span></h4><ul>
+<li><strong>Abstract Factory（抽象工厂）</strong>：工厂常以单例形式出现</li>
+<li><strong>Builder（建造者）</strong>：可以创建单例的构建器</li>
+<li><strong>Facade（外观）</strong>：Facade 对象通常是单例</li>
+<li><strong>Prototype（原型）</strong>：单例可以克隆自身（需谨慎）</li>
+</ul>
+<h4><span id="最佳实践建议">最佳实践建议</span></h4><ol>
+<li><strong>优先使用依赖注入</strong>：避免隐式依赖</li>
+<li><strong>枚举单例（Java）</strong>：简洁且安全</li>
+<li><strong>模块级变量（Python）</strong>：充分利用语言特性</li>
+<li><strong>注意线程安全</strong>：多线程环境必须同步</li>
+<li><strong>考虑可测试性</strong>：提供测试友好的实现</li>
+</ol>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/yannyi.github.io/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">创建型模式</a>, <a class="tag-none-link" href="/yannyi.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2025-01-08T16:00:00.000Z" itemprop="dateModified">最后编辑：2025-01-09</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" Factory Method 模式" href="/yannyi.github.io/2022/12/31/design_patterns/factory_method/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+            <div class="nav-next clearfix">
+                <a title=" Prototype 模式" href="/yannyi.github.io/2023/01/02/design_patterns/prototype/">下一篇 <i class="fa fa-angle-right"></i></a>
+            </div>
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/yannyi.github.io/images/theme/Mamimi.JPG" alt="Mamimi" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center"></p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/yannyi.github.io/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                14
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                    <aside id="krw-toc" class="widget widget-kratos-toc clearfix toc-div-class" >
+    <div class="photo-background"></div>
+    <h4 class="widget-title no-after">
+        <i class="fa fa-compass"></i>
+        文章目录
+        <span class="toc-progress-bar" role="progressbar" aria-label="阅读进度："></span>
+    </h4>
+    <div class="textwidget">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Singleton 模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.1.</span> <span class="toc-text">一、基础介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.2.</span> <span class="toc-text">二、生活比喻：王国里的国王</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.3.</span> <span class="toc-text">三、应用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.3.1.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.3.2.</span> <span class="toc-text">真实案例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.4.</span> <span class="toc-text">四、使用注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.1.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.2.</span> <span class="toc-text">缺点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.3.</span> <span class="toc-text">使用建议</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.5.</span> <span class="toc-text">五、Java 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.1.</span> <span class="toc-text">实现 1：饿汉式（推荐简单场景）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.2.</span> <span class="toc-text">实现 2：懒汉式（线程不安全）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.3.</span> <span class="toc-text">实现 3：懒汉式（同步方法）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.4.</span> <span class="toc-text">实现 4：双重检查锁（推荐）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.5.</span> <span class="toc-text">实现 5：静态内部类（推荐）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.6.</span> <span class="toc-text">实现 6：枚举单例（最佳实践）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.7.</span> <span class="toc-text">JDK 中的单例示例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.6.</span> <span class="toc-text">六、Python 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.1.</span> <span class="toc-text">实现 1：模块级单例（Pythonic 方式）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.2.</span> <span class="toc-text">实现 2：装饰器实现单例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.3.</span> <span class="toc-text">实现 3：类方法实现单例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.4.</span> <span class="toc-text">实现 4：new 方法实现单例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.5.</span> <span class="toc-text">实现 5：元类实现单例（高级）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.6.</span> <span class="toc-text">实现 6：线程安全的单例</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.7.</span> <span class="toc-text">Python 标准库中的单例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.7.</span> <span class="toc-text">七、常见问题与解决方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.1.</span> <span class="toc-text">问题 1：反射攻击（Java）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.2.</span> <span class="toc-text">问题 2：序列化破坏（Java）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.3.</span> <span class="toc-text">问题 3：单例测试困难</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.8.</span> <span class="toc-text">八、参考资料与延伸阅读</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.1.</span> <span class="toc-text">经典书籍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.2.</span> <span class="toc-text">在线资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.3.</span> <span class="toc-text">相关设计模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.4.</span> <span class="toc-text">最佳实践建议</span></a></li></ol></li></ol></li></ol>
+    </div>
+</aside>
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/ai/">ai</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/games/">games</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/">java</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/">集合框架</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/">数据处理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/">mindset</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/">方法论</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/%E7%9F%A5%E8%AF%86%E7%AE%A1%E7%90%86/">知识管理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/tools/">tools</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Spring%E6%A1%86%E6%9E%B6/">Spring框架</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/SQL%E4%BC%98%E5%8C%96/">SQL优化</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a><span class="category-list-count">12</span></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/yannyi.github.io/tags/5W1H/" style="font-size: 0.6em;">5W1H</a> <a href="/yannyi.github.io/tags/AI%E6%8E%A2%E7%B4%A2/" style="font-size: 0.6em;">AI探索</a> <a href="/yannyi.github.io/tags/AI%E7%9F%A5%E8%AF%86%E5%BA%93/" style="font-size: 0.6em;">AI知识库</a> <a href="/yannyi.github.io/tags/AOP/" style="font-size: 0.6em;">AOP</a> <a href="/yannyi.github.io/tags/Java/" style="font-size: 0.67em;">Java</a> <a href="/yannyi.github.io/tags/MyBatis/" style="font-size: 0.6em;">MyBatis</a> <a href="/yannyi.github.io/tags/MySQL/" style="font-size: 0.67em;">MySQL</a> <a href="/yannyi.github.io/tags/SQL/" style="font-size: 0.6em;">SQL</a> <a href="/yannyi.github.io/tags/Spring/" style="font-size: 0.6em;">Spring</a> <a href="/yannyi.github.io/tags/%E5%85%A5%E9%97%A8/" style="font-size: 0.73em;">入门</a> <a href="/yannyi.github.io/tags/%E5%88%86%E6%89%B9%E5%A4%84%E7%90%86/" style="font-size: 0.6em;">分批处理</a> <a href="/yannyi.github.io/tags/%E5%88%86%E9%A1%B5/" style="font-size: 0.6em;">分页</a> <a href="/yannyi.github.io/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 0.8em;">创建型模式</a> <a href="/yannyi.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/" style="font-size: 0.6em;">后端开发</a> <a href="/yannyi.github.io/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 0.6em;">工具</a> <a href="/yannyi.github.io/tags/%E6%80%9D%E7%BB%B4%E6%A1%86%E6%9E%B6/" style="font-size: 0.6em;">思维框架</a> <a href="/yannyi.github.io/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" style="font-size: 0.67em;">性能优化</a> <a href="/yannyi.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 0.73em;">数据库</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/hello-world/"><i class="fa fa-book"></i> Hello World</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/categories/tech/design_patterns/"><i class="fa fa-book"></i> 设计模式</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-ai-mcp/"><i class="fa fa-book"></i> MCP 模型上下文协议</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-tools-Obsidian/"><i class="fa fa-book"></i> Markdown本地笔记 Obsidian</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2024-06-01-game-research/"><i class="fa fa-book"></i> 开始使用：游戏研究</a>
+            
+          
+        
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+                </div>
+    </div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 MamimiJa Nai 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li>自豪地使用 <a href="https://github.com/Candinya/Kratos-Rebirth" target="_blank">Kratos:Rebirth</a> 主题</li>
+                            <li>站点由 Mamimi 用 <i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                
+                    <div class="box search-box">
+                        <a href="/yannyi.github.io/search">
+                            <span class="fa fa-search"></span>
+                        </a>
+                    </div>
+                
+                <div class="box theme-box" id="theme-toggle">
+                    <span class="fa fa-adjust"></span>
+                </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">打赏</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">打赏提示信息</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/yannyi.github.io/js/kr-modal/donate.min.js"></script>
+
+
+
+
+
+<!-- 额外的追加注入项 -->
+
+
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/yannyi.github.io/";
+</script>
+
+
+  <script defer src="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/yannyi.github.io/js/kr-core.min.js"></script>
+
+
+  <script defer src="/yannyi.github.io/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>

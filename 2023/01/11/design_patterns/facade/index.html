@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+  
+  <title>Facade 模式 | MamimiJa Nai</title>
+  <link rel="canonical" href="https://leahana.github.io/2023/01/11/design_patterns/facade/">
+  <meta name="author" content="Mamimi" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="结构型模式, 设计模式" />
+  
+  <meta name="description" content="Facade模式为子系统中的一组接口提供一个一致的界面，定义一个高层接口，这个接口使得这一子系统更加容易使用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Facade 模式">
+<meta property="og:url" content="https://leahana.github.io/2023/01/11/design_patterns/facade/index.html">
+<meta property="og:site_name" content="MamimiJa Nai">
+<meta property="og:description" content="Facade模式为子系统中的一组接口提供一个一致的界面，定义一个高层接口，这个接口使得这一子系统更加容易使用。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2023-01-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-08T16:00:00.000Z">
+<meta property="article:author" content="Mamimi">
+<meta property="article:tag" content="结构型模式">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"Facade 模式","description":"Facade模式为子系统中的一组接口提供一个一致的界面，定义一个高层接口，这个接口使得这一子系统更加容易使用。","image":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG","author":{"@type":"Person","name":"Mamimi"},"publisher":{"@type":"Organization","name":"MamimiJa Nai","logo":{"@type":"ImageObject","url":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG"}},"datePublished":"2023-01-11T16:00:00.000Z","dateModified":"2025-01-08T16:00:00.000Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://leahana.github.io/2023/01/11/design_patterns/facade/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/yannyi.github.io/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/yannyi.github.io/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/yannyi.github.io/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/yannyi.github.io/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/yannyi.github.io/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/yannyi.github.io/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+    <style>body.custom-background{background-image:url('/yannyi.github.io/images/theme/background.jpg')!important;background-attachment:fixed!important;background-size:cover!important;background-position:center!important;}#kratos-widget-area .widget-kratos-about .photo-background{background-image:url('/yannyi.github.io/images/theme/avatar-bg.jpg')!important;background-size:cover!important;background-position:35% 35%!important;background-repeat:no-repeat!important;}</style><link rel="stylesheet" href="/yannyi.github.io/css/custom.css">
+  
+<!-- hexo injector head_end start --><script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@latest/dist/mermaid.esm.min.mjs">
+    mermaid.initialize(
+      startOnLoad: true,
+    );
+    </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/">
+                                        
+                                            
+                                                <i class="fa fa-fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/archives">
+                                        
+                                            
+                                                <i class="fa fa-fa-archive"></i>
+                                            
+                                            归档
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/categories">
+                                        
+                                            
+                                                <i class="fa fa-fa-folder-open"></i>
+                                            
+                                            分类
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/tags">
+                                        
+                                            
+                                                <i class="fa fa-fa-tags"></i>
+                                            
+                                            标签
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/search">
+                                        
+                                            
+                                                <i class="fa fa-fa-search"></i>
+                                            
+                                            搜索
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a>
+                                        
+                                            
+                                                <i class="fa fa-fa-th-list"></i>
+                                            
+                                            更多
+                                        </a>
+                                        
+                                            <ul class="sub-menu">
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/about">
+                                                            
+                                                                <i class="fa fa-fa-user"></i>
+                                                            
+                                                            关于我
+                                                        </a>
+                                                    </li>
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/links">
+                                                            
+                                                                <i class="fa fa-fa-link"></i>
+                                                            
+                                                            友情链接
+                                                        </a>
+                                                    </li>
+                                                
+                                            </ul>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/yannyi.github.io/">MamimiJa Nai</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/yannyi.github.io/">
+                        <h2>MamimiJa Nai</h2> <br />
+                        <span></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://leahana.github.io/2023/01/11/design_patterns/facade/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">Facade 模式</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2023-01-11T16:00:00.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2023-01-12</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">Mamimi</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~15.25K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+                <div class="kratos-post-inner-toc toc-div-class" >
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Facade 模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.1.</span> <span class="toc-text">一、基础介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.2.</span> <span class="toc-text">二、生活比喻：餐厅点餐</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.3.</span> <span class="toc-text">三、应用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.4.</span> <span class="toc-text">四、使用注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.1.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.2.</span> <span class="toc-text">缺点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.3.</span> <span class="toc-text">使用建议</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.5.</span> <span class="toc-text">五、Java 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.1.</span> <span class="toc-text">实现 1：家庭影院系统</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.2.</span> <span class="toc-text">实现 2：订单处理系统</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.6.</span> <span class="toc-text">六、Python 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.1.</span> <span class="toc-text">实现 1：计算机启动系统</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.2.</span> <span class="toc-text">实现 2：API 网关</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.7.</span> <span class="toc-text">七、参考资料与延伸阅读</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.1.</span> <span class="toc-text">经典书籍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.2.</span> <span class="toc-text">在线资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.3.</span> <span class="toc-text">相关设计模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.4.</span> <span class="toc-text">最佳实践建议</span></a></li></ol></li></ol></li></ol>
+                </div>
+            
+            <hr />
+            <div itemprop="articleBody"><h2><span id="facade-模式">Facade 模式</span></h2><h3><span id="一-基础介绍">一、基础介绍</span></h3><p>Facade（外观）模式是一种结构型设计模式，它为子系统中的一组接口提供一个一致的界面，定义一个高层接口，这个接口使得这一子系统更加容易使用。</p>
+<p>Facade 模式的核心思想是：<strong>通过一个外观类来封装复杂的子系统，为客户端提供简单易用的接口</strong>。</p>
+<h3><span id="二-生活比喻餐厅点餐">二、生活比喻：餐厅点餐</span></h3><p>想象一家<strong>大型餐厅</strong>：</p>
+<blockquote>
+<p><strong>没有 Facade</strong>：顾客需要分别去窗口点菜、去饮料台点饮料、去收银台付款、去餐具区取餐具…流程繁琐，容易出错。</p>
+<p><strong>有 Facade（服务员）</strong>：顾客只需要告诉服务员”我要一份套餐”，服务员会协调后厨、饮料台、收银台等各个部门，顾客无需关心内部流程。</p>
+</blockquote>
+<p>在这个比喻中：</p>
+<ul>
+<li><strong>Facade</strong> &#x3D; 服务员（提供统一的点餐接口）</li>
+<li><strong>Subsystem</strong> &#x3D; 后厨、饮料台、收银台等（复杂的子系统）</li>
+<li><strong>Client</strong> &#x3D; 顾客（只需要与 Facade 交互）</li>
+</ul>
+<h3><span id="三-应用场景">三、应用场景</span></h3><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>简化复杂接口</strong></td>
+<td>子系统接口复杂难用</td>
+<td>库存管理系统、支付系统</td>
+</tr>
+<tr>
+<td><strong>解耦客户端与子系统</strong></td>
+<td>减少客户端对子系统的依赖</td>
+<td>API 网关、服务层</td>
+</tr>
+<tr>
+<td><strong>层次化架构</strong></td>
+<td>构建分层系统</td>
+<td>MVC 架构、微服务网关</td>
+</tr>
+<tr>
+<td><strong>遗留系统重构</strong></td>
+<td>逐步重构老系统</td>
+<td>包装旧的复杂 API</td>
+</tr>
+</tbody></table>
+<h3><span id="四-使用注意事项">四、使用注意事项</span></h3><h4><span id="优点">优点</span></h4><table>
+<thead>
+<tr>
+<th>优点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>简化使用</strong></td>
+<td>提供简单统一的高层接口</td>
+</tr>
+<tr>
+<td><strong>解耦</strong></td>
+<td>客户端与子系统解耦</td>
+</tr>
+<tr>
+<td><strong>灵活组合</strong>：可以灵活组合子系统功能</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>易于维护</strong>：减少客户端对子系统的直接依赖</td>
+<td></td>
+</tr>
+</tbody></table>
+<h4><span id="缺点">缺点</span></h4><table>
+<thead>
+<tr>
+<th>缺点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>功能受限</strong>：Facade 只提供部分功能</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>过度封装</strong>：可能导致不必要的间接层</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>职责不清</strong>：Facade 可能变成”上帝对象”</td>
+<td></td>
+</tr>
+</tbody></table>
+<h4><span id="使用建议">使用建议</span></h4><ul>
+<li>子系统复杂、接口众多时使用</li>
+<li>需要隐藏子系统复杂性时使用</li>
+<li>需要解耦客户端与子系统时使用</li>
+</ul>
+<h3><span id="五-java-经典案例">五、Java 经典案例</span></h3><h4><span id="实现-1家庭影院系统">实现 1：家庭影院系统</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 子系统：各种设备</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Amplifier</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String description;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Amplifier</span><span class="params">(String description)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.description = description;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">on</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(description + <span class="string">&quot; 打开&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">off</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(description + <span class="string">&quot; 关闭&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setVolume</span><span class="params">(<span class="type">int</span> level)</span> &#123;</span><br><span class="line">        System.out.println(description + <span class="string">&quot; 音量设置为 &quot;</span> + level);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DvdPlayer</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String description;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">DvdPlayer</span><span class="params">(String description)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.description = description;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">on</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(description + <span class="string">&quot; 打开&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">play</span><span class="params">(String movie)</span> &#123;</span><br><span class="line">        System.out.println(description + <span class="string">&quot; 播放 \&quot;&quot;</span> + movie + <span class="string">&quot;\&quot;&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">stop</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(description + <span class="string">&quot; 停止&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Projector</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String description;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Projector</span><span class="params">(String description)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.description = description;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">on</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(description + <span class="string">&quot; 打开&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setInput</span><span class="params">(String input)</span> &#123;</span><br><span class="line">        System.out.println(description + <span class="string">&quot; 输入设置为 &quot;</span> + input);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TheaterLights</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String description;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">TheaterLights</span><span class="params">(String description)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.description = description;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">dim</span><span class="params">(<span class="type">int</span> level)</span> &#123;</span><br><span class="line">        System.out.println(description + <span class="string">&quot; 调暗至 &quot;</span> + level + <span class="string">&quot;%&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 外观类：家庭影院统一接口</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HomeTheaterFacade</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> Amplifier amp;</span><br><span class="line">    <span class="keyword">private</span> DvdPlayer dvd;</span><br><span class="line">    <span class="keyword">private</span> Projector projector;</span><br><span class="line">    <span class="keyword">private</span> TheaterLights lights;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">HomeTheaterFacade</span><span class="params">(Amplifier amp, DvdPlayer dvd,</span></span><br><span class="line"><span class="params">                             Projector projector, TheaterLights lights)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.amp = amp;</span><br><span class="line">        <span class="built_in">this</span>.dvd = dvd;</span><br><span class="line">        <span class="built_in">this</span>.projector = projector;</span><br><span class="line">        <span class="built_in">this</span>.lights = lights;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">watchMovie</span><span class="params">(String movie)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;准备观看电影...&quot;</span>);</span><br><span class="line">        lights.dim(<span class="number">10</span>);</span><br><span class="line">        projector.on();</span><br><span class="line">        projector.setInput(<span class="string">&quot;DVD&quot;</span>);</span><br><span class="line">        amp.on();</span><br><span class="line">        amp.setVolume(<span class="number">5</span>);</span><br><span class="line">        dvd.on();</span><br><span class="line">        dvd.play(movie);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">endMovie</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;结束观影...&quot;</span>);</span><br><span class="line">        lights.dim(<span class="number">100</span>);</span><br><span class="line">        amp.off();</span><br><span class="line">        projector.off();</span><br><span class="line">        dvd.stop();</span><br><span class="line">        dvd.off();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FacadeDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">// 创建子系统组件</span></span><br><span class="line">        <span class="type">Amplifier</span> <span class="variable">amp</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Amplifier</span>(<span class="string">&quot;功放&quot;</span>);</span><br><span class="line">        <span class="type">DvdPlayer</span> <span class="variable">dvd</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DvdPlayer</span>(<span class="string">&quot;DVD播放器&quot;</span>);</span><br><span class="line">        <span class="type">Projector</span> <span class="variable">projector</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Projector</span>(<span class="string">&quot;投影仪&quot;</span>);</span><br><span class="line">        <span class="type">TheaterLights</span> <span class="variable">lights</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TheaterLights</span>(<span class="string">&quot;影院灯光&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 创建外观</span></span><br><span class="line">        <span class="type">HomeTheaterFacade</span> <span class="variable">theater</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HomeTheaterFacade</span>(amp, dvd, projector, lights);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 使用简单接口</span></span><br><span class="line">        theater.watchMovie(<span class="string">&quot;复仇者联盟&quot;</span>);</span><br><span class="line">        System.out.println();</span><br><span class="line">        theater.endMovie();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-2订单处理系统">实现 2：订单处理系统</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 子系统：库存管理</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">InventoryManager</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> Map&lt;String, Integer&gt; inventory = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">InventoryManager</span><span class="params">()</span> &#123;</span><br><span class="line">        inventory.put(<span class="string">&quot;Product A&quot;</span>, <span class="number">100</span>);</span><br><span class="line">        inventory.put(<span class="string">&quot;Product B&quot;</span>, <span class="number">50</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">checkStock</span><span class="params">(String productId, <span class="type">int</span> quantity)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">available</span> <span class="operator">=</span> inventory.getOrDefault(productId, <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">return</span> available &gt;= quantity;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">reduceStock</span><span class="params">(String productId, <span class="type">int</span> quantity)</span> &#123;</span><br><span class="line">        <span class="type">int</span> <span class="variable">available</span> <span class="operator">=</span> inventory.get(productId);</span><br><span class="line">        inventory.put(productId, available - quantity);</span><br><span class="line">        System.out.println(<span class="string">&quot;库存更新: &quot;</span> + productId + <span class="string">&quot; 剩余 &quot;</span> + (available - quantity));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 子系统：支付处理</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PaymentProcessor</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">processPayment</span><span class="params">(String accountId, <span class="type">double</span> amount)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;处理支付: 账户 &quot;</span> + accountId + <span class="string">&quot; 金额 &quot;</span> + amount);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;  <span class="comment">// 简化示例，假设总是成功</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 子系统：物流安排</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ShippingManager</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">arrangeShipping</span><span class="params">(String address, String orderId)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;安排发货: 订单 &quot;</span> + orderId + <span class="string">&quot; 到 &quot;</span> + address);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 子系统：通知系统</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">NotificationService</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sendConfirmation</span><span class="params">(String email, String orderId)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;发送确认邮件到 &quot;</span> + email + <span class="string">&quot;, 订单 &quot;</span> + orderId);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 外观类：订单处理统一接口</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OrderProcessingFacade</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> InventoryManager inventory;</span><br><span class="line">    <span class="keyword">private</span> PaymentProcessor payment;</span><br><span class="line">    <span class="keyword">private</span> ShippingManager shipping;</span><br><span class="line">    <span class="keyword">private</span> NotificationService notification;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">OrderProcessingFacade</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.inventory = <span class="keyword">new</span> <span class="title class_">InventoryManager</span>();</span><br><span class="line">        <span class="built_in">this</span>.payment = <span class="keyword">new</span> <span class="title class_">PaymentProcessor</span>();</span><br><span class="line">        <span class="built_in">this</span>.shipping = <span class="keyword">new</span> <span class="title class_">ShippingManager</span>();</span><br><span class="line">        <span class="built_in">this</span>.notification = <span class="keyword">new</span> <span class="title class_">NotificationService</span>();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">placeOrder</span><span class="params">(String productId, <span class="type">int</span> quantity,</span></span><br><span class="line"><span class="params">                              String accountId, String address, String email)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;=== 开始处理订单 ===&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 1. 检查库存</span></span><br><span class="line">        <span class="keyword">if</span> (!inventory.checkStock(productId, quantity)) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;库存不足，订单失败&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 处理支付</span></span><br><span class="line">        <span class="type">double</span> <span class="variable">amount</span> <span class="operator">=</span> quantity * <span class="number">99.99</span>;  <span class="comment">// 简化价格计算</span></span><br><span class="line">        <span class="keyword">if</span> (!payment.processPayment(accountId, amount)) &#123;</span><br><span class="line">            System.out.println(<span class="string">&quot;支付失败，订单取消&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 3. 减少库存</span></span><br><span class="line">        inventory.reduceStock(productId, quantity);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 4. 安排发货</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">orderId</span> <span class="operator">=</span> <span class="string">&quot;ORD-&quot;</span> + System.currentTimeMillis();</span><br><span class="line">        shipping.arrangeShipping(address, orderId);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 5. 发送通知</span></span><br><span class="line">        notification.sendConfirmation(email, orderId);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;=== 订单处理完成 ===&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">OrderDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">OrderProcessingFacade</span> <span class="variable">orders</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">OrderProcessingFacade</span>();</span><br><span class="line"></span><br><span class="line">        orders.placeOrder(<span class="string">&quot;Product A&quot;</span>, <span class="number">2</span>, <span class="string">&quot;ACC001&quot;</span>,</span><br><span class="line">                         <span class="string">&quot;北京市朝阳区xxx&quot;</span>, <span class="string">&quot;customer@example.com&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3><span id="六-python-经典案例">六、Python 经典案例</span></h3><h4><span id="实现-1计算机启动系统">实现 1：计算机启动系统</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> Protocol</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CPU</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;CPU 子系统&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">freeze</span>(<span class="params">self</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;CPU 停止&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">jump</span>(<span class="params">self, position: <span class="built_in">int</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;CPU 跳转到位置 <span class="subst">&#123;position&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">execute</span>(<span class="params">self</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;CPU 执行指令&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Memory</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;内存子系统&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">load</span>(<span class="params">self, position: <span class="built_in">int</span>, data: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;内存加载: 位置 <span class="subst">&#123;position&#125;</span>, 数据 <span class="subst">&#123;data&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HardDrive</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;硬盘子系统&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">read</span>(<span class="params">self, lba: <span class="built_in">int</span>, size: <span class="built_in">int</span></span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;硬盘读取: LBA <span class="subst">&#123;lba&#125;</span>, 大小 <span class="subst">&#123;size&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;boot_data&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ComputerFacade</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;计算机外观：统一的启动接口&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.cpu = CPU()</span><br><span class="line">        <span class="variable language_">self</span>.memory = Memory()</span><br><span class="line">        <span class="variable language_">self</span>.hard_drive = HardDrive()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">start</span>(<span class="params">self</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;统一的启动接口&quot;&quot;&quot;</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;=== 计算机启动 ===&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 1. 从硬盘加载引导数据</span></span><br><span class="line">        boot_data = <span class="variable language_">self</span>.hard_drive.read(<span class="number">0</span>, <span class="number">4096</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 2. 加载到内存</span></span><br><span class="line">        <span class="variable language_">self</span>.memory.load(<span class="number">0</span>, boot_data)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 3. CPU 执行</span></span><br><span class="line">        <span class="variable language_">self</span>.cpu.jump(<span class="number">0</span>)</span><br><span class="line">        <span class="variable language_">self</span>.cpu.execute()</span><br><span class="line"></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;=== 计算机启动完成 ===&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">shutdown</span>(<span class="params">self</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;统一的关机接口&quot;&quot;&quot;</span></span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;=== 计算机关机 ===&quot;</span>)</span><br><span class="line">        <span class="variable language_">self</span>.cpu.freeze()</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;=== 计算机已关闭 ===&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    computer = ComputerFacade()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 简单的接口启动计算机</span></span><br><span class="line">    computer.start()</span><br><span class="line">    <span class="built_in">print</span>()</span><br><span class="line">    computer.shutdown()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-2api-网关">实现 2：API 网关</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">Dict</span>, <span class="type">List</span>, <span class="type">Optional</span></span><br><span class="line"><span class="keyword">from</span> abc <span class="keyword">import</span> ABC, abstractmethod</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 子系统 ============</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UserService</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;用户服务子系统&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    _users: <span class="type">Dict</span>[<span class="built_in">str</span>, <span class="type">Dict</span>] = &#123;</span><br><span class="line">        <span class="string">&quot;user1&quot;</span>: &#123;<span class="string">&quot;id&quot;</span>: <span class="string">&quot;user1&quot;</span>, <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Alice&quot;</span>, <span class="string">&quot;email&quot;</span>: <span class="string">&quot;alice@example.com&quot;</span>&#125;,</span><br><span class="line">        <span class="string">&quot;user2&quot;</span>: &#123;<span class="string">&quot;id&quot;</span>: <span class="string">&quot;user2&quot;</span>, <span class="string">&quot;name&quot;</span>: <span class="string">&quot;Bob&quot;</span>, <span class="string">&quot;email&quot;</span>: <span class="string">&quot;bob@example.com&quot;</span>&#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_user</span>(<span class="params">self, user_id: <span class="built_in">str</span></span>) -&gt; <span class="type">Optional</span>[<span class="type">Dict</span>]:</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>._users.get(user_id)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">create_user</span>(<span class="params">self, name: <span class="built_in">str</span>, email: <span class="built_in">str</span></span>) -&gt; <span class="type">Dict</span>:</span><br><span class="line">        user_id = <span class="string">&quot;user&quot;</span> + <span class="built_in">str</span>(<span class="built_in">len</span>(<span class="variable language_">self</span>._users) + <span class="number">1</span>)</span><br><span class="line">        user = &#123;<span class="string">&quot;id&quot;</span>: user_id, <span class="string">&quot;name&quot;</span>: name, <span class="string">&quot;email&quot;</span>: email&#125;</span><br><span class="line">        <span class="variable language_">self</span>._users[user_id] = user</span><br><span class="line">        <span class="keyword">return</span> user</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">delete_user</span>(<span class="params">self, user_id: <span class="built_in">str</span></span>) -&gt; <span class="built_in">bool</span>:</span><br><span class="line">        <span class="keyword">if</span> user_id <span class="keyword">in</span> <span class="variable language_">self</span>._users:</span><br><span class="line">            <span class="keyword">del</span> <span class="variable language_">self</span>._users[user_id]</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OrderService</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;订单服务子系统&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    _orders: <span class="type">List</span>[<span class="type">Dict</span>] = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">create_order</span>(<span class="params">self, user_id: <span class="built_in">str</span>, items: <span class="type">List</span>[<span class="built_in">str</span>]</span>) -&gt; <span class="type">Dict</span>:</span><br><span class="line">        order_id = <span class="string">&quot;ORD-&quot;</span> + <span class="built_in">str</span>(<span class="built_in">len</span>(<span class="variable language_">self</span>._orders) + <span class="number">1</span>)</span><br><span class="line">        order = &#123;</span><br><span class="line">            <span class="string">&quot;id&quot;</span>: order_id,</span><br><span class="line">            <span class="string">&quot;user_id&quot;</span>: user_id,</span><br><span class="line">            <span class="string">&quot;items&quot;</span>: items,</span><br><span class="line">            <span class="string">&quot;status&quot;</span>: <span class="string">&quot;pending&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="variable language_">self</span>._orders.append(order)</span><br><span class="line">        <span class="keyword">return</span> order</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_order</span>(<span class="params">self, order_id: <span class="built_in">str</span></span>) -&gt; <span class="type">Optional</span>[<span class="type">Dict</span>]:</span><br><span class="line">        <span class="keyword">for</span> order <span class="keyword">in</span> <span class="variable language_">self</span>._orders:</span><br><span class="line">            <span class="keyword">if</span> order[<span class="string">&quot;id&quot;</span>] == order_id:</span><br><span class="line">                <span class="keyword">return</span> order</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">cancel_order</span>(<span class="params">self, order_id: <span class="built_in">str</span></span>) -&gt; <span class="built_in">bool</span>:</span><br><span class="line">        order = <span class="variable language_">self</span>.get_order(order_id)</span><br><span class="line">        <span class="keyword">if</span> order:</span><br><span class="line">            order[<span class="string">&quot;status&quot;</span>] = <span class="string">&quot;cancelled&quot;</span></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PaymentService</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;支付服务子系统&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">process_payment</span>(<span class="params">self, order_id: <span class="built_in">str</span>, amount: <span class="built_in">float</span></span>) -&gt; <span class="built_in">bool</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;处理支付: 订单 <span class="subst">&#123;order_id&#125;</span>, 金额 <span class="subst">&#123;amount&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">refund</span>(<span class="params">self, order_id: <span class="built_in">str</span>, amount: <span class="built_in">float</span></span>) -&gt; <span class="built_in">bool</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;退款: 订单 <span class="subst">&#123;order_id&#125;</span>, 金额 <span class="subst">&#123;amount&#125;</span>&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">NotificationService</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;通知服务子系统&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">send_email</span>(<span class="params">self, to: <span class="built_in">str</span>, subject: <span class="built_in">str</span>, body: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;发送邮件到 <span class="subst">&#123;to&#125;</span>: <span class="subst">&#123;subject&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">send_sms</span>(<span class="params">self, to: <span class="built_in">str</span>, message: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;发送短信到 <span class="subst">&#123;to&#125;</span>: <span class="subst">&#123;message&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># ============ 外观类 ============</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ECommerceFacade</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;电商系统外观&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.user_service = UserService()</span><br><span class="line">        <span class="variable language_">self</span>.order_service = OrderService()</span><br><span class="line">        <span class="variable language_">self</span>.payment_service = PaymentService()</span><br><span class="line">        <span class="variable language_">self</span>.notification_service = NotificationService()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">create_account</span>(<span class="params">self, name: <span class="built_in">str</span>, email: <span class="built_in">str</span>, phone: <span class="built_in">str</span></span>) -&gt; <span class="type">Dict</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;创建账户的统一接口&quot;&quot;&quot;</span></span><br><span class="line">        user = <span class="variable language_">self</span>.user_service.create_user(name, email)</span><br><span class="line">        <span class="variable language_">self</span>.notification_service.send_email(</span><br><span class="line">            email,</span><br><span class="line">            <span class="string">&quot;欢迎注册&quot;</span>,</span><br><span class="line">            <span class="string">f&quot;欢迎 <span class="subst">&#123;name&#125;</span>！您的账户已创建。&quot;</span></span><br><span class="line">        )</span><br><span class="line">        <span class="variable language_">self</span>.notification_service.send_sms(</span><br><span class="line">            phone,</span><br><span class="line">            <span class="string">f&quot;欢迎 <span class="subst">&#123;name&#125;</span>！您的账户已创建。&quot;</span></span><br><span class="line">        )</span><br><span class="line">        <span class="keyword">return</span> user</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">place_order</span>(<span class="params">self, user_id: <span class="built_in">str</span>, items: <span class="type">List</span>[<span class="built_in">str</span>]</span>) -&gt; <span class="type">Optional</span>[<span class="type">Dict</span>]:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;下单的统一接口&quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 检查用户</span></span><br><span class="line">        user = <span class="variable language_">self</span>.user_service.get_user(user_id)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> user:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">&quot;用户不存在&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 创建订单</span></span><br><span class="line">        order = <span class="variable language_">self</span>.order_service.create_order(user_id, items)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 处理支付</span></span><br><span class="line">        amount = <span class="built_in">len</span>(items) * <span class="number">99.0</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="variable language_">self</span>.payment_service.process_payment(order[<span class="string">&quot;id&quot;</span>], amount):</span><br><span class="line">            <span class="variable language_">self</span>.order_service.cancel_order(order[<span class="string">&quot;id&quot;</span>])</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 发送通知</span></span><br><span class="line">        <span class="variable language_">self</span>.notification_service.send_email(</span><br><span class="line">            user[<span class="string">&quot;email&quot;</span>],</span><br><span class="line">            <span class="string">&quot;订单确认&quot;</span>,</span><br><span class="line">            <span class="string">f&quot;您的订单 <span class="subst">&#123;order[<span class="string">&#x27;id&#x27;</span>]&#125;</span> 已创建。&quot;</span></span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> order</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">cancel_order</span>(<span class="params">self, order_id: <span class="built_in">str</span></span>) -&gt; <span class="built_in">bool</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;取消订单的统一接口&quot;&quot;&quot;</span></span><br><span class="line">        <span class="comment"># 取消订单</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="variable language_">self</span>.order_service.cancel_order(order_id):</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 处理退款</span></span><br><span class="line">        <span class="variable language_">self</span>.payment_service.refund(order_id, <span class="number">99.0</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="comment"># 创建外观</span></span><br><span class="line">    ecommerce = ECommerceFacade()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 创建账户</span></span><br><span class="line">    user = ecommerce.create_account(<span class="string">&quot;Charlie&quot;</span>, <span class="string">&quot;charlie@example.com&quot;</span>, <span class="string">&quot;13800138000&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;用户创建成功: <span class="subst">&#123;user&#125;</span>\n&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 下单</span></span><br><span class="line">    order = ecommerce.place_order(user[<span class="string">&quot;id&quot;</span>], [<span class="string">&quot;商品A&quot;</span>, <span class="string">&quot;商品B&quot;</span>])</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;订单创建成功: <span class="subst">&#123;order&#125;</span>\n&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 取消订单</span></span><br><span class="line">    ecommerce.cancel_order(order[<span class="string">&quot;id&quot;</span>])</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<h3><span id="七-参考资料与延伸阅读">七、参考资料与延伸阅读</span></h3><h4><span id="经典书籍">经典书籍</span></h4><ul>
+<li>《设计模式：可复用面向对象软件的基础》- GoF</li>
+<li>《Head First 设计模式》- 外观模式章节</li>
+</ul>
+<h4><span id="在线资源">在线资源</span></h4><ul>
+<li><a target="_blank" rel="noopener" href="https://refactoring.guru/design-patterns/facade">Refactoring.Guru - Facade</a></li>
+<li><a target="_blank" rel="noopener" href="https://java-design-patterns.com/patterns/facade/">Java设计模式：外观模式</a></li>
+</ul>
+<h4><span id="相关设计模式">相关设计模式</span></h4><ul>
+<li><strong>Abstract Factory</strong>：可以与 Facade 结合使用</li>
+<li><strong>Mediator（中介者）</strong>：Mediator 解耦同事对象，Facade 简化接口</li>
+<li><strong>Adapter（适配器）</strong>：Adapter 转换接口，Facade 简化接口</li>
+<li><strong>Proxy（代理）</strong>：Proxy 控制访问，Facade 简化访问</li>
+</ul>
+<h4><span id="最佳实践建议">最佳实践建议</span></h4><ol>
+<li>Facade 保持简单，不包含业务逻辑</li>
+<li>一个 Facade 可以包装多个子系统</li>
+<li>可以创建多个 Facade 提供不同粒度的接口</li>
+<li>子系统可以不知道 Facade 的存在</li>
+</ol>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/yannyi.github.io/tags/%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">结构型模式</a>, <a class="tag-none-link" href="/yannyi.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2025-01-08T16:00:00.000Z" itemprop="dateModified">最后编辑：2025-01-09</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" Visitor 模式" href="/yannyi.github.io/2023/01/10/design_patterns/visitor/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+            <div class="nav-next clearfix">
+                <a title=" AI Prompt 设计方法论" href="/yannyi.github.io/2024/05/31/2025-04-24-ai-prompt01/">下一篇 <i class="fa fa-angle-right"></i></a>
+            </div>
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/yannyi.github.io/images/theme/Mamimi.JPG" alt="Mamimi" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center"></p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/yannyi.github.io/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                14
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                    <aside id="krw-toc" class="widget widget-kratos-toc clearfix toc-div-class" >
+    <div class="photo-background"></div>
+    <h4 class="widget-title no-after">
+        <i class="fa fa-compass"></i>
+        文章目录
+        <span class="toc-progress-bar" role="progressbar" aria-label="阅读进度："></span>
+    </h4>
+    <div class="textwidget">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Facade 模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.1.</span> <span class="toc-text">一、基础介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.2.</span> <span class="toc-text">二、生活比喻：餐厅点餐</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.3.</span> <span class="toc-text">三、应用场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.4.</span> <span class="toc-text">四、使用注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.1.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.2.</span> <span class="toc-text">缺点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.3.</span> <span class="toc-text">使用建议</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.5.</span> <span class="toc-text">五、Java 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.1.</span> <span class="toc-text">实现 1：家庭影院系统</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.2.</span> <span class="toc-text">实现 2：订单处理系统</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.6.</span> <span class="toc-text">六、Python 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.1.</span> <span class="toc-text">实现 1：计算机启动系统</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.2.</span> <span class="toc-text">实现 2：API 网关</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.7.</span> <span class="toc-text">七、参考资料与延伸阅读</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.1.</span> <span class="toc-text">经典书籍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.2.</span> <span class="toc-text">在线资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.3.</span> <span class="toc-text">相关设计模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.4.</span> <span class="toc-text">最佳实践建议</span></a></li></ol></li></ol></li></ol>
+    </div>
+</aside>
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/ai/">ai</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/games/">games</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/">java</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/">集合框架</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/">数据处理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/">mindset</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/">方法论</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/%E7%9F%A5%E8%AF%86%E7%AE%A1%E7%90%86/">知识管理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/tools/">tools</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Spring%E6%A1%86%E6%9E%B6/">Spring框架</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/SQL%E4%BC%98%E5%8C%96/">SQL优化</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a><span class="category-list-count">12</span></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/yannyi.github.io/tags/5W1H/" style="font-size: 0.6em;">5W1H</a> <a href="/yannyi.github.io/tags/AI%E6%8E%A2%E7%B4%A2/" style="font-size: 0.6em;">AI探索</a> <a href="/yannyi.github.io/tags/AI%E7%9F%A5%E8%AF%86%E5%BA%93/" style="font-size: 0.6em;">AI知识库</a> <a href="/yannyi.github.io/tags/AOP/" style="font-size: 0.6em;">AOP</a> <a href="/yannyi.github.io/tags/Java/" style="font-size: 0.67em;">Java</a> <a href="/yannyi.github.io/tags/MyBatis/" style="font-size: 0.6em;">MyBatis</a> <a href="/yannyi.github.io/tags/MySQL/" style="font-size: 0.67em;">MySQL</a> <a href="/yannyi.github.io/tags/SQL/" style="font-size: 0.6em;">SQL</a> <a href="/yannyi.github.io/tags/Spring/" style="font-size: 0.6em;">Spring</a> <a href="/yannyi.github.io/tags/%E5%85%A5%E9%97%A8/" style="font-size: 0.73em;">入门</a> <a href="/yannyi.github.io/tags/%E5%88%86%E6%89%B9%E5%A4%84%E7%90%86/" style="font-size: 0.6em;">分批处理</a> <a href="/yannyi.github.io/tags/%E5%88%86%E9%A1%B5/" style="font-size: 0.6em;">分页</a> <a href="/yannyi.github.io/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 0.8em;">创建型模式</a> <a href="/yannyi.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/" style="font-size: 0.6em;">后端开发</a> <a href="/yannyi.github.io/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 0.6em;">工具</a> <a href="/yannyi.github.io/tags/%E6%80%9D%E7%BB%B4%E6%A1%86%E6%9E%B6/" style="font-size: 0.6em;">思维框架</a> <a href="/yannyi.github.io/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" style="font-size: 0.67em;">性能优化</a> <a href="/yannyi.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 0.73em;">数据库</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/hello-world/"><i class="fa fa-book"></i> Hello World</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/categories/tech/design_patterns/"><i class="fa fa-book"></i> 设计模式</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-ai-mcp/"><i class="fa fa-book"></i> MCP 模型上下文协议</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-tools-Obsidian/"><i class="fa fa-book"></i> Markdown本地笔记 Obsidian</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2024-06-01-game-research/"><i class="fa fa-book"></i> 开始使用：游戏研究</a>
+            
+          
+        
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+                </div>
+    </div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 MamimiJa Nai 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li>自豪地使用 <a href="https://github.com/Candinya/Kratos-Rebirth" target="_blank">Kratos:Rebirth</a> 主题</li>
+                            <li>站点由 Mamimi 用 <i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                
+                    <div class="box search-box">
+                        <a href="/yannyi.github.io/search">
+                            <span class="fa fa-search"></span>
+                        </a>
+                    </div>
+                
+                <div class="box theme-box" id="theme-toggle">
+                    <span class="fa fa-adjust"></span>
+                </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">打赏</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">打赏提示信息</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/yannyi.github.io/js/kr-modal/donate.min.js"></script>
+
+
+
+
+
+<!-- 额外的追加注入项 -->
+
+
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/yannyi.github.io/";
+</script>
+
+
+  <script defer src="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/yannyi.github.io/js/kr-core.min.js"></script>
+
+
+  <script defer src="/yannyi.github.io/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>

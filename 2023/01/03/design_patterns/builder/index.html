@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+  
+  <title>Builder 模式 | MamimiJa Nai</title>
+  <link rel="canonical" href="https://leahana.github.io/2023/01/03/design_patterns/builder/">
+  <meta name="author" content="Mamimi" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="创建型模式, 设计模式" />
+  
+  <meta name="description" content="Builder模式将复杂对象的构建与表示分离，允许用相同的构建过程创建不同的表示，适用于创建包含多个组成部分的复杂对象。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Builder 模式">
+<meta property="og:url" content="https://leahana.github.io/2023/01/03/design_patterns/builder/index.html">
+<meta property="og:site_name" content="MamimiJa Nai">
+<meta property="og:description" content="Builder模式将复杂对象的构建与表示分离，允许用相同的构建过程创建不同的表示，适用于创建包含多个组成部分的复杂对象。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2023-01-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-01-08T16:00:00.000Z">
+<meta property="article:author" content="Mamimi">
+<meta property="article:tag" content="创建型模式">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"Builder 模式","description":"Builder模式将复杂对象的构建与表示分离，允许用相同的构建过程创建不同的表示，适用于创建包含多个组成部分的复杂对象。","image":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG","author":{"@type":"Person","name":"Mamimi"},"publisher":{"@type":"Organization","name":"MamimiJa Nai","logo":{"@type":"ImageObject","url":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG"}},"datePublished":"2023-01-03T16:00:00.000Z","dateModified":"2025-01-08T16:00:00.000Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://leahana.github.io/2023/01/03/design_patterns/builder/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/yannyi.github.io/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/yannyi.github.io/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/yannyi.github.io/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/yannyi.github.io/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/yannyi.github.io/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/yannyi.github.io/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+    <style>body.custom-background{background-image:url('/yannyi.github.io/images/theme/background.jpg')!important;background-attachment:fixed!important;background-size:cover!important;background-position:center!important;}#kratos-widget-area .widget-kratos-about .photo-background{background-image:url('/yannyi.github.io/images/theme/avatar-bg.jpg')!important;background-size:cover!important;background-position:35% 35%!important;background-repeat:no-repeat!important;}</style><link rel="stylesheet" href="/yannyi.github.io/css/custom.css">
+  
+<!-- hexo injector head_end start --><script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@latest/dist/mermaid.esm.min.mjs">
+    mermaid.initialize(
+      startOnLoad: true,
+    );
+    </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/">
+                                        
+                                            
+                                                <i class="fa fa-fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/archives">
+                                        
+                                            
+                                                <i class="fa fa-fa-archive"></i>
+                                            
+                                            归档
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/categories">
+                                        
+                                            
+                                                <i class="fa fa-fa-folder-open"></i>
+                                            
+                                            分类
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/tags">
+                                        
+                                            
+                                                <i class="fa fa-fa-tags"></i>
+                                            
+                                            标签
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/search">
+                                        
+                                            
+                                                <i class="fa fa-fa-search"></i>
+                                            
+                                            搜索
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a>
+                                        
+                                            
+                                                <i class="fa fa-fa-th-list"></i>
+                                            
+                                            更多
+                                        </a>
+                                        
+                                            <ul class="sub-menu">
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/about">
+                                                            
+                                                                <i class="fa fa-fa-user"></i>
+                                                            
+                                                            关于我
+                                                        </a>
+                                                    </li>
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/links">
+                                                            
+                                                                <i class="fa fa-fa-link"></i>
+                                                            
+                                                            友情链接
+                                                        </a>
+                                                    </li>
+                                                
+                                            </ul>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/yannyi.github.io/">MamimiJa Nai</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/yannyi.github.io/">
+                        <h2>MamimiJa Nai</h2> <br />
+                        <span></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://leahana.github.io/2023/01/03/design_patterns/builder/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">Builder 模式</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2023-01-03T16:00:00.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2023-01-04</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">Mamimi</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~25.80K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+                <div class="kratos-post-inner-toc toc-div-class" >
+                    <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Builder 模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.1.</span> <span class="toc-text">一、基础介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.2.</span> <span class="toc-text">二、生活比喻：组装电脑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.3.</span> <span class="toc-text">三、模式结构与角色</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.3.1.</span> <span class="toc-text">登场角色</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.4.</span> <span class="toc-text">四、应用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.1.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.2.</span> <span class="toc-text">真实案例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.5.</span> <span class="toc-text">五、使用注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.1.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.2.</span> <span class="toc-text">缺点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.3.</span> <span class="toc-text">使用建议</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.6.</span> <span class="toc-text">六、Java 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.1.</span> <span class="toc-text">实现 1：标准 Builder 模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.2.</span> <span class="toc-text">实现 2：使用 Director 的标准模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.3.</span> <span class="toc-text">实现 3：JDK 中的 StringBuilder</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.4.</span> <span class="toc-text">实现 4：Lombok @Builder 注解</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.7.</span> <span class="toc-text">七、Python 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.1.</span> <span class="toc-text">实现 1：标准 Builder 模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.2.</span> <span class="toc-text">实现 2：使用 Director 的标准模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.3.</span> <span class="toc-text">实现 3：使用上下文管理器的 Builder</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.4.</span> <span class="toc-text">实现 4：使用函数式构建器</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.8.</span> <span class="toc-text">八、参考资料与延伸阅读</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.1.</span> <span class="toc-text">经典书籍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.2.</span> <span class="toc-text">在线资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.3.</span> <span class="toc-text">相关设计模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.4.</span> <span class="toc-text">最佳实践建议</span></a></li></ol></li></ol></li></ol>
+                </div>
+            
+            <hr />
+            <div itemprop="articleBody"><h2><span id="builder-模式">Builder 模式</span></h2><h3><span id="一-基础介绍">一、基础介绍</span></h3><p>Builder（建造者）模式是一种创建型设计模式，它将复杂对象的构建与表示分离，使得同样的构建过程可以创建不同的表示。</p>
+<p>Builder 模式的核心思想是：<strong>将复杂对象的构造过程分解到多个步骤中，通过一个指挥者（Director）来协调构建过程</strong>。这样可以灵活地创建不同表示的对象，而无需修改构建代码。</p>
+<h3><span id="二-生活比喻组装电脑">二、生活比喻：组装电脑</span></h3><p>想象一家<strong>电脑组装公司</strong>：</p>
+<blockquote>
+<p><strong>传统方式</strong>：每次组装电脑时，你都要详细告诉工人CPU型号、内存大小、硬盘类型、显卡型号等。如果配置很复杂，很容易遗漏或出错。</p>
+<p><strong>Builder方式</strong>：你填写一份配置单（Builder），专业的组装师傅（Director）根据配置单，按照标准流程组装电脑。不同的配置单可以组装出不同配置的电脑，但组装流程是一样的。</p>
+</blockquote>
+<p>在这个比喻中：</p>
+<ul>
+<li><strong>Builder</strong> &#x3D; 配置单（定义组装步骤的接口）</li>
+<li><strong>ConcreteBuilder</strong> &#x3D; 具体配置单（游戏本、办公本、服务器）</li>
+<li><strong>Director</strong> &#x3D; 专业组装师傅（按照流程组装）</li>
+<li><strong>Product</strong> &#x3D; 组装好的电脑</li>
+</ul>
+<h3><span id="三-模式结构与角色">三、模式结构与角色</span></h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">┌─────────────────────────────────────────────────────────────┐</span><br><span class="line">│                       Builder                                │</span><br><span class="line">│                   (建造者接口)                               │</span><br><span class="line">│  ┌─────────────────────────────────────────────────────────┐│</span><br><span class="line">│  │ + buildPartA()  // 构建部件A                             ││</span><br><span class="line">│  │ + buildPartB()  // 构建部件B                             ││</span><br><span class="line">│  │ + getResult()   // 获取最终产品                          ││</span><br><span class="line">│  └─────────────────────────────────────────────────────────┘│</span><br><span class="line">└─────────────────────────────────────────────────────────────┘</span><br><span class="line">                            ▲</span><br><span class="line">                            │</span><br><span class="line">                            │ inherits</span><br><span class="line">                            │</span><br><span class="line">┌─────────────────────────────────────────────────────────────┐</span><br><span class="line">│                  ConcreteBuilder                            │</span><br><span class="line">│                   (具体建造者)                               │</span><br><span class="line">│  ┌─────────────────────────────────────────────────────────┐│</span><br><span class="line">│  │ + buildPartA()  // 具体实现                              ││</span><br><span class="line">│  │ + buildPartB()  // 具体实现                              ││</span><br><span class="line">│  │ + getResult()   // 返回构建的产品                        ││</span><br><span class="line">│  │ - product: Product  // 持有并构建产品                     ││</span><br><span class="line">│  └─────────────────────────────────────────────────────────┘│</span><br><span class="line">└─────────────────────────────────────────────────────────────┘</span><br><span class="line">                            ▲</span><br><span class="line">                            │ uses</span><br><span class="line">                            │</span><br><span class="line">┌─────────────────────────────────────────────────────────────┐</span><br><span class="line">│                      Director                                │</span><br><span class="line">│                      (指挥者)                                │</span><br><span class="line">│  ┌─────────────────────────────────────────────────────────┐│</span><br><span class="line">│  │ - builder: Builder                                       ││</span><br><span class="line">│  │ + construct()  // 构建算法                               ││</span><br><span class="line">│  └─────────────────────────────────────────────────────────┘│</span><br></pre></td></tr></table></figure>
+
+<h4><span id="登场角色">登场角色</span></h4><table>
+<thead>
+<tr>
+<th>角色</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Builder（建造者）</strong></td>
+<td>定义构建产品各个部件的抽象接口</td>
+</tr>
+<tr>
+<td><strong>ConcreteBuilder（具体建造者）</strong></td>
+<td>实现Builder接口，构建和装配各个部件</td>
+</tr>
+<tr>
+<td><strong>Director（指挥者）</strong></td>
+<td>使用Builder接口来构建对象，不依赖具体建造者</td>
+</tr>
+<tr>
+<td><strong>Product（产品）</strong></td>
+<td>被构建的复杂对象</td>
+</tr>
+</tbody></table>
+<h3><span id="四-应用场景">四、应用场景</span></h3><h4><span id="适用场景">适用场景</span></h4><table>
+<thead>
+<tr>
+<th>场景</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>复杂对象创建</strong></td>
+<td>对象有多个组成部分，创建过程复杂</td>
+<td>HTML文档、SQL查询</td>
+</tr>
+<tr>
+<td><strong>不同表示创建</strong></td>
+<td>同样的构建过程产生不同表示</td>
+<td>不同风格的文档</td>
+</tr>
+<tr>
+<td><strong>参数繁多</strong></td>
+<td>构造函数参数过多，代码不优雅</td>
+<td>配置对象、HTTP请求</td>
+</tr>
+<tr>
+<td><strong>不可变对象</strong></td>
+<td>需要创建不可变对象，但要分步构建</td>
+<td>Java StringBuilder、Python 字符串</td>
+</tr>
+</tbody></table>
+<h4><span id="真实案例">真实案例</span></h4><ul>
+<li><strong>StringBuilder</strong>：Java 的 <code>StringBuilder</code>、Python 的字符串拼接</li>
+<li><strong>SQL构建器</strong>：MyBatis Plus、SQLAlchemy</li>
+<li><strong>HTML生成器</strong>：网页模板引擎</li>
+<li><strong>HTTP客户端</strong>：OkHttp、Requests 的构建器</li>
+<li><strong>Lombok @Builder</strong>：自动生成建造者模式代码</li>
+</ul>
+<h3><span id="五-使用注意事项">五、使用注意事项</span></h3><h4><span id="优点">优点</span></h4><table>
+<thead>
+<tr>
+<th>优点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>分步创建</strong></td>
+<td>复杂对象的创建过程清晰可控</td>
+</tr>
+<tr>
+<td><strong>复用构建过程</strong></td>
+<td>相同的构建过程可以创建不同表示</td>
+</tr>
+<tr>
+<td><strong>解耦构建与使用</strong></td>
+<td>客户端不需要知道产品内部结构</td>
+</tr>
+<tr>
+<td><strong>精细控制</strong></td>
+<td>可以逐步控制构建过程</td>
+</tr>
+<tr>
+<td><strong>可读性好</strong></td>
+<td>链式调用代码简洁易读</td>
+</tr>
+</tbody></table>
+<h4><span id="缺点">缺点</span></h4><table>
+<thead>
+<tr>
+<th>缺点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>代码量增加</strong></td>
+<td>需要额外的Builder类</td>
+</tr>
+<tr>
+<td><strong>产品限制</strong></td>
+<td>产品需要有共同接口，限制了使用范围</td>
+</tr>
+<tr>
+<td><strong>复杂性</strong></td>
+<td>对于简单对象可能过度设计</td>
+</tr>
+</tbody></table>
+<h4><span id="使用建议">使用建议</span></h4><ul>
+<li>对象有4个以上可选参数时使用</li>
+<li>对象创建过程复杂时使用</li>
+<li>需要创建不同表示的对象时使用</li>
+<li>简单对象（少于3个参数）不建议使用</li>
+</ul>
+<h3><span id="六-java-经典案例">六、Java 经典案例</span></h3><h4><span id="实现-1标准-builder-模式">实现 1：标准 Builder 模式</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 产品类：电脑</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Computer</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String cpu;</span><br><span class="line">    <span class="keyword">private</span> String ram;</span><br><span class="line">    <span class="keyword">private</span> String storage;</span><br><span class="line">    <span class="keyword">private</span> String gpu;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">boolean</span> hasWiFi;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">boolean</span> hasBluetooth;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 私有构造函数，只能通过Builder创建</span></span><br><span class="line">    <span class="keyword">private</span> <span class="title function_">Computer</span><span class="params">(Builder builder)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.cpu = builder.cpu;</span><br><span class="line">        <span class="built_in">this</span>.ram = builder.ram;</span><br><span class="line">        <span class="built_in">this</span>.storage = builder.storage;</span><br><span class="line">        <span class="built_in">this</span>.gpu = builder.gpu;</span><br><span class="line">        <span class="built_in">this</span>.hasWiFi = builder.hasWiFi;</span><br><span class="line">        <span class="built_in">this</span>.hasBluetooth = builder.hasBluetooth;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Computer&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;cpu=&#x27;&quot;</span> + cpu + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, ram=&#x27;&quot;</span> + ram + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, storage=&#x27;&quot;</span> + storage + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, gpu=&#x27;&quot;</span> + gpu + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, hasWiFi=&quot;</span> + hasWiFi +</span><br><span class="line">                <span class="string">&quot;, hasBluetooth=&quot;</span> + hasBluetooth +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Builder 静态内部类</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Builder</span> &#123;</span><br><span class="line">        <span class="comment">// 必需参数</span></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> String cpu;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> String ram;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 可选参数</span></span><br><span class="line">        <span class="keyword">private</span> <span class="type">String</span> <span class="variable">storage</span> <span class="operator">=</span> <span class="string">&quot;256GB SSD&quot;</span>;</span><br><span class="line">        <span class="keyword">private</span> <span class="type">String</span> <span class="variable">gpu</span> <span class="operator">=</span> <span class="string">&quot;Integrated&quot;</span>;</span><br><span class="line">        <span class="keyword">private</span> <span class="type">boolean</span> <span class="variable">hasWiFi</span> <span class="operator">=</span> <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">private</span> <span class="type">boolean</span> <span class="variable">hasBluetooth</span> <span class="operator">=</span> <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 构造函数：必需参数</span></span><br><span class="line">        <span class="keyword">public</span> <span class="title function_">Builder</span><span class="params">(String cpu, String ram)</span> &#123;</span><br><span class="line">            <span class="built_in">this</span>.cpu = cpu;</span><br><span class="line">            <span class="built_in">this</span>.ram = ram;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 可选参数：链式调用</span></span><br><span class="line">        <span class="keyword">public</span> Builder <span class="title function_">storage</span><span class="params">(String storage)</span> &#123;</span><br><span class="line">            <span class="built_in">this</span>.storage = storage;</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> Builder <span class="title function_">gpu</span><span class="params">(String gpu)</span> &#123;</span><br><span class="line">            <span class="built_in">this</span>.gpu = gpu;</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> Builder <span class="title function_">hasWiFi</span><span class="params">(<span class="type">boolean</span> hasWiFi)</span> &#123;</span><br><span class="line">            <span class="built_in">this</span>.hasWiFi = hasWiFi;</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> Builder <span class="title function_">hasBluetooth</span><span class="params">(<span class="type">boolean</span> hasBluetooth)</span> &#123;</span><br><span class="line">            <span class="built_in">this</span>.hasBluetooth = hasBluetooth;</span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">this</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 构建最终对象</span></span><br><span class="line">        <span class="keyword">public</span> Computer <span class="title function_">build</span><span class="params">()</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Computer</span>(<span class="built_in">this</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用示例</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BuilderDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">// 最小配置</span></span><br><span class="line">        <span class="type">Computer</span> <span class="variable">basic</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Computer</span>.Builder(<span class="string">&quot;Intel i5&quot;</span>, <span class="string">&quot;8GB&quot;</span>).build();</span><br><span class="line">        System.out.println(<span class="string">&quot;Basic: &quot;</span> + basic);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 完整配置</span></span><br><span class="line">        <span class="type">Computer</span> <span class="variable">gaming</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Computer</span>.Builder(<span class="string">&quot;Intel i9&quot;</span>, <span class="string">&quot;32GB&quot;</span>)</span><br><span class="line">                .storage(<span class="string">&quot;1TB NVMe SSD&quot;</span>)</span><br><span class="line">                .gpu(<span class="string">&quot;RTX 4090&quot;</span>)</span><br><span class="line">                .hasWiFi(<span class="literal">true</span>)</span><br><span class="line">                .hasBluetooth(<span class="literal">true</span>)</span><br><span class="line">                .build();</span><br><span class="line">        System.out.println(<span class="string">&quot;Gaming: &quot;</span> + gaming);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 自定义配置</span></span><br><span class="line">        <span class="type">Computer</span> <span class="variable">office</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Computer</span>.Builder(<span class="string">&quot;Intel i7&quot;</span>, <span class="string">&quot;16GB&quot;</span>)</span><br><span class="line">                .storage(<span class="string">&quot;512GB SSD&quot;</span>)</span><br><span class="line">                .hasWiFi(<span class="literal">true</span>)</span><br><span class="line">                .hasBluetooth(<span class="literal">false</span>)</span><br><span class="line">                .build();</span><br><span class="line">        System.out.println(<span class="string">&quot;Office: &quot;</span> + office);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-2使用-director-的标准模式">实现 2：使用 Director 的标准模式</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 产品类：文档</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Document</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String title;</span><br><span class="line">    <span class="keyword">private</span> String content;</span><br><span class="line">    <span class="keyword">private</span> String footer;</span><br><span class="line">    <span class="keyword">private</span> java.util.List&lt;String&gt; sections = <span class="keyword">new</span> <span class="title class_">java</span>.util.ArrayList&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setTitle</span><span class="params">(String title)</span> &#123; <span class="built_in">this</span>.title = title; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setContent</span><span class="params">(String content)</span> &#123; <span class="built_in">this</span>.content = content; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setFooter</span><span class="params">(String footer)</span> &#123; <span class="built_in">this</span>.footer = footer; &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">addSection</span><span class="params">(String section)</span> &#123; <span class="built_in">this</span>.sections.add(section); &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Document&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;title=&#x27;&quot;</span> + title + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, content=&#x27;&quot;</span> + content + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, footer=&#x27;&quot;</span> + footer + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, sections=&quot;</span> + sections +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Builder 接口</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">interface</span> <span class="title class_">DocumentBuilder</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">buildTitle</span><span class="params">(String title)</span>;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">buildContent</span><span class="params">(String content)</span>;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">buildFooter</span><span class="params">(String footer)</span>;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">buildSection</span><span class="params">(String section)</span>;</span><br><span class="line">    Document <span class="title function_">getDocument</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 具体建造者：HTML 文档建造者</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HtmlDocumentBuilder</span> <span class="keyword">implements</span> <span class="title class_">DocumentBuilder</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">Document</span> <span class="variable">document</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Document</span>();</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">buildTitle</span><span class="params">(String title)</span> &#123;</span><br><span class="line">        document.setTitle(<span class="string">&quot;&lt;h1&gt;&quot;</span> + title + <span class="string">&quot;&lt;/h1&gt;&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">buildContent</span><span class="params">(String content)</span> &#123;</span><br><span class="line">        document.setContent(<span class="string">&quot;&lt;p&gt;&quot;</span> + content + <span class="string">&quot;&lt;/p&gt;&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">buildFooter</span><span class="params">(String footer)</span> &#123;</span><br><span class="line">        document.setFooter(<span class="string">&quot;&lt;footer&gt;&quot;</span> + footer + <span class="string">&quot;&lt;/footer&gt;&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">buildSection</span><span class="params">(String section)</span> &#123;</span><br><span class="line">        document.addSection(<span class="string">&quot;&lt;section&gt;&quot;</span> + section + <span class="string">&quot;&lt;/section&gt;&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Document <span class="title function_">getDocument</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> document;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 具体建造者：Markdown 文档建造者</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MarkdownDocumentBuilder</span> <span class="keyword">implements</span> <span class="title class_">DocumentBuilder</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">Document</span> <span class="variable">document</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Document</span>();</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">buildTitle</span><span class="params">(String title)</span> &#123;</span><br><span class="line">        document.setTitle(<span class="string">&quot;# &quot;</span> + title);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">buildContent</span><span class="params">(String content)</span> &#123;</span><br><span class="line">        document.setContent(content);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">buildFooter</span><span class="params">(String footer)</span> &#123;</span><br><span class="line">        document.setFooter(<span class="string">&quot;---\n&quot;</span> + footer);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">buildSection</span><span class="params">(String section)</span> &#123;</span><br><span class="line">        document.addSection(<span class="string">&quot;## &quot;</span> + section);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Document <span class="title function_">getDocument</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> document;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Director：指挥构建过程</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DocumentDirector</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> DocumentBuilder builder;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">DocumentDirector</span><span class="params">(DocumentBuilder builder)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.builder = builder;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setBuilder</span><span class="params">(DocumentBuilder builder)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.builder = builder;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Document <span class="title function_">constructSimpleDocument</span><span class="params">(String title, String content)</span> &#123;</span><br><span class="line">        builder.buildTitle(title);</span><br><span class="line">        builder.buildContent(content);</span><br><span class="line">        builder.buildFooter(<span class="string">&quot;Generated by Builder Pattern&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> builder.getDocument();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Document <span class="title function_">constructComplexDocument</span><span class="params">(String title, String content, java.util.List&lt;String&gt; sections)</span> &#123;</span><br><span class="line">        builder.buildTitle(title);</span><br><span class="line">        builder.buildContent(content);</span><br><span class="line">        <span class="keyword">for</span> (String section : sections) &#123;</span><br><span class="line">            builder.buildSection(section);</span><br><span class="line">        &#125;</span><br><span class="line">        builder.buildFooter(<span class="string">&quot;© 2025 Builder Pattern Demo&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> builder.getDocument();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用示例</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DocumentBuilderDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">DocumentDirector</span> <span class="variable">director</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">DocumentDirector</span>(<span class="literal">null</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 构建 HTML 文档</span></span><br><span class="line">        <span class="type">HtmlDocumentBuilder</span> <span class="variable">htmlBuilder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">HtmlDocumentBuilder</span>();</span><br><span class="line">        director.setBuilder(htmlBuilder);</span><br><span class="line">        <span class="type">Document</span> <span class="variable">htmlDoc</span> <span class="operator">=</span> director.constructComplexDocument(</span><br><span class="line">                <span class="string">&quot;Builder Pattern&quot;</span>,</span><br><span class="line">                <span class="string">&quot;This is a design pattern for building complex objects.&quot;</span>,</span><br><span class="line">                java.util.Arrays.asList(<span class="string">&quot;Introduction&quot;</span>, <span class="string">&quot;Implementation&quot;</span>, <span class="string">&quot;Examples&quot;</span>)</span><br><span class="line">        );</span><br><span class="line">        System.out.println(<span class="string">&quot;HTML Document: &quot;</span> + htmlDoc);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 构建 Markdown 文档</span></span><br><span class="line">        <span class="type">MarkdownDocumentBuilder</span> <span class="variable">mdBuilder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MarkdownDocumentBuilder</span>();</span><br><span class="line">        director.setBuilder(mdBuilder);</span><br><span class="line">        <span class="type">Document</span> <span class="variable">mdDoc</span> <span class="operator">=</span> director.constructComplexDocument(</span><br><span class="line">                <span class="string">&quot;Builder Pattern&quot;</span>,</span><br><span class="line">                <span class="string">&quot;This is a design pattern for building complex objects.&quot;</span>,</span><br><span class="line">                java.util.Arrays.asList(<span class="string">&quot;Introduction&quot;</span>, <span class="string">&quot;Implementation&quot;</span>, <span class="string">&quot;Examples&quot;</span>)</span><br><span class="line">        );</span><br><span class="line">        System.out.println(<span class="string">&quot;Markdown Document: &quot;</span> + mdDoc);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-3jdk-中的-stringbuilder">实现 3：JDK 中的 StringBuilder</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * StringBuilder 是典型的 Builder 模式应用</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">StringBuilderDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">// StringBuilder 的链式调用</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">result</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">StringBuilder</span>()</span><br><span class="line">                .append(<span class="string">&quot;Hello&quot;</span>)</span><br><span class="line">                .append(<span class="string">&quot; &quot;</span>)</span><br><span class="line">                .append(<span class="string">&quot;World&quot;</span>)</span><br><span class="line">                .insert(<span class="number">5</span>, <span class="string">&quot; Beautiful&quot;</span>)</span><br><span class="line">                .replace(<span class="number">0</span>, <span class="number">5</span>, <span class="string">&quot;Hi&quot;</span>)</span><br><span class="line">                .toString();</span><br><span class="line"></span><br><span class="line">        System.out.println(result);  <span class="comment">// &quot;Hi Beautiful World&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-4lombok-builder-注解">实现 4：Lombok @Builder 注解</span></h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> lombok.Builder;</span><br><span class="line"><span class="keyword">import</span> lombok.ToString;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 使用 Lombok 自动生成 Builder</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Builder</span></span><br><span class="line"><span class="meta">@ToString</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="comment">// 必需参数</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Integer age;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 可选参数</span></span><br><span class="line">    <span class="keyword">private</span> String email;</span><br><span class="line">    <span class="keyword">private</span> String phone;</span><br><span class="line">    <span class="keyword">private</span> String address;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LombokBuilderDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">// Lombok 自动生成的 Builder</span></span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> User.builder()</span><br><span class="line">                .name(<span class="string">&quot;Alice&quot;</span>)</span><br><span class="line">                .age(<span class="number">30</span>)</span><br><span class="line">                .email(<span class="string">&quot;alice@example.com&quot;</span>)</span><br><span class="line">                .phone(<span class="string">&quot;123-456-7890&quot;</span>)</span><br><span class="line">                .build();</span><br><span class="line"></span><br><span class="line">        System.out.println(user);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3><span id="七-python-经典案例">七、Python 经典案例</span></h3><h4><span id="实现-1标准-builder-模式">实现 1：标准 Builder 模式</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass</span><br><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">Optional</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@dataclass</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Computer</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;产品类：电脑&quot;&quot;&quot;</span></span><br><span class="line">    cpu: <span class="built_in">str</span></span><br><span class="line">    ram: <span class="built_in">str</span></span><br><span class="line">    storage: <span class="built_in">str</span> = <span class="string">&quot;256GB SSD&quot;</span></span><br><span class="line">    gpu: <span class="built_in">str</span> = <span class="string">&quot;Integrated&quot;</span></span><br><span class="line">    has_wifi: <span class="built_in">bool</span> = <span class="literal">True</span></span><br><span class="line">    has_bluetooth: <span class="built_in">bool</span> = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ComputerBuilder</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;建造者类&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, cpu: <span class="built_in">str</span>, ram: <span class="built_in">str</span></span>):</span><br><span class="line">        <span class="string">&quot;&quot;&quot;必需参数&quot;&quot;&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>.cpu = cpu</span><br><span class="line">        <span class="variable language_">self</span>.ram = ram</span><br><span class="line">        <span class="comment"># 可选参数默认值</span></span><br><span class="line">        <span class="variable language_">self</span>.storage = <span class="string">&quot;256GB SSD&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>.gpu = <span class="string">&quot;Integrated&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>.has_wifi = <span class="literal">True</span></span><br><span class="line">        <span class="variable language_">self</span>.has_bluetooth = <span class="literal">True</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">set_storage</span>(<span class="params">self, storage: <span class="built_in">str</span></span>) -&gt; <span class="string">&#x27;ComputerBuilder&#x27;</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;链式调用&quot;&quot;&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>.storage = storage</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">set_gpu</span>(<span class="params">self, gpu: <span class="built_in">str</span></span>) -&gt; <span class="string">&#x27;ComputerBuilder&#x27;</span>:</span><br><span class="line">        <span class="variable language_">self</span>.gpu = gpu</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">set_wifi</span>(<span class="params">self, has_wifi: <span class="built_in">bool</span></span>) -&gt; <span class="string">&#x27;ComputerBuilder&#x27;</span>:</span><br><span class="line">        <span class="variable language_">self</span>.has_wifi = has_wifi</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">set_bluetooth</span>(<span class="params">self, has_bluetooth: <span class="built_in">bool</span></span>) -&gt; <span class="string">&#x27;ComputerBuilder&#x27;</span>:</span><br><span class="line">        <span class="variable language_">self</span>.has_bluetooth = has_bluetooth</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">build</span>(<span class="params">self</span>) -&gt; Computer:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;构建最终对象&quot;&quot;&quot;</span></span><br><span class="line">        <span class="keyword">return</span> Computer(</span><br><span class="line">            cpu=<span class="variable language_">self</span>.cpu,</span><br><span class="line">            ram=<span class="variable language_">self</span>.ram,</span><br><span class="line">            storage=<span class="variable language_">self</span>.storage,</span><br><span class="line">            gpu=<span class="variable language_">self</span>.gpu,</span><br><span class="line">            has_wifi=<span class="variable language_">self</span>.has_wifi,</span><br><span class="line">            has_bluetooth=<span class="variable language_">self</span>.has_bluetooth</span><br><span class="line">        )</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="comment"># 最小配置</span></span><br><span class="line">    basic = ComputerBuilder(<span class="string">&quot;Intel i5&quot;</span>, <span class="string">&quot;8GB&quot;</span>).build()</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Basic: <span class="subst">&#123;basic&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 游戏配置</span></span><br><span class="line">    gaming = (ComputerBuilder(<span class="string">&quot;Intel i9&quot;</span>, <span class="string">&quot;32GB&quot;</span>)</span><br><span class="line">              .set_storage(<span class="string">&quot;1TB NVMe SSD&quot;</span>)</span><br><span class="line">              .set_gpu(<span class="string">&quot;RTX 4090&quot;</span>)</span><br><span class="line">              .set_wifi(<span class="literal">True</span>)</span><br><span class="line">              .set_bluetooth(<span class="literal">True</span>)</span><br><span class="line">              .build())</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Gaming: <span class="subst">&#123;gaming&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 办公配置</span></span><br><span class="line">    office = (ComputerBuilder(<span class="string">&quot;Intel i7&quot;</span>, <span class="string">&quot;16GB&quot;</span>)</span><br><span class="line">              .set_storage(<span class="string">&quot;512GB SSD&quot;</span>)</span><br><span class="line">              .set_wifi(<span class="literal">True</span>)</span><br><span class="line">              .set_bluetooth(<span class="literal">False</span>)</span><br><span class="line">              .build())</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Office: <span class="subst">&#123;office&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-2使用-director-的标准模式">实现 2：使用 Director 的标准模式</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> abc <span class="keyword">import</span> ABC, abstractmethod</span><br><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">List</span></span><br><span class="line"><span class="keyword">from</span> dataclasses <span class="keyword">import</span> dataclass, field</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@dataclass</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Document</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;产品类：文档&quot;&quot;&quot;</span></span><br><span class="line">    title: <span class="built_in">str</span> = <span class="string">&quot;&quot;</span></span><br><span class="line">    content: <span class="built_in">str</span> = <span class="string">&quot;&quot;</span></span><br><span class="line">    footer: <span class="built_in">str</span> = <span class="string">&quot;&quot;</span></span><br><span class="line">    sections: <span class="type">List</span>[<span class="built_in">str</span>] = field(default_factory=<span class="built_in">list</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DocumentBuilder</span>(<span class="title class_ inherited__">ABC</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Builder 抽象类&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">build_title</span>(<span class="params">self, title: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">build_content</span>(<span class="params">self, content: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">build_footer</span>(<span class="params">self, footer: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">build_section</span>(<span class="params">self, section: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @abstractmethod</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_document</span>(<span class="params">self</span>) -&gt; Document:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">HtmlDocumentBuilder</span>(<span class="title class_ inherited__">DocumentBuilder</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;HTML 文档建造者&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.document = Document()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">build_title</span>(<span class="params">self, title: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="variable language_">self</span>.document.title = <span class="string">f&quot;&lt;h1&gt;<span class="subst">&#123;title&#125;</span>&lt;/h1&gt;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">build_content</span>(<span class="params">self, content: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="variable language_">self</span>.document.content = <span class="string">f&quot;&lt;p&gt;<span class="subst">&#123;content&#125;</span>&lt;/p&gt;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">build_footer</span>(<span class="params">self, footer: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="variable language_">self</span>.document.footer = <span class="string">f&quot;&lt;footer&gt;<span class="subst">&#123;footer&#125;</span>&lt;/footer&gt;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">build_section</span>(<span class="params">self, section: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="variable language_">self</span>.document.sections.append(<span class="string">f&quot;&lt;section&gt;<span class="subst">&#123;section&#125;</span>&lt;/section&gt;&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_document</span>(<span class="params">self</span>) -&gt; Document:</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.document</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MarkdownDocumentBuilder</span>(<span class="title class_ inherited__">DocumentBuilder</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Markdown 文档建造者&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.document = Document()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">build_title</span>(<span class="params">self, title: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="variable language_">self</span>.document.title = <span class="string">f&quot;# <span class="subst">&#123;title&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">build_content</span>(<span class="params">self, content: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="variable language_">self</span>.document.content = content</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">build_footer</span>(<span class="params">self, footer: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="variable language_">self</span>.document.footer = <span class="string">f&quot;---\n<span class="subst">&#123;footer&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">build_section</span>(<span class="params">self, section: <span class="built_in">str</span></span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="variable language_">self</span>.document.sections.append(<span class="string">f&quot;## <span class="subst">&#123;section&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">get_document</span>(<span class="params">self</span>) -&gt; Document:</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.document</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DocumentDirector</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;Director：指挥构建过程&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, builder: DocumentBuilder</span>):</span><br><span class="line">        <span class="variable language_">self</span>.builder = builder</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">set_builder</span>(<span class="params">self, builder: DocumentBuilder</span>) -&gt; <span class="literal">None</span>:</span><br><span class="line">        <span class="variable language_">self</span>.builder = builder</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">construct_simple_document</span>(<span class="params">self, title: <span class="built_in">str</span>, content: <span class="built_in">str</span></span>) -&gt; Document:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;构建简单文档&quot;&quot;&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>.builder.build_title(title)</span><br><span class="line">        <span class="variable language_">self</span>.builder.build_content(content)</span><br><span class="line">        <span class="variable language_">self</span>.builder.build_footer(<span class="string">&quot;Generated by Builder Pattern&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.builder.get_document()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">construct_complex_document</span>(<span class="params">self, title: <span class="built_in">str</span>, content: <span class="built_in">str</span>, sections: <span class="type">List</span>[<span class="built_in">str</span>]</span>) -&gt; Document:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;构建复杂文档&quot;&quot;&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>.builder.build_title(title)</span><br><span class="line">        <span class="variable language_">self</span>.builder.build_content(content)</span><br><span class="line">        <span class="keyword">for</span> section <span class="keyword">in</span> sections:</span><br><span class="line">            <span class="variable language_">self</span>.builder.build_section(section)</span><br><span class="line">        <span class="variable language_">self</span>.builder.build_footer(<span class="string">&quot;© 2025 Builder Pattern Demo&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.builder.get_document()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    director = DocumentDirector(HtmlDocumentBuilder())</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 构建 HTML 文档</span></span><br><span class="line">    html_builder = HtmlDocumentBuilder()</span><br><span class="line">    director.set_builder(html_builder)</span><br><span class="line">    html_doc = director.construct_complex_document(</span><br><span class="line">        <span class="string">&quot;Builder Pattern&quot;</span>,</span><br><span class="line">        <span class="string">&quot;This is a design pattern for building complex objects.&quot;</span>,</span><br><span class="line">        [<span class="string">&quot;Introduction&quot;</span>, <span class="string">&quot;Implementation&quot;</span>, <span class="string">&quot;Examples&quot;</span>]</span><br><span class="line">    )</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;HTML Document: <span class="subst">&#123;html_doc&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 构建 Markdown 文档</span></span><br><span class="line">    md_builder = MarkdownDocumentBuilder()</span><br><span class="line">    director.set_builder(md_builder)</span><br><span class="line">    md_doc = director.construct_complex_document(</span><br><span class="line">        <span class="string">&quot;Builder Pattern&quot;</span>,</span><br><span class="line">        <span class="string">&quot;This is a design pattern for building complex objects.&quot;</span>,</span><br><span class="line">        [<span class="string">&quot;Introduction&quot;</span>, <span class="string">&quot;Implementation&quot;</span>, <span class="string">&quot;Examples&quot;</span>]</span><br><span class="line">    )</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Markdown Document: <span class="subst">&#123;md_doc&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-3使用上下文管理器的-builder">实现 3：使用上下文管理器的 Builder</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">List</span>, <span class="type">Optional</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SQLQueryBuilder</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;SQL 查询构建器&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>._select: <span class="type">List</span>[<span class="built_in">str</span>] = []</span><br><span class="line">        <span class="variable language_">self</span>._<span class="keyword">from</span>: <span class="type">Optional</span>[<span class="built_in">str</span>] = <span class="literal">None</span></span><br><span class="line">        <span class="variable language_">self</span>._where: <span class="type">List</span>[<span class="built_in">str</span>] = []</span><br><span class="line">        <span class="variable language_">self</span>._group_by: <span class="type">List</span>[<span class="built_in">str</span>] = []</span><br><span class="line">        <span class="variable language_">self</span>._order_by: <span class="type">List</span>[<span class="built_in">str</span>] = []</span><br><span class="line">        <span class="variable language_">self</span>._limit: <span class="type">Optional</span>[<span class="built_in">int</span>] = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">select</span>(<span class="params">self, *columns: <span class="built_in">str</span></span>) -&gt; <span class="string">&#x27;SQLQueryBuilder&#x27;</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;添加 SELECT 字段&quot;&quot;&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>._select.extend(columns)</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">from_table</span>(<span class="params">self, table: <span class="built_in">str</span></span>) -&gt; <span class="string">&#x27;SQLQueryBuilder&#x27;</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;添加 FROM 表&quot;&quot;&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>._<span class="keyword">from</span> = table</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">where</span>(<span class="params">self, condition: <span class="built_in">str</span></span>) -&gt; <span class="string">&#x27;SQLQueryBuilder&#x27;</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;添加 WHERE 条件&quot;&quot;&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>._where.append(condition)</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">group_by</span>(<span class="params">self, *columns: <span class="built_in">str</span></span>) -&gt; <span class="string">&#x27;SQLQueryBuilder&#x27;</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;添加 GROUP BY&quot;&quot;&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>._group_by.extend(columns)</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">order_by</span>(<span class="params">self, *columns: <span class="built_in">str</span></span>) -&gt; <span class="string">&#x27;SQLQueryBuilder&#x27;</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;添加 ORDER BY&quot;&quot;&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>._order_by.extend(columns)</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">limit</span>(<span class="params">self, count: <span class="built_in">int</span></span>) -&gt; <span class="string">&#x27;SQLQueryBuilder&#x27;</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;添加 LIMIT&quot;&quot;&quot;</span></span><br><span class="line">        <span class="variable language_">self</span>._limit = count</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">build</span>(<span class="params">self</span>) -&gt; <span class="built_in">str</span>:</span><br><span class="line">        <span class="string">&quot;&quot;&quot;构建最终的 SQL 查询&quot;&quot;&quot;</span></span><br><span class="line">        query = []</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="variable language_">self</span>._select:</span><br><span class="line">            <span class="keyword">raise</span> ValueError(<span class="string">&quot;SELECT cannot be empty&quot;</span>)</span><br><span class="line">        query.append(<span class="string">f&quot;SELECT <span class="subst">&#123;<span class="string">&#x27;, &#x27;</span>.join(self._select)&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> <span class="variable language_">self</span>._<span class="keyword">from</span>:</span><br><span class="line">            <span class="keyword">raise</span> ValueError(<span class="string">&quot;FROM table is required&quot;</span>)</span><br><span class="line">        query.append(<span class="string">f&quot;FROM <span class="subst">&#123;self._<span class="keyword">from</span>&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>._where:</span><br><span class="line">            query.append(<span class="string">f&quot;WHERE <span class="subst">&#123;<span class="string">&#x27; AND &#x27;</span>.join(self._where)&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>._group_by:</span><br><span class="line">            query.append(<span class="string">f&quot;GROUP BY <span class="subst">&#123;<span class="string">&#x27;, &#x27;</span>.join(self._group_by)&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>._order_by:</span><br><span class="line">            query.append(<span class="string">f&quot;ORDER BY <span class="subst">&#123;<span class="string">&#x27;, &#x27;</span>.join(self._order_by)&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="variable language_">self</span>._limit:</span><br><span class="line">            query.append(<span class="string">f&quot;LIMIT <span class="subst">&#123;self._limit&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot; &quot;</span>.join(query)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="comment"># 简单查询</span></span><br><span class="line">    query1 = (SQLQueryBuilder()</span><br><span class="line">              .select(<span class="string">&quot;*&quot;</span>)</span><br><span class="line">              .from_table(<span class="string">&quot;users&quot;</span>)</span><br><span class="line">              .build())</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Query 1: <span class="subst">&#123;query1&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 复杂查询</span></span><br><span class="line">    query2 = (SQLQueryBuilder()</span><br><span class="line">              .select(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;email&quot;</span>, <span class="string">&quot;COUNT(*) as count&quot;</span>)</span><br><span class="line">              .from_table(<span class="string">&quot;users&quot;</span>)</span><br><span class="line">              .where(<span class="string">&quot;age &gt; 18&quot;</span>)</span><br><span class="line">              .where(<span class="string">&quot;status = &#x27;active&#x27;&quot;</span>)</span><br><span class="line">              .group_by(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;email&quot;</span>)</span><br><span class="line">              .order_by(<span class="string">&quot;count DESC&quot;</span>)</span><br><span class="line">              .limit(<span class="number">10</span>)</span><br><span class="line">              .build())</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Query 2: <span class="subst">&#123;query2&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<h4><span id="实现-4使用函数式构建器">实现 4：使用函数式构建器</span></h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> typing <span class="keyword">import</span> <span class="type">Callable</span>, TypeVar, TypeVarTuple</span><br><span class="line"></span><br><span class="line">T = TypeVar(<span class="string">&#x27;T&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ConfigBuilder</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;配置构建器&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="variable language_">self</span>.config = &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">set</span>(<span class="params">self, key: <span class="built_in">str</span>, value: <span class="built_in">str</span></span>) -&gt; <span class="string">&#x27;ConfigBuilder&#x27;</span>:</span><br><span class="line">        <span class="variable language_">self</span>.config[key] = value</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">set_multiple</span>(<span class="params">self, **kwargs</span>) -&gt; <span class="string">&#x27;ConfigBuilder&#x27;</span>:</span><br><span class="line">        <span class="variable language_">self</span>.config.update(kwargs)</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">remove</span>(<span class="params">self, key: <span class="built_in">str</span></span>) -&gt; <span class="string">&#x27;ConfigBuilder&#x27;</span>:</span><br><span class="line">        <span class="variable language_">self</span>.config.pop(key, <span class="literal">None</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">build</span>(<span class="params">self</span>) -&gt; <span class="built_in">dict</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.config.copy()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 函数式构建器</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">build_config</span>(<span class="params">configurator: <span class="type">Callable</span>[[ConfigBuilder], <span class="literal">None</span>]</span>) -&gt; <span class="built_in">dict</span>:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    函数式构建器</span></span><br><span class="line"><span class="string">    接收一个函数来配置 Builder</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    builder = ConfigBuilder()</span><br><span class="line">    configurator(builder)</span><br><span class="line">    <span class="keyword">return</span> builder.build()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="comment"># 标准方式</span></span><br><span class="line">    config1 = (ConfigBuilder()</span><br><span class="line">               .<span class="built_in">set</span>(<span class="string">&quot;host&quot;</span>, <span class="string">&quot;localhost&quot;</span>)</span><br><span class="line">               .<span class="built_in">set</span>(<span class="string">&quot;port&quot;</span>, <span class="string">&quot;8080&quot;</span>)</span><br><span class="line">               .<span class="built_in">set</span>(<span class="string">&quot;debug&quot;</span>, <span class="string">&quot;true&quot;</span>)</span><br><span class="line">               .build())</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Config 1: <span class="subst">&#123;config1&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 函数式方式</span></span><br><span class="line">    config2 = build_config(</span><br><span class="line">        <span class="keyword">lambda</span> b: b.<span class="built_in">set</span>(<span class="string">&quot;host&quot;</span>, <span class="string">&quot;localhost&quot;</span>)</span><br><span class="line">                   .<span class="built_in">set</span>(<span class="string">&quot;port&quot;</span>, <span class="string">&quot;5432&quot;</span>)</span><br><span class="line">                   .<span class="built_in">set</span>(<span class="string">&quot;database&quot;</span>, <span class="string">&quot;mydb&quot;</span>)</span><br><span class="line">                   .set_multiple(</span><br><span class="line">                       user=<span class="string">&quot;admin&quot;</span>,</span><br><span class="line">                       password=<span class="string">&quot;secret&quot;</span>,</span><br><span class="line">                       timeout=<span class="string">&quot;30&quot;</span></span><br><span class="line">                   )</span><br><span class="line">    )</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;Config 2: <span class="subst">&#123;config2&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<h3><span id="八-参考资料与延伸阅读">八、参考资料与延伸阅读</span></h3><h4><span id="经典书籍">经典书籍</span></h4><ul>
+<li>《Effective Java（第三版）》- Joshua Bloch（第2条：遇到多个构造器参数时要考虑用构建器）</li>
+<li>《设计模式：可复用面向对象软件的基础》- GoF</li>
+<li>《Head First 设计模式》- 建造者模式章节</li>
+</ul>
+<h4><span id="在线资源">在线资源</span></h4><ul>
+<li><a target="_blank" rel="noopener" href="https://refactoring.guru/design-patterns/builder">Refactoring.Guru - Builder</a></li>
+<li><a target="_blank" rel="noopener" href="https://java-design-patterns.com/patterns/builder/">Java设计模式：建造者模式</a></li>
+<li><a target="_blank" rel="noopener" href="https://refactoring.guru/design-patterns/builder/python/example">Python设计模式：Builder</a></li>
+</ul>
+<h4><span id="相关设计模式">相关设计模式</span></h4><ul>
+<li><strong>Abstract Factory（抽象工厂）</strong>：专注于创建产品族，Builder 专注于分步构建</li>
+<li><strong>Factory Method（工厂方法）</strong>：创建单个对象，Builder 构建复杂对象</li>
+<li><strong>Composite（组合）</strong>：Builder 常用于构建组合结构</li>
+<li><strong>Facade（外观）</strong>：Facade 可以用 Builder 来构建复杂子系统</li>
+</ul>
+<h4><span id="最佳实践建议">最佳实践建议</span></h4><ol>
+<li><p><strong>Java</strong>：</p>
+<ul>
+<li>优先使用 Lombok <code>@Builder</code> 注解</li>
+<li>Builder 作为静态内部类</li>
+<li>链式调用返回 Builder 实例</li>
+<li>必需参数通过构造函数传入</li>
+</ul>
+</li>
+<li><p><strong>Python</strong>：</p>
+<ul>
+<li>返回 self 实现链式调用</li>
+<li>使用类型注解提高可读性</li>
+<li>使用 dataclasses 定义产品类</li>
+<li>考虑使用上下文管理器</li>
+</ul>
+</li>
+<li><p><strong>通用建议</strong>：</p>
+<ul>
+<li>验证参数在 build() 方法中统一进行</li>
+<li>产品类不可变时，Builder 是理想选择</li>
+<li>4个以上参数时考虑使用 Builder</li>
+</ul>
+</li>
+</ol>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/yannyi.github.io/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" rel="tag">创建型模式</a>, <a class="tag-none-link" href="/yannyi.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2025-01-08T16:00:00.000Z" itemprop="dateModified">最后编辑：2025-01-09</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" Prototype 模式" href="/yannyi.github.io/2023/01/02/design_patterns/prototype/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+            <div class="nav-next clearfix">
+                <a title=" Abstract Factory 模式" href="/yannyi.github.io/2023/01/04/design_patterns/abstract_factory/">下一篇 <i class="fa fa-angle-right"></i></a>
+            </div>
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/yannyi.github.io/images/theme/Mamimi.JPG" alt="Mamimi" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center"></p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/yannyi.github.io/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                14
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                    <aside id="krw-toc" class="widget widget-kratos-toc clearfix toc-div-class" >
+    <div class="photo-background"></div>
+    <h4 class="widget-title no-after">
+        <i class="fa fa-compass"></i>
+        文章目录
+        <span class="toc-progress-bar" role="progressbar" aria-label="阅读进度："></span>
+    </h4>
+    <div class="textwidget">
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">Builder 模式</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.1.</span> <span class="toc-text">一、基础介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.2.</span> <span class="toc-text">二、生活比喻：组装电脑</span></a></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.3.</span> <span class="toc-text">三、模式结构与角色</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.3.1.</span> <span class="toc-text">登场角色</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.4.</span> <span class="toc-text">四、应用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.1.</span> <span class="toc-text">适用场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.4.2.</span> <span class="toc-text">真实案例</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.5.</span> <span class="toc-text">五、使用注意事项</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.1.</span> <span class="toc-text">优点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.2.</span> <span class="toc-text">缺点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.5.3.</span> <span class="toc-text">使用建议</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.6.</span> <span class="toc-text">六、Java 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.1.</span> <span class="toc-text">实现 1：标准 Builder 模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.2.</span> <span class="toc-text">实现 2：使用 Director 的标准模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.3.</span> <span class="toc-text">实现 3：JDK 中的 StringBuilder</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.6.4.</span> <span class="toc-text">实现 4：Lombok @Builder 注解</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.7.</span> <span class="toc-text">七、Python 经典案例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.1.</span> <span class="toc-text">实现 1：标准 Builder 模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.2.</span> <span class="toc-text">实现 2：使用 Director 的标准模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.3.</span> <span class="toc-text">实现 3：使用上下文管理器的 Builder</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.7.4.</span> <span class="toc-text">实现 4：使用函数式构建器</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link"><span class="toc-number">1.8.</span> <span class="toc-text">八、参考资料与延伸阅读</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.1.</span> <span class="toc-text">经典书籍</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.2.</span> <span class="toc-text">在线资源</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.3.</span> <span class="toc-text">相关设计模式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link"><span class="toc-number">1.8.4.</span> <span class="toc-text">最佳实践建议</span></a></li></ol></li></ol></li></ol>
+    </div>
+</aside>
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/ai/">ai</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/games/">games</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/">java</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/">集合框架</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/">数据处理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/">mindset</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/">方法论</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/%E7%9F%A5%E8%AF%86%E7%AE%A1%E7%90%86/">知识管理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/tools/">tools</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Spring%E6%A1%86%E6%9E%B6/">Spring框架</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/SQL%E4%BC%98%E5%8C%96/">SQL优化</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a><span class="category-list-count">12</span></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/yannyi.github.io/tags/5W1H/" style="font-size: 0.6em;">5W1H</a> <a href="/yannyi.github.io/tags/AI%E6%8E%A2%E7%B4%A2/" style="font-size: 0.6em;">AI探索</a> <a href="/yannyi.github.io/tags/AI%E7%9F%A5%E8%AF%86%E5%BA%93/" style="font-size: 0.6em;">AI知识库</a> <a href="/yannyi.github.io/tags/AOP/" style="font-size: 0.6em;">AOP</a> <a href="/yannyi.github.io/tags/Java/" style="font-size: 0.67em;">Java</a> <a href="/yannyi.github.io/tags/MyBatis/" style="font-size: 0.6em;">MyBatis</a> <a href="/yannyi.github.io/tags/MySQL/" style="font-size: 0.67em;">MySQL</a> <a href="/yannyi.github.io/tags/SQL/" style="font-size: 0.6em;">SQL</a> <a href="/yannyi.github.io/tags/Spring/" style="font-size: 0.6em;">Spring</a> <a href="/yannyi.github.io/tags/%E5%85%A5%E9%97%A8/" style="font-size: 0.73em;">入门</a> <a href="/yannyi.github.io/tags/%E5%88%86%E6%89%B9%E5%A4%84%E7%90%86/" style="font-size: 0.6em;">分批处理</a> <a href="/yannyi.github.io/tags/%E5%88%86%E9%A1%B5/" style="font-size: 0.6em;">分页</a> <a href="/yannyi.github.io/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 0.8em;">创建型模式</a> <a href="/yannyi.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/" style="font-size: 0.6em;">后端开发</a> <a href="/yannyi.github.io/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 0.6em;">工具</a> <a href="/yannyi.github.io/tags/%E6%80%9D%E7%BB%B4%E6%A1%86%E6%9E%B6/" style="font-size: 0.6em;">思维框架</a> <a href="/yannyi.github.io/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" style="font-size: 0.67em;">性能优化</a> <a href="/yannyi.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 0.73em;">数据库</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/hello-world/"><i class="fa fa-book"></i> Hello World</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/categories/tech/design_patterns/"><i class="fa fa-book"></i> 设计模式</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-ai-mcp/"><i class="fa fa-book"></i> MCP 模型上下文协议</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-tools-Obsidian/"><i class="fa fa-book"></i> Markdown本地笔记 Obsidian</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2024-06-01-game-research/"><i class="fa fa-book"></i> 开始使用：游戏研究</a>
+            
+          
+        
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+                </div>
+    </div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 MamimiJa Nai 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li>自豪地使用 <a href="https://github.com/Candinya/Kratos-Rebirth" target="_blank">Kratos:Rebirth</a> 主题</li>
+                            <li>站点由 Mamimi 用 <i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                
+                    <div class="box search-box">
+                        <a href="/yannyi.github.io/search">
+                            <span class="fa fa-search"></span>
+                        </a>
+                    </div>
+                
+                <div class="box theme-box" id="theme-toggle">
+                    <span class="fa fa-adjust"></span>
+                </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">打赏</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">打赏提示信息</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/yannyi.github.io/js/kr-modal/donate.min.js"></script>
+
+
+
+
+
+<!-- 额外的追加注入项 -->
+
+
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/yannyi.github.io/";
+</script>
+
+
+  <script defer src="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/yannyi.github.io/js/kr-core.min.js"></script>
+
+
+  <script defer src="/yannyi.github.io/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>

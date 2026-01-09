@@ -1,0 +1,66 @@
+.kratos-hentry {
+  border-radius: 12px;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.kratos-hentry:hover {
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+.kratos-page-inner {
+  border-radius: 16px;
+}
+.kratos-entry-border {
+  border-radius: 12px;
+}
+#kratos-widget-area .widget {
+  border-radius: 12px;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+#kratos-widget-area .widget:hover {
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+}
+.btn {
+  border-radius: 8px !important;
+}
+.kratos-card {
+  border-radius: 12px;
+}
+.kratos-topnav {
+  border-radius: 0 0 16px 16px;
+}
+.kratos-breadcrumb {
+  border-radius: 8px;
+}
+.kratos-status {
+  border-radius: 8px;
+}
+.collapse-box-control {
+  border-radius: 8px;
+}
+.pagination a,
+.pagination span {
+  border-radius: 8px;
+}
+.panel {
+  border-radius: 12px;
+}
+.form-control,
+.input-group-addon {
+  border-radius: 8px;
+}
+pre {
+  border-radius: 8px;
+}
+.kratos-page-content img,
+.kratos-entry-thumb img {
+  border-radius: 8px;
+}
+.widget-kratos-about .photo-background {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+.widget-kratos-about .photo-wrapper {
+  border-radius: 12px;
+}
+.widget-kratos-about .about-photo {
+  border-radius: 50%;
+}

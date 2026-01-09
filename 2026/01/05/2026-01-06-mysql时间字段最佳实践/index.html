@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh">
+    <head>
+  <!-- 元数据 -->
+  <meta charset="utf-8">
+  
+  
+  <title>MySQL 时间字段最佳实践 | MamimiJa Nai</title>
+  <link rel="canonical" href="https://leahana.github.io/2026/01/05/2026-01-06-mysql%E6%97%B6%E9%97%B4%E5%AD%97%E6%AE%B5%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">
+  <meta name="author" content="Mamimi" />
+  <meta http-equiv="Cache-Control" content="no-transform" />
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="robots" content="index,follow" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="format-detection" content="telphone=no, email=no" />
+  
+    <meta name="keywords" content="MyBatis, MySQL, 数据库, 时区" />
+  
+  <meta name="description" content="对话存档：MySQL 时间字段最佳实践一、添加时间字段的 ALTER 语句在 MySQL 5.7.38 中，可以使用以下 ALTER 语句来添加创建时间和更新时间字段： 123ALTER TABLE t_alarmADD COLUMN create_time_dt DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT &#x27;创建时间&#x27;,ADD COL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL 时间字段最佳实践">
+<meta property="og:url" content="https://leahana.github.io/2026/01/05/2026-01-06-mysql%E6%97%B6%E9%97%B4%E5%AD%97%E6%AE%B5%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/index.html">
+<meta property="og:site_name" content="MamimiJa Nai">
+<meta property="og:description" content="对话存档：MySQL 时间字段最佳实践一、添加时间字段的 ALTER 语句在 MySQL 5.7.38 中，可以使用以下 ALTER 语句来添加创建时间和更新时间字段： 123ALTER TABLE t_alarmADD COLUMN create_time_dt DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT &#x27;创建时间&#x27;,ADD COL">
+<meta property="og:locale">
+<meta property="article:published_time" content="2026-01-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-01-09T16:52:05.944Z">
+<meta property="article:author" content="Mamimi">
+<meta property="article:tag" content="MyBatis">
+<meta property="article:tag" content="MySQL">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="时区">
+<meta name="twitter:card" content="summary">
+  
+  <!-- JSON-LD 结构化数据 -->
+  
+  
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"BlogPosting","headline":"MySQL 时间字段最佳实践","description":"对话存档：MySQL 时间字段最佳实践一、添加时间字段的 ALTER 语句在 MySQL 5.7.38 ...","image":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG","author":{"@type":"Person","name":"Mamimi"},"publisher":{"@type":"Organization","name":"MamimiJa Nai","logo":{"@type":"ImageObject","url":"https://leahana.github.io/yannyi.github.io/images/theme/Mamimi.JPG"}},"datePublished":"2026-01-05T16:00:00.000Z","dateModified":"2026-01-09T16:52:05.944Z","mainEntityOfPage":{"@type":"WebPage","@id":"https://leahana.github.io/2026/01/05/2026-01-06-mysql%E6%97%B6%E9%97%B4%E5%AD%97%E6%AE%B5%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/"}}
+    </script>
+  
+  <!-- 关键 CSS 预加载 -->
+  <link rel="preload" href="/yannyi.github.io/css/kr-core.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/light.min.css" as="style" crossorigin>
+  <link rel="preload" href="/yannyi.github.io/css/kr-theme/dark.min.css" as="style" crossorigin>
+  <!-- 样式表文件 -->
+  <link rel="stylesheet" id="kratos-css" href="/yannyi.github.io/css/kr-core.min.css" media="all">
+  <link rel="stylesheet" id="theme-light-css" href="/yannyi.github.io/css/kr-theme/light.min.css" media="all">
+  <link rel="stylesheet" id="theme-dark-css" href="/yannyi.github.io/css/kr-theme/dark.min.css" media="(prefers-color-scheme: dark)">
+  
+    <link rel="stylesheet"  id="highlight-css" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/css/highlight/highlight.js/night-eighties.min.css"></noscript>
+  
+  <script src="/yannyi.github.io/js/kr-theme.min.js"></script>
+  <link rel="stylesheet"  id="fontawe-css" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/font-awesome@4.7.0/css/font-awesome.min.css"></noscript>
+  
+    <link rel="stylesheet"  id="nprogress-css" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.css"></noscript>
+  
+  
+    <link rel="stylesheet"  href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css" media="print" onload="this.media='all'" onerror="this.media='all'"><noscript><link rel="stylesheet" href="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.css"></noscript>
+  
+  <!-- 预先加载的JS文件 -->
+  
+    <script src="/yannyi.github.io/vendors/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+  
+  <!-- 自定义站点横幅和背景 -->
+  <style>
+    
+      .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+      html[data-theme="dark"] .kratos-cover.kratos-cover-2 {
+        background-image: url('');
+      }
+    
+    
+      @media(min-width:768px) {
+        body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+        html[data-theme="dark"] body.custom-background {
+          background-image: url('/yannyi.github.io/images/theme/background.jpg');
+        }
+      }
+    
+    
+      .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+      html[data-theme="dark"] .widget-kratos-about .photo-background {
+        background-image: url('/yannyi.github.io/images/theme/avatar-bg.jpg');
+      }
+    
+  </style>
+
+  <!-- 额外的追加注入项 -->
+  
+    <style>body.custom-background{background-image:url('/yannyi.github.io/images/theme/background.jpg')!important;background-attachment:fixed!important;background-size:cover!important;background-position:center!important;}#kratos-widget-area .widget-kratos-about .photo-background{background-image:url('/yannyi.github.io/images/theme/avatar-bg.jpg')!important;background-size:cover!important;background-position:35% 35%!important;background-repeat:no-repeat!important;}</style><link rel="stylesheet" href="/yannyi.github.io/css/custom.css">
+  
+<!-- hexo injector head_end start --><script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@latest/dist/mermaid.esm.min.mjs">
+    mermaid.initialize(
+      startOnLoad: true,
+    );
+    </script><!-- hexo injector head_end end --><meta name="generator" content="Hexo 8.1.1"></head>
+
+    <body class="custom-background">
+        <div id="kratos-wrapper">
+    <div id="kratos-page">
+        <div id="kratos-header">
+            <header id="kratos-desktop-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="nav-header">
+                        <nav id="kratos-menu-wrap">
+                            <ul id="kratos-primary-menu" class="sf-menu">
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/">
+                                        
+                                            
+                                                <i class="fa fa-fa-home"></i>
+                                            
+                                            首页
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/archives">
+                                        
+                                            
+                                                <i class="fa fa-fa-archive"></i>
+                                            
+                                            归档
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/categories">
+                                        
+                                            
+                                                <i class="fa fa-fa-folder-open"></i>
+                                            
+                                            分类
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/tags">
+                                        
+                                            
+                                                <i class="fa fa-fa-tags"></i>
+                                            
+                                            标签
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a href="/yannyi.github.io/search">
+                                        
+                                            
+                                                <i class="fa fa-fa-search"></i>
+                                            
+                                            搜索
+                                        </a>
+                                        
+                                    </li>
+                                
+                                    <li>
+                                        
+                                            <a>
+                                        
+                                            
+                                                <i class="fa fa-fa-th-list"></i>
+                                            
+                                            更多
+                                        </a>
+                                        
+                                            <ul class="sub-menu">
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/about">
+                                                            
+                                                                <i class="fa fa-fa-user"></i>
+                                                            
+                                                            关于我
+                                                        </a>
+                                                    </li>
+                                                
+                                                    <li>
+                                                        <a href="/yannyi.github.io/links">
+                                                            
+                                                                <i class="fa fa-fa-link"></i>
+                                                            
+                                                            友情链接
+                                                        </a>
+                                                    </li>
+                                                
+                                            </ul>
+                                        
+                                    </li>
+                                
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </header>
+            <header id="kratos-mobile-topnav" class="kratos-topnav">
+                <div class="container">
+                    <div class="color-logo"><a href="/yannyi.github.io/">MamimiJa Nai</a></div>
+                    <div id="kratos-nav-toggle-wrapper" class="nav-toggle">
+                        <a id="kratos-nav-toggle" class="kratos-nav-toggle">
+                            <i></i>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div class="kratos-start kratos-hero-2">
+            <!-- <div class="kratos-overlay"></div> -->
+            <div class="kratos-cover kratos-cover-2 text-center">
+                <div class="desc desc2 animate-box">
+                    <a href="/yannyi.github.io/">
+                        <h2>MamimiJa Nai</h2> <br />
+                        <span></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="kratos-blog-post">
+            <div class="container">
+                <div id="main" class="row">
+
+
+        
+
+            
+
+            <section class="kr-main-col col-md-8">
+
+        
+
+            <article itemscope itemtype="https://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://leahana.github.io/2026/01/05/2026-01-06-mysql%E6%97%B6%E9%97%B4%E5%AD%97%E6%AE%B5%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">
+    <div class="kratos-hentry kratos-page-inner clearfix">
+        <header class="kratos-page-header">
+            
+                <h1 class="kratos-page-title text-center" itemprop="name headline">MySQL 时间字段最佳实践</h1>
+            
+            <ul class="kratos-page-meta text-center">
+                <li><time datetime="2026-01-05T16:00:00.000Z" itemprop="datePublished"><i class="fa fa-calendar"></i> 2026-01-06</time></li>
+                <li itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <i class="fa fa-user"></i> 作者 <span itemprop="name">Mamimi</span>
+                </li>
+                
+                    <li>
+                        <i class="fa fa-edit"></i> 
+                        
+                        
+                            ~17.47K
+                        
+                        字
+                    </li>
+                
+                
+                
+            </ul>
+        </header>
+        <div class="kratos-page-content kr-post">
+            
+            
+            
+            <hr />
+            <div itemprop="articleBody"><h1><span id="对话存档mysql-时间字段最佳实践">对话存档：MySQL 时间字段最佳实践</span></h1><h2><span id="一-添加时间字段的-alter-语句">一、添加时间字段的 ALTER 语句</span></h2><p>在 MySQL 5.7.38 中，可以使用以下 ALTER 语句来添加创建时间和更新时间字段：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER TABLE</span> t_alarm</span><br><span class="line"><span class="keyword">ADD</span> <span class="keyword">COLUMN</span> create_time_dt DATETIME <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> COMMENT <span class="string">&#x27;创建时间&#x27;</span>,</span><br><span class="line"><span class="keyword">ADD</span> <span class="keyword">COLUMN</span> update_time_dt DATETIME <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="built_in">CURRENT_TIMESTAMP</span> COMMENT <span class="string">&#x27;更新时间&#x27;</span>;</span><br></pre></td></tr></table></figure>
+
+<p><strong>说明：</strong></p>
+<ul>
+<li><code>create_time_dt</code>：创建时自动记录当前时间，之后不会自动变化</li>
+<li><code>update_time_dt</code>：创建时记录当前时间，每次更新记录时自动更新为当前时间</li>
+<li><code>DATETIME</code> 类型格式即为 <code>2021-12-03 12:21:21</code></li>
+</ul>
+<p><strong>执行前建议：</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 先检查表结构，确认字段名不冲突</span></span><br><span class="line"><span class="keyword">DESC</span> t_alarm;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 如果表有数据，可以在测试环境先执行验证</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2><span id="二-时间参数前后端传递最佳实践">二、时间参数前后端传递最佳实践</span></h2><h3><span id="完整数据流架构">完整数据流架构</span></h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Vue (前端) → Controller (接收) → Service (处理) → MyBatis Mapper (持久化)</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3><span id="vue-前端传参">Vue 前端传参</span></h3><p><strong>传参格式：ISO 8601 标准字符串</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 方式一：使用 moment/dayjs</span></span><br><span class="line"><span class="keyword">import</span> dayjs <span class="keyword">from</span> <span class="string">&#x27;dayjs&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 传给后端</span></span><br><span class="line"><span class="keyword">const</span> params = &#123;</span><br><span class="line">  <span class="attr">createTime</span>: <span class="title function_">dayjs</span>().<span class="title function_">format</span>(<span class="string">&#x27;YYYY-MM-DD HH:mm:ss&#x27;</span>),  <span class="comment">// &#x27;2021-12-03 12:21:21&#x27;</span></span><br><span class="line">  <span class="attr">updateTime</span>: <span class="keyword">new</span> <span class="title class_">Date</span>().<span class="title function_">toISOString</span>(),                <span class="comment">// &#x27;2021-12-03T12:21:21.000Z&#x27;</span></span><br><span class="line">  <span class="attr">startTime</span>: <span class="string">&#x27;2021-12-03 12:21:21&#x27;</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 方式二：使用 timestamp (不推荐，可读性差)</span></span><br><span class="line"><span class="keyword">const</span> params = &#123;</span><br><span class="line">  <span class="attr">createTime</span>: <span class="title class_">Date</span>.<span class="title function_">now</span>()  <span class="comment">// 1638505281000</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>推荐：</strong> 使用 <code>YYYY-MM-DD HH:mm:ss</code> 格式字符串，与 MySQL DATETIME 格式一致</p>
+<hr>
+<h3><span id="controller-层接收">Controller 层接收</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.format.annotation.DateTimeFormat;</span><br><span class="line"><span class="keyword">import</span> java.util.Date;</span><br><span class="line"><span class="keyword">import</span> java.time.LocalDateTime;</span><br><span class="line"><span class="keyword">import</span> java.time.LocalDate;</span><br><span class="line"></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="meta">@RequestMapping(&quot;/alarm&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AlarmController</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 方案一：使用 String 接收（推荐，灵活）</span></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/create&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">create</span><span class="params">(</span></span><br><span class="line"><span class="params">        <span class="meta">@RequestParam(&quot;createTime&quot;)</span></span></span><br><span class="line"><span class="params">        <span class="meta">@DateTimeFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)</span> String createTime,</span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">        <span class="meta">@RequestParam(&quot;updateTime&quot;)</span></span></span><br><span class="line"><span class="params">        <span class="meta">@DateTimeFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)</span> String updateTime</span></span><br><span class="line"><span class="params">    )</span> &#123;</span><br><span class="line">        <span class="comment">// 传递给 Service 层处理</span></span><br><span class="line">        <span class="keyword">return</span> alarmService.create(createTime, updateTime);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 方案二：使用 LocalDateTime 接收（推荐，类型安全）</span></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/create2&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">create2</span><span class="params">(</span></span><br><span class="line"><span class="params">        <span class="meta">@RequestParam(&quot;createTime&quot;)</span></span></span><br><span class="line"><span class="params">        <span class="meta">@DateTimeFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)</span> LocalDateTime createTime,</span></span><br><span class="line"><span class="params"></span></span><br><span class="line"><span class="params">        <span class="meta">@RequestParam(&quot;updateTime&quot;)</span></span></span><br><span class="line"><span class="params">        <span class="meta">@DateTimeFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)</span> LocalDateTime updateTime</span></span><br><span class="line"><span class="params">    )</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> alarmService.create(createTime, updateTime);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 方案三：使用 DTO 对象接收（最佳实践）</span></span><br><span class="line">    <span class="meta">@PostMapping(&quot;/create3&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">create3</span><span class="params">(<span class="meta">@Valid</span> <span class="meta">@RequestBody</span> AlarmDTO alarmDTO)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> alarmService.create(alarmDTO);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3><span id="dto-参数校验">DTO 参数校验</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> javax.validation.constraints.*;</span><br><span class="line"><span class="keyword">import</span> org.springframework.format.annotation.DateTimeFormat;</span><br><span class="line"><span class="keyword">import</span> java.time.LocalDateTime;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AlarmDTO</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@NotBlank(message = &quot;告警名称不能为空&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String alarmName;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@NotNull(message = &quot;创建时间不能为空&quot;)</span></span><br><span class="line">    <span class="meta">@DateTimeFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> LocalDateTime createTime;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@NotNull(message = &quot;更新时间不能为空&quot;)</span></span><br><span class="line">    <span class="meta">@DateTimeFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> LocalDateTime updateTime;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 时间范围查询示例</span></span><br><span class="line">    <span class="meta">@DateTimeFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> LocalDateTime startTime;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@DateTimeFormat(pattern = &quot;yyyy-MM-dd HH:mm:ss&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> LocalDateTime endTime;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// getter/setter...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3><span id="应用层转换">应用层转换</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AlarmService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> AlarmMapper alarmMapper;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">create</span><span class="params">(AlarmDTO dto)</span> &#123;</span><br><span class="line">        <span class="comment">// LocalDateTime 转 String（用于 MyBatis）</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">createTimeStr</span> <span class="operator">=</span> formatDateTime(dto.getCreateTime());</span><br><span class="line">        <span class="type">String</span> <span class="variable">updateTimeStr</span> <span class="operator">=</span> formatDateTime(dto.getUpdateTime());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 业务逻辑处理</span></span><br><span class="line">        <span class="type">Alarm</span> <span class="variable">alarm</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Alarm</span>();</span><br><span class="line">        alarm.setCreateTimeDt(createTimeStr);</span><br><span class="line">        alarm.setUpdateTimeDt(updateTimeStr);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 如果需要自动设置时间</span></span><br><span class="line">        <span class="keyword">if</span> (alarm.getCreateTimeDt() == <span class="literal">null</span>) &#123;</span><br><span class="line">            alarm.setCreateTimeDt(formatDateTime(LocalDateTime.now()));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        alarmMapper.insert(alarm);</span><br><span class="line">        <span class="keyword">return</span> Result.success();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 格式化工具方法</span></span><br><span class="line">    <span class="keyword">private</span> String <span class="title function_">formatDateTime</span><span class="params">(LocalDateTime dateTime)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (dateTime == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dateTime.format(DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// String 转 LocalDateTime</span></span><br><span class="line">    <span class="keyword">private</span> LocalDateTime <span class="title function_">parseDateTime</span><span class="params">(String dateTimeStr)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (dateTimeStr == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> LocalDateTime.parse(dateTimeStr,</span><br><span class="line">            DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3><span id="entity-实体类">Entity 实体类</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Alarm</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line">    <span class="keyword">private</span> String alarmName;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 对应数据库 create_time_dt DATETIME</span></span><br><span class="line">    <span class="keyword">private</span> String createTimeDt;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 对应数据库 update_time_dt DATETIME</span></span><br><span class="line">    <span class="keyword">private</span> String updateTimeDt;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// getter/setter...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3><span id="mybatis-mapper">MyBatis Mapper</span></h3><p><strong>Mapper XML</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">mapper</span> <span class="keyword">PUBLIC</span> <span class="string">&quot;-//mybatis.org//DTD Mapper 3.0//EN&quot;</span></span></span><br><span class="line"><span class="meta">    <span class="string">&quot;http://mybatis.org/dtd/mybatis-3-mapper.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">mapper</span> <span class="attr">namespace</span>=<span class="string">&quot;com.example.mapper.AlarmMapper&quot;</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">resultMap</span> <span class="attr">id</span>=<span class="string">&quot;BaseResultMap&quot;</span> <span class="attr">type</span>=<span class="string">&quot;com.example.entity.Alarm&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">id</span> <span class="attr">column</span>=<span class="string">&quot;id&quot;</span> <span class="attr">property</span>=<span class="string">&quot;id&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">&quot;alarm_name&quot;</span> <span class="attr">property</span>=<span class="string">&quot;alarmName&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">&quot;create_time_dt&quot;</span> <span class="attr">property</span>=<span class="string">&quot;createTimeDt&quot;</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">&quot;update_time_dt&quot;</span> <span class="attr">property</span>=<span class="string">&quot;updateTimeDt&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">resultMap</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 插入 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">insert</span> <span class="attr">id</span>=<span class="string">&quot;insert&quot;</span> <span class="attr">parameterType</span>=<span class="string">&quot;com.example.entity.Alarm&quot;</span>&gt;</span></span><br><span class="line">        INSERT INTO t_alarm (alarm_name, create_time_dt, update_time_dt)</span><br><span class="line">        VALUES (#&#123;alarmName&#125;, #&#123;createTimeDt&#125;, #&#123;updateTimeDt&#125;)</span><br><span class="line">    <span class="tag">&lt;/<span class="name">insert</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 时间范围查询 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">select</span> <span class="attr">id</span>=<span class="string">&quot;selectByTimeRange&quot;</span> <span class="attr">resultMap</span>=<span class="string">&quot;BaseResultMap&quot;</span>&gt;</span></span><br><span class="line">        SELECT * FROM t_alarm</span><br><span class="line">        WHERE create_time_dt &gt;= #&#123;startTime&#125;</span><br><span class="line">          AND create_time_dt &lt;= #&#123;endTime&#125;</span><br><span class="line">        ORDER BY create_time_dt DESC</span><br><span class="line">    <span class="tag">&lt;/<span class="name">select</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="name">mapper</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>Mapper 接口</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.ibatis.annotations.Param;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">AlarmMapper</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> <span class="title function_">insert</span><span class="params">(Alarm alarm)</span>;</span><br><span class="line"></span><br><span class="line">    List&lt;Alarm&gt; <span class="title function_">selectByTimeRange</span><span class="params">(</span></span><br><span class="line"><span class="params">        <span class="meta">@Param(&quot;startTime&quot;)</span> String startTime,</span></span><br><span class="line"><span class="params">        <span class="meta">@Param(&quot;endTime&quot;)</span> String endTime</span></span><br><span class="line"><span class="params">    )</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3><span id="完整最佳实践总结">完整最佳实践总结</span></h3><table>
+<thead>
+<tr>
+<th>层级</th>
+<th>推荐类型</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Vue 前端</strong></td>
+<td><code>String</code></td>
+<td>格式：<code>&#39;2021-12-03 12:21:21&#39;</code></td>
+</tr>
+<tr>
+<td><strong>Controller</strong></td>
+<td><code>LocalDateTime</code></td>
+<td>使用 <code>@DateTimeFormat</code> 自动转换</td>
+</tr>
+<tr>
+<td><strong>DTO</strong></td>
+<td><code>LocalDateTime</code></td>
+<td>类型安全，支持 JSR303 校验</td>
+</tr>
+<tr>
+<td><strong>Service</strong></td>
+<td><code>LocalDateTime</code></td>
+<td>业务逻辑处理</td>
+</tr>
+<tr>
+<td><strong>Entity</strong></td>
+<td><code>String</code></td>
+<td>与数据库 DATETIME 格式一致</td>
+</tr>
+<tr>
+<td><strong>MyBatis</strong></td>
+<td><code>String</code></td>
+<td>无需类型处理器，直传直用</td>
+</tr>
+</tbody></table>
+<hr>
+<h3><span id="工具类推荐">工具类推荐</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DateTimeUtils</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">DateTimeFormatter</span> <span class="variable">DATETIME_FORMATTER</span> <span class="operator">=</span></span><br><span class="line">        DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// LocalDateTime → String</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">format</span><span class="params">(LocalDateTime dateTime)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> dateTime != <span class="literal">null</span> ? dateTime.format(DATETIME_FORMATTER) : <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// String → LocalDateTime</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> LocalDateTime <span class="title function_">parse</span><span class="params">(String dateTimeStr)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> dateTimeStr != <span class="literal">null</span> ?</span><br><span class="line">            LocalDateTime.parse(dateTimeStr, DATETIME_FORMATTER) : <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 获取当前时间字符串</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">now</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> LocalDateTime.now().format(DATETIME_FORMATTER);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3><span id="注意事项">注意事项</span></h3><ol>
+<li><strong>时区问题</strong>：确保服务器和数据库时区一致</li>
+<li><strong>空值处理</strong>：前后端都要做好 null 值处理</li>
+<li><strong>格式统一</strong>：全项目统一使用 <code>yyyy-MM-dd HH:mm:ss</code> 格式</li>
+<li><strong>数据库自动更新</strong>：如果配置了 <code>ON UPDATE CURRENT_TIMESTAMP</code>，应用层不需要手动更新 <code>update_time_dt</code></li>
+</ol>
+<hr>
+<h2><span id="三-时区检查与动态适配">三、时区检查与动态适配</span></h2><h3><span id="检查-mysql-时区">检查 MySQL 时区</span></h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 查看 MySQL 全局时区</span></span><br><span class="line"><span class="keyword">SELECT</span> @<span class="variable">@global</span>.time_zone;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查看 MySQL 会话时区</span></span><br><span class="line"><span class="keyword">SELECT</span> @<span class="variable">@session</span>.time_zone;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查看当前时间（验证时区）</span></span><br><span class="line"><span class="keyword">SELECT</span> NOW(), <span class="built_in">CURRENT_TIMESTAMP</span>(), UTC_TIMESTAMP();</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查看 MySQL 系统时区</span></span><br><span class="line"><span class="keyword">SHOW</span> VARIABLES <span class="keyword">LIKE</span> <span class="string">&#x27;%time_zone%&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 查看时区偏移</span></span><br><span class="line"><span class="keyword">SELECT</span> TIMEDIFF(NOW(), UTC_TIMESTAMP());</span><br></pre></td></tr></table></figure>
+
+<p><strong>结果示例：</strong></p>
+<ul>
+<li><code>SYSTEM</code> - 表示使用系统时区</li>
+<li><code>+08:00</code> - 东八区</li>
+<li><code>UTC</code> - 协调世界时</li>
+</ul>
+<h3><span id="检查应用层jvm时区">检查应用层（JVM）时区</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 方式一：代码检查</span></span><br><span class="line">System.out.println(TimeZone.getDefault());</span><br><span class="line">System.out.println(System.getProperty(<span class="string">&quot;user.timezone&quot;</span>));</span><br><span class="line"></span><br><span class="line"><span class="comment">// 方式二：启动参数查看</span></span><br><span class="line"><span class="comment">// java -XX:+PrintFlagsFinal -version | grep TimeZone</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2><span id="四-应用层动态时区适配方案">四、应用层动态时区适配方案</span></h2><h3><span id="方案一jvm-启动参数指定时区推荐">方案一：JVM 启动参数指定时区（推荐）</span></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动时指定时区</span></span><br><span class="line">java -Duser.timezone=Asia/Shanghai -jar your-app.jar</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或者在环境变量中设置</span></span><br><span class="line"><span class="built_in">export</span> TZ=<span class="string">&#x27;Asia/Shanghai&#x27;</span></span><br><span class="line">java -jar your-app.jar</span><br><span class="line"></span><br><span class="line"><span class="comment"># Docker 容器中</span></span><br><span class="line">ENV TZ=Asia/Shanghai</span><br><span class="line">RUN <span class="built_in">ln</span> -snf /usr/share/zoneinfo/<span class="variable">$TZ</span> /etc/localtime &amp;&amp; <span class="built_in">echo</span> <span class="variable">$TZ</span> &gt; /etc/timezone</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3><span id="方案二spring-boot-配置文件">方案二：Spring Boot 配置文件</span></h3><p><strong>application.yml</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">jackson:</span></span><br><span class="line">    <span class="attr">time-zone:</span> <span class="string">Asia/Shanghai</span></span><br><span class="line">    <span class="attr">date-format:</span> <span class="string">yyyy-MM-dd</span> <span class="string">HH:mm:ss</span></span><br><span class="line">  <span class="attr">datasource:</span></span><br><span class="line">    <span class="attr">url:</span> <span class="string">jdbc:mysql://localhost:3306/your_db?serverTimezone=Asia/Shanghai</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3><span id="方案三数据库连接-url-时区参数推荐">方案三：数据库连接 URL 时区参数（推荐）</span></h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">datasource:</span></span><br><span class="line">    <span class="comment"># 方式一：指定时区</span></span><br><span class="line">    <span class="attr">url:</span> <span class="string">jdbc:mysql://localhost:3306/your_db?serverTimezone=Asia/Shanghai</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 方式二：使用 UTC 并在应用层转换</span></span><br><span class="line">    <span class="attr">url:</span> <span class="string">jdbc:mysql://localhost:3306/your_db?serverTimezone=UTC</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 方式三：强制使用数据库时区</span></span><br><span class="line">    <span class="attr">url:</span> <span class="string">jdbc:mysql://localhost:3306/your_db?useTimezone=true&amp;serverTimezone=Asia/Shanghai</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 完整配置示例</span></span><br><span class="line">    <span class="attr">url:</span> <span class="string">jdbc:mysql://localhost:3306/your_db?useUnicode=true&amp;characterEncoding=utf8&amp;serverTimezone=Asia/Shanghai&amp;useSSL=false</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3><span id="方案四自定义时区转换工具类">方案四：自定义时区转换工具类</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.time.*;</span><br><span class="line"><span class="keyword">import</span> java.time.format.DateTimeFormatter;</span><br><span class="line"><span class="keyword">import</span> java.util.TimeZone;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TimeZoneUtils</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 数据库时区（根据实际情况配置）</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DB_TIMEZONE</span> <span class="operator">=</span> <span class="string">&quot;UTC&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 应用时区</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">APP_TIMEZONE</span> <span class="operator">=</span> <span class="string">&quot;Asia/Shanghai&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">DateTimeFormatter</span> <span class="variable">DATETIME_FORMATTER</span> <span class="operator">=</span></span><br><span class="line">        DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 应用时间 → 数据库时间（写入时转换）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">toDbTime</span><span class="params">(LocalDateTime appTime)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (appTime == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">ZonedDateTime</span> <span class="variable">appZoned</span> <span class="operator">=</span> appTime.atZone(ZoneId.of(APP_TIMEZONE));</span><br><span class="line">        <span class="type">ZonedDateTime</span> <span class="variable">dbZoned</span> <span class="operator">=</span> appZoned.withZoneSameInstant(ZoneId.of(DB_TIMEZONE));</span><br><span class="line">        <span class="keyword">return</span> dbZoned.format(DATETIME_FORMATTER);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 数据库时间 → 应用时间（读取时转换）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> LocalDateTime <span class="title function_">fromDbTime</span><span class="params">(String dbTimeStr)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (dbTimeStr == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">LocalDateTime</span> <span class="variable">dbTime</span> <span class="operator">=</span> LocalDateTime.parse(dbTimeStr, DATETIME_FORMATTER);</span><br><span class="line">        <span class="keyword">return</span> dbTime.atZone(ZoneId.of(DB_TIMEZONE))</span><br><span class="line">                     .withZoneSameInstant(ZoneId.of(APP_TIMEZONE))</span><br><span class="line">                     .toLocalDateTime();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取当前应用时间（字符串格式）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">now</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> LocalDateTime.now(ZoneId.of(APP_TIMEZONE))</span><br><span class="line">                           .format(DATETIME_FORMATTER);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取当前数据库时间（字符串格式）</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String <span class="title function_">dbNow</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> ZonedDateTime.now(ZoneId.of(DB_TIMEZONE))</span><br><span class="line">                           .format(DATETIME_FORMATTER);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3><span id="方案五mybatis-typehandler-自动转换推荐">方案五：MyBatis TypeHandler 自动转换（推荐）</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.ibatis.type.BaseTypeHandler;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.type.JdbcType;</span><br><span class="line"><span class="keyword">import</span> org.apache.ibatis.type.MappedTypes;</span><br><span class="line"><span class="keyword">import</span> java.sql.*;</span><br><span class="line"><span class="keyword">import</span> java.time.*;</span><br><span class="line"><span class="keyword">import</span> java.time.format.DateTimeFormatter;</span><br><span class="line"></span><br><span class="line"><span class="meta">@MappedTypes(LocalDateTime.class)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">LocalDateTimeTypeHandler</span> <span class="keyword">extends</span> <span class="title class_">BaseTypeHandler</span>&lt;LocalDateTime&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">APP_TIMEZONE</span> <span class="operator">=</span> <span class="string">&quot;Asia/Shanghai&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DB_TIMEZONE</span> <span class="operator">=</span> <span class="string">&quot;UTC&quot;</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">DateTimeFormatter</span> <span class="variable">FORMATTER</span> <span class="operator">=</span></span><br><span class="line">        DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setNonNullParameter</span><span class="params">(PreparedStatement ps, <span class="type">int</span> i,</span></span><br><span class="line"><span class="params">                                    LocalDateTime parameter, JdbcType jdbcType)</span> <span class="keyword">throws</span> SQLException &#123;</span><br><span class="line">        <span class="comment">// 应用时间转数据库时间</span></span><br><span class="line">        <span class="type">ZonedDateTime</span> <span class="variable">appZoned</span> <span class="operator">=</span> parameter.atZone(ZoneId.of(APP_TIMEZONE));</span><br><span class="line">        <span class="type">ZonedDateTime</span> <span class="variable">dbZoned</span> <span class="operator">=</span> appZoned.withZoneSameInstant(ZoneId.of(DB_TIMEZONE));</span><br><span class="line">        ps.setString(i, dbZoned.format(FORMATTER));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> LocalDateTime <span class="title function_">getNullableResult</span><span class="params">(ResultSet rs, String columnName)</span> <span class="keyword">throws</span> SQLException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">dbTimeStr</span> <span class="operator">=</span> rs.getString(columnName);</span><br><span class="line">        <span class="keyword">return</span> convertToAppTime(dbTimeStr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> LocalDateTime <span class="title function_">getNullableResult</span><span class="params">(ResultSet rs, <span class="type">int</span> columnIndex)</span> <span class="keyword">throws</span> SQLException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">dbTimeStr</span> <span class="operator">=</span> rs.getString(columnIndex);</span><br><span class="line">        <span class="keyword">return</span> convertToAppTime(dbTimeStr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> LocalDateTime <span class="title function_">getNullableResult</span><span class="params">(CallableStatement cs, <span class="type">int</span> columnIndex)</span> <span class="keyword">throws</span> SQLException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">dbTimeStr</span> <span class="operator">=</span> cs.getString(columnIndex);</span><br><span class="line">        <span class="keyword">return</span> convertToAppTime(dbTimeStr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> LocalDateTime <span class="title function_">convertToAppTime</span><span class="params">(String dbTimeStr)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (dbTimeStr == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">LocalDateTime</span> <span class="variable">dbTime</span> <span class="operator">=</span> LocalDateTime.parse(dbTimeStr, FORMATTER);</span><br><span class="line">        <span class="keyword">return</span> dbTime.atZone(ZoneId.of(DB_TIMEZONE))</span><br><span class="line">                     .withZoneSameInstant(ZoneId.of(APP_TIMEZONE))</span><br><span class="line">                     .toLocalDateTime();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>配置 TypeHandler</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># application.yml</span></span><br><span class="line"><span class="attr">mybatis:</span></span><br><span class="line">  <span class="attr">type-handlers-package:</span> <span class="string">com.example.config.typehandler</span></span><br></pre></td></tr></table></figure>
+
+<p>或者在 Mapper XML 中指定：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">resultMap</span> <span class="attr">id</span>=<span class="string">&quot;BaseResultMap&quot;</span> <span class="attr">type</span>=<span class="string">&quot;com.example.entity.Alarm&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">id</span> <span class="attr">column</span>=<span class="string">&quot;id&quot;</span> <span class="attr">property</span>=<span class="string">&quot;id&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">&quot;create_time_dt&quot;</span> <span class="attr">property</span>=<span class="string">&quot;createTimeDt&quot;</span></span></span><br><span class="line"><span class="tag">            <span class="attr">typeHandler</span>=<span class="string">&quot;com.example.config.typehandler.LocalDateTimeTypeHandler&quot;</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">result</span> <span class="attr">column</span>=<span class="string">&quot;update_time_dt&quot;</span> <span class="attr">property</span>=<span class="string">&quot;updateTimeDt&quot;</span></span></span><br><span class="line"><span class="tag">            <span class="attr">typeHandler</span>=<span class="string">&quot;com.example.config.typehandler.LocalDateTimeTypeHandler&quot;</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">resultMap</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3><span id="方案六service-层统一处理">方案六：Service 层统一处理</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">AlarmService</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;app.timezone:Asia/Shanghai&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String appTimezone;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;db.timezone:UTC&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String dbTimezone;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Result <span class="title function_">create</span><span class="params">(AlarmDTO dto)</span> &#123;</span><br><span class="line">        <span class="type">Alarm</span> <span class="variable">alarm</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Alarm</span>();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 设置创建时间（当前应用时区时间）</span></span><br><span class="line">        alarm.setCreateTimeDt(getCurrentDbTime());</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 转换前端传入的时间</span></span><br><span class="line">        <span class="keyword">if</span> (dto.getUpdateTime() != <span class="literal">null</span>) &#123;</span><br><span class="line">            alarm.setUpdateTimeDt(convertToDbTime(dto.getUpdateTime()));</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            alarm.setUpdateTimeDt(getCurrentDbTime());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        alarmMapper.insert(alarm);</span><br><span class="line">        <span class="keyword">return</span> Result.success();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 获取当前数据库时区对应的时间字符串</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> String <span class="title function_">getCurrentDbTime</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> ZonedDateTime.now(ZoneId.of(dbTimezone))</span><br><span class="line">                           .format(DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 应用时区时间 → 数据库时区时间</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> String <span class="title function_">convertToDbTime</span><span class="params">(LocalDateTime appTime)</span> &#123;</span><br><span class="line">        <span class="type">ZonedDateTime</span> <span class="variable">appZoned</span> <span class="operator">=</span> appTime.atZone(ZoneId.of(appTimezone));</span><br><span class="line">        <span class="type">ZonedDateTime</span> <span class="variable">dbZoned</span> <span class="operator">=</span> appZoned.withZoneSameInstant(ZoneId.of(dbTimezone));</span><br><span class="line">        <span class="keyword">return</span> dbZoned.format(DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 数据库时区时间 → 应用时区时间</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> LocalDateTime <span class="title function_">convertFromDbTime</span><span class="params">(String dbTimeStr)</span> &#123;</span><br><span class="line">        <span class="type">LocalDateTime</span> <span class="variable">dbTime</span> <span class="operator">=</span> LocalDateTime.parse(dbTimeStr,</span><br><span class="line">            DateTimeFormatter.ofPattern(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>));</span><br><span class="line">        <span class="keyword">return</span> dbTime.atZone(ZoneId.of(dbTimezone))</span><br><span class="line">                     .withZoneSameInstant(ZoneId.of(appTimezone))</span><br><span class="line">                     .toLocalDateTime();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2><span id="五-完整配置示例">五、完整配置示例</span></h2><p><strong>application.yml</strong></p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 时区配置</span></span><br><span class="line"><span class="attr">app:</span></span><br><span class="line">  <span class="attr">timezone:</span> <span class="string">Asia/Shanghai</span></span><br><span class="line">  <span class="attr">db-timezone:</span> <span class="string">UTC</span></span><br><span class="line"></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">jackson:</span></span><br><span class="line">    <span class="attr">time-zone:</span> <span class="string">$&#123;app.timezone&#125;</span></span><br><span class="line">    <span class="attr">date-format:</span> <span class="string">yyyy-MM-dd</span> <span class="string">HH:mm:ss</span></span><br><span class="line"></span><br><span class="line">  <span class="attr">datasource:</span></span><br><span class="line">    <span class="attr">url:</span> <span class="string">jdbc:mysql://localhost:3306/your_db?serverTimezone=$&#123;app.db-timezone&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>启动类添加时区</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Application</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Value(&quot;$&#123;app.timezone:Asia/Shanghai&#125;&quot;)</span></span><br><span class="line">    <span class="keyword">private</span> String timezone;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@PostConstruct</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">()</span> &#123;</span><br><span class="line">        TimeZone.setDefault(TimeZone.getTimeZone(timezone));</span><br><span class="line">        System.out.println(<span class="string">&quot;应用时区设置为: &quot;</span> + timezone);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        SpringApplication.run(Application.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2><span id="六-最佳实践推荐">六、最佳实践推荐</span></h2><table>
+<thead>
+<tr>
+<th>方案</th>
+<th>适用场景</th>
+<th>优先级</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>JVM 启动参数</strong></td>
+<td>统一时区，简单直接</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>数据库 URL 时区参数</strong></td>
+<td>数据库时区不一致</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>TypeHandler 自动转换</strong></td>
+<td>跨时区应用，自动处理</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>Spring Boot 配置</strong></td>
+<td>项目级配置</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>Service 层手动转换</strong></td>
+<td>特殊业务场景</td>
+<td>⭐⭐⭐</td>
+</tr>
+</tbody></table>
+<p><strong>推荐组合：</strong> JVM 参数 + 数据库 URL 时区参数 + Spring Boot 配置</p>
+<hr>
+<h2><span id="七-通用-sql-脚本模板">七、通用 SQL 脚本模板</span></h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- =============================================</span></span><br><span class="line"><span class="comment">-- 通用时间字段添加脚本</span></span><br><span class="line"><span class="comment">-- 用法：将 your_table_name 替换为实际表名</span></span><br><span class="line"><span class="comment">-- =============================================</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">ALTER TABLE</span> your_table_name</span><br><span class="line"><span class="keyword">ADD</span> <span class="keyword">COLUMN</span> create_time_dt DATETIME <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> COMMENT <span class="string">&#x27;创建时间&#x27;</span>,</span><br><span class="line"><span class="keyword">ADD</span> <span class="keyword">COLUMN</span> update_time_dt DATETIME <span class="keyword">DEFAULT</span> <span class="built_in">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="built_in">CURRENT_TIMESTAMP</span> COMMENT <span class="string">&#x27;更新时间&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 验证添加结果</span></span><br><span class="line"><span class="keyword">DESC</span> your_table_name;</span><br></pre></td></tr></table></figure>
+
+<p><strong>使用步骤：</strong></p>
+<ol>
+<li><p><strong>替换表名</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 方式一：手动编辑</span></span><br><span class="line">vim add_datetime_columns.sql</span><br><span class="line"></span><br><span class="line"><span class="comment"># 方式二：使用 sed 批量替换</span></span><br><span class="line">sed <span class="string">&#x27;s/your_table_name/t_user/g&#x27;</span> add_datetime_columns.sql &gt; add_t_user.sql</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>执行脚本</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root -p your_database &lt; add_datetime_columns.sql</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>验证结果</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DESC</span> your_table_name;</span><br></pre></td></tr></table></figure></li>
+</ol>
+</div>
+        </div>
+        
+        <footer class="kratos-entry-footer clearfix">
+            
+            
+            
+                <div class="post-actions text-center clearfix" id="post-actions">
+                
+                    <a class="donate" href="javascript:;" onclick="krOpenDonateModal()"><i class="fa fa-bitcoin"></i> 打赏</a>
+                
+                
+                </div>
+            
+            <div class="footer-tag clearfix">
+                <div class="pull-left">
+                <i class="fa fa-tags"></i>
+                    <a class="tag-none-link" href="/yannyi.github.io/tags/MyBatis/" rel="tag">MyBatis</a>, <a class="tag-none-link" href="/yannyi.github.io/tags/MySQL/" rel="tag">MySQL</a>, <a class="tag-none-link" href="/yannyi.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag">数据库</a>, <a class="tag-none-link" href="/yannyi.github.io/tags/%E6%97%B6%E5%8C%BA/" rel="tag">时区</a>
+                </div>
+                <div class="pull-date">
+                    <time datetime="2026-01-09T16:52:05.944Z" itemprop="dateModified">最后编辑：2026-01-10</time>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+        <nav class="navigation post-navigation clearfix" role="navigation">
+            
+            <div class="nav-previous clearfix">
+                <a title=" 不同关系型数据库实现ROW_NUM函数的区别" href="/yannyi.github.io/2025/06/05/2025-06-04-post-不同关系型数据库实现row-num函数的区别/"><i class="fa fa-angle-left"></i> 上一篇</a>
+            </div>
+            
+            
+            <div class="nav-next clearfix">
+                <a title=" Spring AOP 注解使用案例与场景设计" href="/yannyi.github.io/2026/01/08/2026-01-09-spring-aop注解使用案例与场景设计/">下一篇 <i class="fa fa-angle-right"></i></a>
+            </div>
+            
+        </nav>
+    
+    
+</article>
+
+        
+
+            </section>
+
+            
+                
+
+<section id="kratos-widget-area" class="col-md-4 hidden-xs hidden-sm">
+    <!-- 文章和页面根据splitter来分割，没有的话就从头开始设置为sticky -->
+    
+    
+                <aside id="krw-about" class="widget widget-kratos-about clearfix">
+    <div class="photo-background"></div>
+    <div class="photo-wrapper clearfix">
+        <div class="photo-wrapper-tip text-center">
+            <img class="about-photo" src="/yannyi.github.io/images/theme/Mamimi.JPG" alt="Mamimi" loading="lazy" decoding="auto" />
+        </div>
+    </div>
+    <div class="textwidget">
+        <p class="text-center"></p>
+    </div>
+    <div class="site-meta">
+        <a class="meta-item" href="/yannyi.github.io/archives/">
+            <span class="title">
+                文章
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/categories/">
+            <span class="title">
+                分类
+            </span>
+            <span class="count">
+                14
+            </span>
+        </a>
+        <a class="meta-item" href="/yannyi.github.io/tags/">
+            <span class="title">
+                标签
+            </span>
+            <span class="count">
+                25
+            </span>
+        </a>
+    </div>
+</aside>
+            
+                    <div class="sticky-area">
+                
+                
+  <aside id="krw-categories" class="widget widget-kratos-categories clearfix">
+    <h4 class="widget-title"><i class="fa fa-folder"></i>分类列表</h4>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/ai/">ai</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/games/">games</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/">java</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/">集合框架</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/java/%E9%9B%86%E5%90%88%E6%A1%86%E6%9E%B6/%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86/">数据处理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/">mindset</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/">方法论</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/mindset/%E6%96%B9%E6%B3%95%E8%AE%BA/%E7%9F%A5%E8%AF%86%E7%AE%A1%E7%90%86/">知识管理</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/tools/">tools</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/">后端开发</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/Spring%E6%A1%86%E6%9E%B6/">Spring框架</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/SQL%E4%BC%98%E5%8C%96/">SQL优化</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/yannyi.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a><span class="category-list-count">12</span></li></ul>
+  </aside>
+
+
+            
+                
+  <aside id="krw-tags" class="widget widget-kratos-tags clearfix">
+    <h4 class="widget-title"><i class="fa fa-tags"></i>标签聚合</h4>
+      <div class="tag-clouds">
+        <a href="/yannyi.github.io/tags/5W1H/" style="font-size: 0.6em;">5W1H</a> <a href="/yannyi.github.io/tags/AI%E6%8E%A2%E7%B4%A2/" style="font-size: 0.6em;">AI探索</a> <a href="/yannyi.github.io/tags/AI%E7%9F%A5%E8%AF%86%E5%BA%93/" style="font-size: 0.6em;">AI知识库</a> <a href="/yannyi.github.io/tags/AOP/" style="font-size: 0.6em;">AOP</a> <a href="/yannyi.github.io/tags/Java/" style="font-size: 0.67em;">Java</a> <a href="/yannyi.github.io/tags/MyBatis/" style="font-size: 0.6em;">MyBatis</a> <a href="/yannyi.github.io/tags/MySQL/" style="font-size: 0.67em;">MySQL</a> <a href="/yannyi.github.io/tags/SQL/" style="font-size: 0.6em;">SQL</a> <a href="/yannyi.github.io/tags/Spring/" style="font-size: 0.6em;">Spring</a> <a href="/yannyi.github.io/tags/%E5%85%A5%E9%97%A8/" style="font-size: 0.73em;">入门</a> <a href="/yannyi.github.io/tags/%E5%88%86%E6%89%B9%E5%A4%84%E7%90%86/" style="font-size: 0.6em;">分批处理</a> <a href="/yannyi.github.io/tags/%E5%88%86%E9%A1%B5/" style="font-size: 0.6em;">分页</a> <a href="/yannyi.github.io/tags/%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F/" style="font-size: 0.8em;">创建型模式</a> <a href="/yannyi.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/" style="font-size: 0.6em;">后端开发</a> <a href="/yannyi.github.io/tags/%E5%B7%A5%E5%85%B7/" style="font-size: 0.6em;">工具</a> <a href="/yannyi.github.io/tags/%E6%80%9D%E7%BB%B4%E6%A1%86%E6%9E%B6/" style="font-size: 0.6em;">思维框架</a> <a href="/yannyi.github.io/tags/%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/" style="font-size: 0.67em;">性能优化</a> <a href="/yannyi.github.io/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" style="font-size: 0.73em;">数据库</a>
+      </div>
+  </aside>
+
+            
+                
+  <aside id="krw-posts" class="widget widget-kratos-posts">
+  <h4 class="widget-title"><i class="fa fa-file"></i>最新文章</h4>
+  <div class="tab-content">
+      <ul class="list-group">
+        
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/hello-world/"><i class="fa fa-book"></i> Hello World</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/categories/tech/design_patterns/"><i class="fa fa-book"></i> 设计模式</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-ai-mcp/"><i class="fa fa-book"></i> MCP 模型上下文协议</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2025-04-24-tools-Obsidian/"><i class="fa fa-book"></i> Markdown本地笔记 Obsidian</a>
+            
+          
+        
+          
+          
+            <a class="list-group-item" href="/yannyi.github.io/2026/01/09/2024-06-01-game-research/"><i class="fa fa-book"></i> 开始使用：游戏研究</a>
+            
+          
+        
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+          
+            
+      </ul>
+  </div>
+  </aside>
+
+            
+    </div>
+</section>
+            
+
+        
+
+                </div>
+    </div>
+</div>
+
+<footer>
+    <div id="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3 footer-list text-center">
+                    <ul class="kratos-social-icons">
+                        
+                    </ul>
+                    <ul class="kratos-copyright">
+                        <div>
+                            <li>&copy; 2026 MamimiJa Nai 版权所有.</li>
+                            <li>本站已运行<span id="kr-since">Loading...</span></li>
+                        </div>
+                        <div>
+                            <li>自豪地使用 <a href="https://github.com/Candinya/Kratos-Rebirth" target="_blank">Kratos:Rebirth</a> 主题</li>
+                            <li>站点由 Mamimi 用 <i class="fa fa-heart" style="color:#d43f57"></i> 搭建</li>
+                        </div>
+                        <!-- 额外的追加注入项 -->
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="kr-tool text-center">
+            <div class="tool">
+                <!-- 额外的追加注入项 -->
+                
+                
+                    <div class="box search-box">
+                        <a href="/yannyi.github.io/search">
+                            <span class="fa fa-search"></span>
+                        </a>
+                    </div>
+                
+                <div class="box theme-box" id="theme-toggle">
+                    <span class="fa fa-adjust"></span>
+                </div>
+            </div>
+            <div id="gotop-box" class="box gotop-box">
+                <span class="fa fa-chevron-up"></span>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+</div>
+
+
+    <div id="kr-donate-modal" class="kr-modal">
+    <div class="kr-modal-bg" onclick="krCloseDonateModal()"></div>
+    <div class="kr-modal-content">
+        <div class="kr-modal-header">
+            <div class="kr-modal-icon">
+                <i class="fa fa-bitcoin"></i>
+            </div>
+            <div class="kr-modal-title">打赏</div>
+            <button class="kr-modal-close" onclick="krCloseDonateModal()">
+                <i class="fa fa-times-circle"></i>
+            </button>
+        </div>
+        <div class="kr-modal-body">
+            <div class="kr-donate-message">打赏提示信息</div>
+            <div class="kr-donate-qr" id="kr-donate-qr">
+                
+            </div>
+            <div class="kr-donate-platforms">
+                
+            </div>
+        </div>
+    </div>
+</div>
+<script defer src="/yannyi.github.io/js/kr-modal/donate.min.js"></script>
+
+
+
+
+
+<!-- 额外的追加注入项 -->
+
+
+        <script>
+    if (!window.kr) {
+        window.kr = {};
+    }
+    window.kr.notMobile = (!(navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|BlackBerry|IEMobile|MQQBrowser|JUC|Fennec|wOSBrowser|BrowserNG|WebOS|Symbian|Windows Phone)/i)));
+    window.kr.siteRoot = "/yannyi.github.io/";
+</script>
+
+
+  <script defer src="/yannyi.github.io/vendors/nprogress@0.2.0/nprogress.js"></script>
+
+
+
+  <script defer src="/yannyi.github.io/vendors/viewerjs@1.11.6/dist/viewer.min.js"></script>
+
+
+<script defer src="/yannyi.github.io/js/kr-core.min.js"></script>
+
+
+  <script defer src="/yannyi.github.io/js/kr-pjax.min.js"></script>
+
+
+<!-- 额外的追加注入项 -->
+
+
+    </body>
+</html>
